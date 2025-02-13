@@ -103,11 +103,6 @@ namespace EAPServer
 
                             }
                         });
-                        //// 创建并发送S1F1消息
-                        //var msg = new SecsMessage(1, 1);
-                        //Item[] items = new Item[] { Item.B((byte)0), Item.Boolean(true) };
-                        //msg.SecsItem = Item.L(items);
-                        //var reply = await _secsGem.SendAsync(msg);
                     }
                 }
                 CItems.EAPStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
