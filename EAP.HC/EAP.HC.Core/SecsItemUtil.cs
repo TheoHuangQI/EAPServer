@@ -22,7 +22,6 @@ namespace EAP.HC.Core
                 case SecsFormat.Binary:
                     return MemoryMarshal.GetReference(item.GetMemory<byte>().Span);
                 case SecsFormat.F4:
-
                     return MemoryMarshal.GetReference(item.GetMemory<float>().Span);
                 case SecsFormat.F8:
                     return MemoryMarshal.GetReference(item.GetMemory<double>().Span);

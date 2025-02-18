@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -29,6 +30,22 @@ namespace EAP.HC.Core
                 string text = File.ReadAllText(path);
                 EqpConfigures = JsonConvert.DeserializeObject<List<ConnectionConfigure>>(text);
                 contexts = new List<ContextObject>();
+                foreach(var eqpconfig in EqpConfigures)
+                {
+                    if (!AppCache.Current.EqpInfos.ContainsKey(eqpconfig.Name))
+                    {
+                        AppCache.Current.EqpInfos.Add(eqpconfig.Name, new EqpInfo()
+                        {
+                            IsInitial = false,
+                            EQPID = eqpconfig.Name,
+                            EQPType=eqpconfig.EQPType,
+                            EqpStatus=EQPStatus.IDLE,
+                            ControlStatus=ControlState.EQPOFFLINE,
+                            ConnectStatus=ConnectStatus.DISCONNECTED,
+                            MESConnectStatus=MESConnectStatus.DISCONNECTED
+                        });
+                    }
+                }
                 return true;
             }
             else

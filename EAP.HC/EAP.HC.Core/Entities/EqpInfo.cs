@@ -13,6 +13,7 @@ namespace EAP.HC.Core.Entities
         {
         }
 
+        public bool IsInitial { get; set; }
         /// <summary>
         /// 设备编号
         /// </summary>

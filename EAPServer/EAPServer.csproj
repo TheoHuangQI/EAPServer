@@ -37,4 +37,10 @@
     <ProjectReference Include="..\EAP.HC\EAP.HC.Core\EAP.HC.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="event-report.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

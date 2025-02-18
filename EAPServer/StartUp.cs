@@ -20,6 +20,7 @@ namespace EAPServer
         protected static Object obj = new Object();
    
         private static ISecsGemLogger _logger = new SecsLogger(obj);
+
         public StartUp()
         {
            // CimLogger = FALoggerClass.Inst();
@@ -67,21 +68,7 @@ namespace EAPServer
                             CancellationTokenSource _cancellationTokenSource = new();
                             HsmsConnection _connector = new HsmsConnection(options, _logger);
                             SecsGem _secsGem = new SecsGem(options, _connector, _logger);
-                            //_connector.ConnectionChanged += delegate
-                            //{
-                            //    object.Invoke((MethodInvoker)delegate
-                            //    {
-                            //        lbStatus.Text = _connector.State.ToString();
-                            //    });
-                            //};
-                            _connector.Start(_cancellationTokenSource.Token);
 
-
-                            while (true)
-                            {
-                                if (_connector.State == ConnectionState.Selected)
-                                    break;
-                            }
                             var eqpid = eqpconfig.Name;
                             var eqpType = eqpconfig.EQPType;
                             ContextObject context = new ContextObject()
@@ -91,6 +78,20 @@ namespace EAPServer
                                 SecsGem = _secsGem
                             };
                             EAPContext.contexts.Add(context);
+
+                            _connector.ConnectionChanged += delegate
+                            {
+                                SecsBase.ConnectionChange(context,_connector.State); 
+                            };
+                            _connector.Start(_cancellationTokenSource.Token);
+
+
+                            while (true)
+                            {
+                                if (_connector.State == ConnectionState.Selected)
+                                    break;
+                            }
+                            
                             try
                             {
                                 await foreach (var primaryMessage in _secsGem.GetPrimaryMessageAsync(_cancellationTokenSource.Token))
