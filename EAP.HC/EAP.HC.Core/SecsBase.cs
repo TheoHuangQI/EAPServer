@@ -34,7 +34,14 @@ namespace EAP.HC.Core
             {
                 try
                 {
-                    method.Invoke(instance, new object[] { context, primaryMessage }); // 调用无参数的方法
+                    Arguments args = new Arguments()
+                    {
+                        Header = new Dictionary<string, object>(),
+                        SecsData = primaryMessage
+                    };
+                    args.Header[CItems.EqpId] = context.EquipmentID;
+                    args.Header[CItems.EqpType] = context.EqpType;
+                    method.Invoke(instance, new object[] { args }); // 调用无参数的方法
                                                                                        // 如果有参数，可以这样调用：method.Invoke(instance, new object[] { arg1, arg2 });
                 }
                 catch (Exception ex)
@@ -72,8 +79,15 @@ namespace EAP.HC.Core
             {
                 try
                 {
-                    method.Invoke(instance, new object[] { context,state}); // 调用无参数的方法
-                                                                                       // 如果有参数，可以这样调用：method.Invoke(instance, new object[] { arg1, arg2 });
+                    Arguments args = new Arguments()
+                    {
+                        Header = new Dictionary<string, object>(),
+                    };
+                    args.Header[CItems.EqpId] = context.EquipmentID;
+                    args.Header[CItems.EqpType] = context.EqpType;
+                    args.Header[CItems.ConnectionState] = state;
+                    method.Invoke(instance, new object[] { args }); // 调用无参数的方法
+
                 }
                 catch (Exception ex)
                 {

@@ -8,6 +8,14 @@ namespace EAP.HC.Core
 {
     public static class CItems
     {
-        public static string EAPStartTime = "";
+        public static string EqpId = "EqpId";
+        public static string EqpType = "EqpType";
+        public static string PortId = "PortId";
+        public static string CarrierId = "CarrierId";
+        public static string DataReportDic = "DataReportDic";
+        public static string EventLinkRptDic = "EventLinkRptDic";
+        public static string Enable = "Enable";
+        public static string ConnectionState = "ConnectionState";
+        
     }
 }

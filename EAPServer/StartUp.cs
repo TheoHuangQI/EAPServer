@@ -106,7 +106,6 @@ namespace EAPServer
                         });
                     }
                 }
-                CItems.EAPStartTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             }
             catch (Exception ex)
             {

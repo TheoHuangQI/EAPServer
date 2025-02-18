@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -19,47 +20,128 @@ namespace EAP.EC.KS_CM300
 {
     public class KS_CM300
     {
-
-        public void ReciveMsgS1F1(ContextObject context, PrimaryMessageWrapper primaryMessage)
+        public void SecsMsgHandler(Arguments args)
         {
-            var rootItem = primaryMessage.PrimaryMessage.SecsItem;
-            //Item replyItem = Item.L();
-            //SecsMessage replyMsg = new SecsMessage(1, 2);
-            //replyMsg.SecsItem = replyItem;
-            //primaryMessage.TryReplyAsync(replyMsg);
-        }
-
-        public void ReciveMsgS5F1(ContextObject context, PrimaryMessageWrapper primaryMessage)
-        {
-            var rootItem = primaryMessage.PrimaryMessage.SecsItem;
-        }
-
-
-
-
-        public void ReciveMsgS6F11(ContextObject context, PrimaryMessageWrapper primaryMessage)
-        {
-            var rootItem = primaryMessage.PrimaryMessage.SecsItem;
-            Item replyItem = Item.B((byte)0);
-            SecsMessage replyMsg = new SecsMessage(6, 12);
-            replyMsg.SecsItem = replyItem;
-            primaryMessage.TryReplyAsync(replyMsg);
-
-            var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
-            var ceid =int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
-            switch (ceid)
+            try
             {
-                case 8:
-                case 9:
-                case 10:
-                    ControlStateChange(context.EquipmentID, rootItem);
-                    break;
-                case 37:
-                    WaitingForHost(context.EquipmentID,rootItem);
-                    break;
-                case 48:
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var context = EAPContext.contexts.FirstOrDefault(a => a.EquipmentID == eqpId);
+                if (context != null)
+                {
+                    var stream = args.SecsData.PrimaryMessage.S;
+                    var function = args.SecsData.PrimaryMessage.F;
+                    switch (stream)
+                    {
+                        case 1:
+                            switch (function)
+                            {
+                                case 1:
+                                    ReciveMsgS1F1(args);
+                                    break;
+                            }
+                            break;
+                        case 5:
+                            switch (function)
+                            {
+                                case 1:
+                                    ReciveMsgS5F1(args);
+                                    break;
+                            }
+                            break;
+                        case 6:
+                            switch (function)
+                            {
+                                case 11:
+                                    ReciveMsgS6F11(args);
+                                    break;
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                args.SetResultOK();
 
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public void ConnectionChange(Arguments args)
+        {
+            var state = (ConnectionState)args.Header[CItems.ConnectionState];
+            switch (state)
+            {
+                case ConnectionState.Connecting:
                     break;
+                case ConnectionState.Connected:
+                    break;
+                case ConnectionState.Selected:
+                    HsmsConnect(args);
+                    break;
+                case ConnectionState.Retry:
+                    HsmsDisConnect(args);
+                    break;
+            }
+        }
+
+        public async void ReciveMsgS1F1(Arguments args)
+        {
+            try
+            {
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                Item replyItem = Item.L();
+                SecsMessage replyMsg = new SecsMessage(1, 2);
+                replyMsg.SecsItem = replyItem;
+                await args.SecsData.TryReplyAsync(replyMsg);
+                args.SetResultOK();
+            }
+            catch(Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public void ReciveMsgS5F1(Arguments args)
+        {
+            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+            args.SetResultOK();
+        }
+
+        public async void ReciveMsgS6F11(Arguments args)
+        {
+            try
+            {
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                Item replyItem = Item.B((byte)0);
+                SecsMessage replyMsg = new SecsMessage(6, 12);
+                replyMsg.SecsItem = replyItem;
+                await args.SecsData.TryReplyAsync(replyMsg);
+
+                var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
+                var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
+                switch (ceid)
+                {
+                    case 8:
+                    case 9:
+                    case 10:
+                        ControlStateChange(args);
+                        break;
+                    case 37:
+                        WaitingForHost(args);
+                        break;
+                    case 48:
+
+                        break;
+                }
+                args.SetResultOK();
+            }
+            catch(Exception ex)
+            {
+                args.SetResultNG(ex.Message);
             }
         }
 
@@ -67,38 +149,50 @@ namespace EAP.EC.KS_CM300
 
 
         #region Handler
-        public async void ControlStateChange(string EqpID, Item rootItem)
+        public async void ControlStateChange(Arguments args)
         {
-            if (rootItem.Items.Length != 3)
+            try
             {
-                return;
-            }
-            var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
-            var eqp= AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == EqpID);
-            if (eqp.Value != null)
-            { 
-                switch (ceid)
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                if (rootItem.Items.Length != 3)
                 {
-                    case 8:
-                        eqp.Value.ControlStatus = ControlState.EQPOFFLINE;
-                        break;
-                    case 9:
-                        eqp.Value.ControlStatus = ControlState.LOCAL;
-                        break;
-                    case 10:
-                        eqp.Value.ControlStatus = ControlState.REMOTE;
-                        if (!eqp.Value.IsInitial)
-                        {
-                            await HsmsInitial(EqpID);
-                            eqp.Value.IsInitial = true;
-                        }
-                        break;
-                } 
+                    return;
+                }
+                var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
+                var eqp = AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId);
+                if (eqp.Value != null)
+                {
+                    switch (ceid)
+                    {
+                        case 8:
+                            eqp.Value.ControlStatus = ControlState.EQPOFFLINE;
+                            break;
+                        case 9:
+                            eqp.Value.ControlStatus = ControlState.LOCAL;
+                            break;
+                        case 10:
+                            eqp.Value.ControlStatus = ControlState.REMOTE;
+                            if (!eqp.Value.IsInitial)
+                            {
+                                await HsmsInitial(args);
+                                eqp.Value.IsInitial = true;
+                            }
+                            break;
+                    }
+                }
             }
+            catch(Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+            
          
         }
-        public void WaitingForHost(string EqpID,Item rootItem)
+        public void WaitingForHost(Arguments args)
         {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
             {
                 return;
@@ -128,11 +222,16 @@ namespace EAP.EC.KS_CM300
             {
                 AppCache.Current.MesBatchInfos.Add(mesbatchInfo.BATCH_ID, mesbatchInfo);
             }
-            Send_FirstProcessWithCarrier(EqpID, portId, carrierId);
+            args.Header[CItems.PortId] = portId;
+            args.Header[CItems.CarrierId] = carrierId;
+            Send_FirstProcessWithCarrier(args);
         }
 
-        public void Send_FirstProcessWithCarrier(string EqpId,int portId,string carrierId)
+        public void Send_FirstProcessWithCarrier(Arguments args)
         {
+            var EqpId = args.Header[CItems.EqpId].ToString();
+            var carrierId = args.Header[CItems.CarrierId].ToString();
+            var portId = int.Parse(args.Header[CItems.PortId].ToString());
             SecsMessage msg = new SecsMessage(3, 17);
             Item[] items = new Item[] { Item.U4((byte)0), Item.A("ProceedWithCarrier"), Item.A(carrierId),Item.U1((byte)portId),Item.L()};
             msg.SecsItem = Item.L(items);
@@ -144,205 +243,213 @@ namespace EAP.EC.KS_CM300
 
 
 
-        public void SecsMsgHandler(ContextObject context, PrimaryMessageWrapper primaryMessage)
+        public void HsmsConnect(Arguments args)
+        {
+            //建立逻辑连接
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            Send_S1F13(args);
+            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.CONNECTED;
+        }
+
+        public void HsmsDisConnect(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            //建立逻辑连接
+            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.DISCONNECTED;
+        }
+
+        public async Task HsmsInitial(Arguments args)
         {
             try
             {
-                Console.Write(primaryMessage.ToString());
-                var messageId = primaryMessage.Id;
-                var stream = primaryMessage.PrimaryMessage.S;
-                var function = primaryMessage.PrimaryMessage.F;
-                switch (stream)
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                LoadInitiaLXml(args);
+                if (args.GetResultCode() == "OK")
                 {
-                    case 1:
-                        switch (function)
-                        {
-                            case 1:
-                                ReciveMsgS1F1(context, primaryMessage);
-                                break;
-                        }
-                        break;
-                    case 5:
-                        switch(function)
-                        {
-                            case 1:
-                                ReciveMsgS5F1(context, primaryMessage);
-                                break;
-                        }
-                        break;
-                    case 6:
-                        switch (function)
-                        {
-                            case 11:
-                                ReciveMsgS6F11(context, primaryMessage);
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
+                    var dataReportDic = args.Header[CItems.DataReportDic] as Dictionary<uint, List<uint>>;
+                    var eventLinkRptDic = args.Header[CItems.EventLinkRptDic] as Dictionary<uint, List<uint>>;
+                    if (dataReportDic.Count > 0 && eventLinkRptDic.Count > 0)
+                    {
+                        //disable
+                        args.Header[CItems.Enable] = false;
+                        await Send_S2F37(args);
+                        if (args.GetResultCode()!="OK") return;
+                        await Send_S2F35(args);
+                        if (args.GetResultCode() != "OK") return;
+                        await Send_S2F33(args);
+                        if (args.GetResultCode() != "OK") return;
+                        args.Header[CItems.Enable] = true;
+                        await Send_S2F33(args);
+                        if (args.GetResultCode() != "OK") return;
+                        await Send_S2F35(args);
+                        if (args.GetResultCode() != "OK") return;
+                        await Send_S2F37(args);
+                        if (args.GetResultCode() != "OK") return;
+                    }
                 }
+                args.SetResultOK();
             }
             catch(Exception ex)
             {
-                Console.Write(ex.Message);
+                args.SetResultNG(ex.Message);
             }
+            
         }
 
-        public void ConnectionChange(ContextObject context, ConnectionState state)
+        public async Task Send_S2F37(Arguments args)
         {
-            switch (state)
+            try
             {
-                case ConnectionState.Connecting:
-                    break;
-                case ConnectionState.Connected:
-                    break;
-                case ConnectionState.Selected:
-                    HsmsConnect(context);
-                    break;
-                case ConnectionState.Retry:
-                    HsmsDisConnect(context);
-                    break;
-            }
-        }
-
-        public void HsmsConnect(ContextObject context)
-        {
-            //建立逻辑连接
-            Send_S1F13(context);
-            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == context.EquipmentID).Value.ConnectStatus = ConnectStatus.CONNECTED;
-        }
-
-        public void HsmsDisConnect(ContextObject context)
-        {
-            //建立逻辑连接
-            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == context.EquipmentID).Value.ConnectStatus = ConnectStatus.DISCONNECTED;
-        }
-
-        public async Task HsmsInitial(string eqpId)
-        {
-            Dictionary<uint, List<uint>> datareports = new Dictionary<uint, List<uint>>();
-            Dictionary<uint, List<uint>> eventLinks = new Dictionary<uint, List<uint>>();
-            LoadInitiaLXml(ref datareports,ref eventLinks);
-            if(datareports.Count>0 && eventLinks.Count > 0)
-            {
-                //disable
-                await Send_S2F37(eqpId, eventLinks.Keys.ToList(), false);
-                await Send_S2F35(eqpId, eventLinks, false);
-                await Send_S2F33(eqpId, datareports, false);
-         
-                await Send_S2F33(eqpId, datareports, true);
-                await Send_S2F35(eqpId, eventLinks, true);
-                await Send_S2F37(eqpId, eventLinks.Keys.ToList(), true);
-            }
-        }
-
-        public async Task Send_S2F37(string eqpId,List<uint> ceids, bool enable)
-        {
-            SecsMessage msg = new SecsMessage(2, 37);
-            Item[] items = new Item[ceids.Count];
-            int i = 0;
-            foreach(var ceid in ceids)
-            {
-                items[i]=Item.U4(ceid);
-                i++;
-            }
-            Item item = Item.L(items);
-            msg.SecsItem = Item.L(new Item[] { Item.Boolean(enable), item });
-            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-        }
-
-        public async Task Send_S2F35(string eqpId, Dictionary<uint, List<uint>> eventLinks, bool enable)
-        {
-            SecsMessage msg = new SecsMessage(2, 35);
-
-            if (enable)
-            {
-                Item[] items = new Item[eventLinks.Count];
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var eventLinkRptDic = args.Header[CItems.EventLinkRptDic] as Dictionary<uint, List<uint>>;
+                var ceids = eventLinkRptDic.Keys.ToList();
+                var enable = (bool)args.Header[CItems.Enable];
+                SecsMessage msg = new SecsMessage(2, 37);
+                Item[] items = new Item[ceids.Count];
                 int i = 0;
-                foreach(var evt in eventLinks)
+                foreach (var ceid in ceids)
                 {
-                    Item[] items1 = new Item[evt.Value.Count];
-                    for(int j=0;j<evt.Value.Count;j++)
+                    items[i] = Item.U4(ceid);
+                    i++;
+                }
+                Item item = Item.L(items);
+                msg.SecsItem = Item.L(new Item[] { Item.Boolean(enable), item });
+                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                var reply = await context.SecsGem.SendAsync(msg);
+                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
+                if (retCode == null || retCode != 0)
+                {
+                    args.SetResultNG("Send S2F37, Equipment Reject.");
+                    return;
+                }
+                args.SetResultOK();
+            }
+            catch(Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public async Task Send_S2F35(Arguments args)
+        {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var eventLinkRptDic = args.Header[CItems.EventLinkRptDic] as Dictionary<uint, List<uint>>;
+                var enable = (bool)args.Header[CItems.Enable];
+
+                SecsMessage msg = new SecsMessage(2, 35);
+                if (enable)
+                {
+                    Item[] items = new Item[eventLinkRptDic.Count];
+                    int i = 0;
+                    foreach (var evt in eventLinkRptDic)
                     {
-                        items1[j]=Item.U4(evt.Value[j]);
+                        Item[] items1 = new Item[evt.Value.Count];
+                        for (int j = 0; j < evt.Value.Count; j++)
+                        {
+                            items1[j] = Item.U4(evt.Value[j]);
+                        }
+                        items[i] = Item.L(new Item[] { Item.U4(evt.Key), Item.L(items1) });
+                        i++;
                     }
-                    items[i]=Item.L(new Item[] { Item.U4(evt.Key), Item.L(items1) });
-                    i++;
+
+                    Item item = Item.L(items);
+                    msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
                 }
-
-                Item item = Item.L(items);
-                msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
-            }
-            else
-            {
-                Item[] items = new Item[eventLinks.Count];
-                int i = 0;
-                foreach (var evt in eventLinks)
+                else
                 {
-                    items[i]=Item.L(new Item[] { Item.U4(evt.Key), Item.L() });
-                    i++;
-                }
-                Item item = Item.L(items);
-                msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
-            }
-
-            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-        }
-
-        public async Task Send_S2F33(string eqpId, Dictionary<uint, List<uint>> datareports, bool enable)
-        {
-            SecsMessage msg = new SecsMessage(2, 33);
-            if (enable)
-            {
-                Item[] items = new Item[datareports.Count];
-                int i = 0;
-                foreach (var rpt in datareports)
-                {
-                    Item[] items1 = new Item[rpt.Value.Count];
-                    for (int j=0;j<rpt.Value.Count;j++)
+                    Item[] items = new Item[eventLinkRptDic.Count];
+                    int i = 0;
+                    foreach (var evt in eventLinkRptDic)
                     {
-                        items1[j]=Item.U4(rpt.Value[j]);
+                        items[i] = Item.L(new Item[] { Item.U4(evt.Key), Item.L() });
+                        i++;
                     }
-                    items[i]=Item.L(new Item[] { Item.U4(rpt.Key), Item.L(items1) });
-                    i++;
+                    Item item = Item.L(items);
+                    msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
                 }
-                Item item = Item.L(items);
-                msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
+                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                var reply = await context.SecsGem.SendAsync(msg);
+                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
+                if (retCode == null || retCode != 0)
+                {
+                    args.SetResultNG("Send S2F37, Equipment Reject.");
+                    return;
+                }
+                args.SetResultOK();
+
             }
-            else
+            catch(Exception ex)
             {
-                msg.SecsItem = Item.L(new Item[] { Item.U4(0), Item.L() });
+                args.SetResultNG(ex.Message);
             }
-            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
         }
 
-        public void Send_S1F13(ContextObject context)
+        public async Task Send_S2F33(Arguments args)
         {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var dataReportDic = args.Header[CItems.DataReportDic] as Dictionary<uint, List<uint>>;
+                var enable = (bool)args.Header[CItems.Enable];
+                SecsMessage msg = new SecsMessage(2, 33);
+                if (enable)
+                {
+                    Item[] items = new Item[dataReportDic.Count];
+                    int i = 0;
+                    foreach (var rpt in dataReportDic)
+                    {
+                        Item[] items1 = new Item[rpt.Value.Count];
+                        for (int j = 0; j < rpt.Value.Count; j++)
+                        {
+                            items1[j] = Item.U4(rpt.Value[j]);
+                        }
+                        items[i] = Item.L(new Item[] { Item.U4(rpt.Key), Item.L(items1) });
+                        i++;
+                    }
+                    Item item = Item.L(items);
+                    msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
+                }
+                else
+                {
+                    msg.SecsItem = Item.L(new Item[] { Item.U4(0), Item.L() });
+                }
+                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                var reply = await context.SecsGem.SendAsync(msg);
+                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
+                if (retCode == null || retCode != 0)
+                {
+                    args.SetResultNG("Send S2F37, Equipment Reject.");
+                    return;
+                }
+                args.SetResultOK();
+            }
+            catch(Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public void Send_S1F13(Arguments args)
+        {
+            var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
             SecsMessage msg = new SecsMessage(1, 13);
              msg.SecsItem = Item.L();
             var reply = context.SecsGem.SendAsync(msg);
         }
 
-        public async Task<bool> Send_S1F3Async(ContextObject context,int vid)
+        private void LoadInitiaLXml(Arguments args)
         {
-            SecsMessage msg = new SecsMessage(1, 3);
-            Item[] items = new Item[] { Item.U4((uint)vid) };
-            msg.SecsItem = Item.L(items);
-            var reply = await context.SecsGem.SendAsync(msg);
-            return true;
-        }
-
-        private void LoadInitiaLXml(ref Dictionary<uint, List<uint>> datareports,ref Dictionary<uint, List<uint>> eventLinks)
-        {
-            string path = Path.Combine(EAPContext.RootPath, $"event-report.xml");
             try
             {
+                Dictionary<uint, List<uint>> dataReportDic = new Dictionary<uint, List<uint>>();
+                Dictionary<uint, List<uint>> eventLinkRptDic = new Dictionary<uint, List<uint>>();
+                string path = Path.Combine(EAPContext.RootPath, $"event-report.xml");
+
                 if (!File.Exists(path))
                 {
-                    return ;
+                    return;
                 }
                 XmlDocument xmlDocument = new XmlDocument();
                 xmlDocument.Load(path);
@@ -352,20 +459,20 @@ namespace EAP.EC.KS_CM300
                 {
                     string value = XmlUtils.XmlGetNodeAttrVal(item, "id");
                     uint rptid = Convert.ToUInt32(value);
-                    if (datareports.ContainsKey(rptid))
+                    if (dataReportDic.ContainsKey(rptid))
                     {
-                        datareports.Remove(rptid);
+                        dataReportDic.Remove(rptid);
                     }
-                    datareports.Add(rptid, new List<uint>());
+                    dataReportDic.Add(rptid, new List<uint>());
                     XmlNodeList xmlNodeList2 = item.SelectNodes("DV");
                     foreach (XmlNode item2 in xmlNodeList2)
                     {
                         string value2 = XmlUtils.XmlGetNodeAttrVal(item2, "id");
                         uint vid = Convert.ToUInt32(value2);
 
-                        if (!datareports[rptid].Contains(vid))
+                        if (!dataReportDic[rptid].Contains(vid))
                         {
-                            datareports[rptid].Add(vid);
+                            dataReportDic[rptid].Add(vid);
                         }
                     }
                 }
@@ -376,26 +483,32 @@ namespace EAP.EC.KS_CM300
                 {
                     string value3 = XmlUtils.XmlGetNodeAttrVal(item3, "id");
                     uint ceid = Convert.ToUInt32(value3);
-                    if (eventLinks.ContainsKey(ceid))
+                    if (eventLinkRptDic.ContainsKey(ceid))
                     {
-                        eventLinks.Remove(ceid);
+                        eventLinkRptDic.Remove(ceid);
                     }
-                    eventLinks.Add(ceid, new List<uint>());
+                    eventLinkRptDic.Add(ceid, new List<uint>());
                     XmlNodeList xmlNodeList4 = item3.SelectNodes("RPT");
                     foreach (XmlNode item4 in xmlNodeList4)
                     {
                         string value4 = XmlUtils.XmlGetNodeAttrVal(item4, "id");
                         uint rptid = Convert.ToUInt32(value4);
-                        if (!eventLinks[ceid].Contains(rptid))
+                        if (!eventLinkRptDic[ceid].Contains(rptid))
                         {
-                            eventLinks[ceid].Add(rptid);
+                            eventLinkRptDic[ceid].Add(rptid);
                         }
                     }
                 }
+
+                args.Header[CItems.DataReportDic] = dataReportDic;
+                args.Header[CItems.EventLinkRptDic] = eventLinkRptDic;
+                args.SetResultOK();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
+                args.SetResultNG(ex.Message);
             }
+           
         }
     }
 }
