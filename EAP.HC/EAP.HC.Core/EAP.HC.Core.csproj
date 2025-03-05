@@ -16,5 +16,13 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Secs4Net\Secs4Net.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Apache.NMS">
+      <HintPath>..\..\RenferenceDLL\Apache.NMS.dll</HintPath>
+    </Reference>
+    <Reference Include="Apache.NMS.ActiveMQ">
+      <HintPath>..\..\RenferenceDLL\Apache.NMS.ActiveMQ.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 
 </Project>

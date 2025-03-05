@@ -20,6 +20,8 @@ namespace EAP.HC.Core.Entities.MES
 
         public string BATCH_ID { get; set; }
 
+        public string FOUP_ID { get; set; }
+
         public string BATCH_SIZE { get; set; }
         [XmlArray("LOTDATALIST")]
         [XmlArrayItem("LOTDATA")]

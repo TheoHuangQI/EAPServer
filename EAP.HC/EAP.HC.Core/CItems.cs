@@ -16,6 +16,9 @@ namespace EAP.HC.Core
         public static string EventLinkRptDic = "EventLinkRptDic";
         public static string Enable = "Enable";
         public static string ConnectionState = "ConnectionState";
+        public static string SlotMap = "SlotMap";
+        public static string BatchInfo = "BatchInfo";
         
+
     }
 }

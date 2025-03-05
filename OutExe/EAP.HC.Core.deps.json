@@ -9,7 +9,9 @@
       "EAP.HC.Core/1.0.0": {
         "dependencies": {
           "Newtonsoft.Json": "13.0.3",
-          "Secs4Net": "1.0.0"
+          "Secs4Net": "1.0.0",
+          "Apache.NMS.ActiveMQ": "2.1.0.0",
+          "Apache.NMS": "2.0.0.0"
         },
         "runtime": {
           "EAP.HC.Core.dll": {}
@@ -127,6 +129,22 @@
             "fileVersion": "1.0.0.0"
           }
         }
+      },
+      "Apache.NMS.ActiveMQ/2.1.0.0": {
+        "runtime": {
+          "Apache.NMS.ActiveMQ.dll": {
+            "assemblyVersion": "2.1.0.0",
+            "fileVersion": "2.1.0.0"
+          }
+        }
+      },
+      "Apache.NMS/2.0.0.0": {
+        "runtime": {
+          "Apache.NMS.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
+          }
+        }
       }
     }
   },
@@ -215,6 +233,16 @@
     },
     "Secs4Net/1.0.0": {
       "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Apache.NMS.ActiveMQ/2.1.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Apache.NMS/2.0.0.0": {
+      "type": "reference",
       "serviceable": false,
       "sha512": ""
     }

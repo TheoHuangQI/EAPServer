@@ -26,6 +26,7 @@ namespace EAP.HC.Core
                 Current.EqpInfos = new Dictionary<string, EqpInfo>();
                 Current.PortInfo = new Dictionary<string, PortInfo>();
                 Current.MesBatchInfos = new Dictionary<string, MesBatchInfo>();
+                Current.PjQuendList = new List<string>();
                 //读配置文件
             }
             catch (Exception)
@@ -49,5 +50,7 @@ namespace EAP.HC.Core
         /// MES lot 信息
         /// </summary>
         public Dictionary<string, MesBatchInfo> MesBatchInfos { get; set; }
+
+        public List<string> PjQuendList { get; set; }
     }
 }
