@@ -224,15 +224,15 @@ namespace EAP.EC.KS_CM300
                     portId = 4;
                     break;
             }
-            var mesbatchInfo = MESService.MES_LotInfoDownloadRequest(carrierId);
+            var mesbatchInfo = MESService.MES_LotInfoDownloadRequest(eqpId,carrierId);
             if (mesbatchInfo == null)
             {
                 args.SetResultNG();
                 return;
             }
-            if (!AppCache.Current.MesBatchInfos.ContainsKey(mesbatchInfo.BATCH_ID))
+            if (!AppCache.Current.MesBatchInfos.ContainsKey(mesbatchInfo.BATCHCHID))
             {
-                AppCache.Current.MesBatchInfos.Add(mesbatchInfo.BATCH_ID, mesbatchInfo);
+                AppCache.Current.MesBatchInfos.Add(mesbatchInfo.BATCHCHID, mesbatchInfo);
             }
             args.Header[CItems.PortId] = portId;
             args.Header[CItems.CarrierId] = carrierId;
@@ -284,10 +284,10 @@ namespace EAP.EC.KS_CM300
                     slotMapStr += ";";
                 }
             }
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.FOUP_ID.Trim() == carrierId.Trim());
+            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
             if (batchInfo != null)
             {
-                foreach (var lot in batchInfo.LOTDATALIST)
+                foreach (var lot in batchInfo.LOTLIST)
                 {
                     foreach (var wafer in lot.WAFERS)
                     {
@@ -320,6 +320,7 @@ namespace EAP.EC.KS_CM300
 
         public async void Receive_S6F11_SlotMapVerifyok(Arguments args)
         {
+            var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
             {
@@ -333,15 +334,26 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId= SecsItemUtil.GetItemValue(rootItem.Items[2][2][1][0]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][2][1][0]).ToString().Trim();
             var portId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString().Trim();
             args.Header[CItems.CarrierId] = carrierId;
             args.Header[CItems.PortId] = portId;
-            await Send_S16F15_CreatePJ(args);
-            if (args.GetResultCode() != "OK")
+
+            var res = MESService.MES_TrackIn(eqpId, carrierId);
+            if (res)
+            {
+                await Send_S16F15_CreatePJ(args);
+                if (args.GetResultCode() != "OK")
+                {
+                    Send_S3F17_CancelCarrier(args);
+                    args.SetResultNG();
+                    return;
+                }
+            }
+            else
             {
                 Send_S3F17_CancelCarrier(args);
-                args.SetResultNG();
+                args.SetResultNG("TrackIn Fail");
                 return;
             }
         }
@@ -358,10 +370,10 @@ namespace EAP.EC.KS_CM300
             var pjid = SecsItemUtil.GetItemValue(rootItem[2][0][1][0]).ToString();
             var carrierId = SecsItemUtil.GetItemValue(rootItem[2][0][1][2][0][0]).ToString();
             args.Header[CItems.CarrierId] = carrierId;
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.FOUP_ID.Trim() == carrierId.Trim());
+            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
             args.Header[CItems.BatchInfo] = batchInfo;
             AppCache.Current.PjQuendList.Add(pjid);
-            foreach(var lot in batchInfo.LOTDATALIST)
+            foreach(var lot in batchInfo.LOTLIST)
             {
                 if (AppCache.Current.PjQuendList.Contains(lot.LOT_ID))
                     continue;
@@ -546,7 +558,7 @@ namespace EAP.EC.KS_CM300
             var carrierId = args.Header[CItems.CarrierId].ToString();
             var portId = int.Parse(args.Header[CItems.PortId].ToString());
             var eqpSlotMap = args.Header[CItems.SlotMap] as List<int>;
-            var batchInfo = args.Header[CItems.BatchInfo] as MesBatchInfo;
+            var batchInfo = args.Header[CItems.BatchInfo] as MESLotInfoDownloadReply;
             SecsMessage msg = new SecsMessage(3, 17);
 
             Item[] slotItems = new Item[25];
@@ -556,7 +568,7 @@ namespace EAP.EC.KS_CM300
                 slotItems[i] = Item.U1((byte)eqpSlotMap[i]);
                 Wafer wafer=null;
                 string LotId=string.Empty;
-                foreach(var lot in batchInfo.LOTDATALIST)
+                foreach(var lot in batchInfo.LOTLIST)
                 {
                     wafer = lot.WAFERS.FirstOrDefault(m => m.SLOT == (i + 1));
                     LotId = lot.LOT_ID;
@@ -639,11 +651,11 @@ namespace EAP.EC.KS_CM300
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
             var portId = int.Parse(args.Header[CItems.PortId].ToString());
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.FOUP_ID.Trim() == carrierId.Trim());
+            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
             SecsMessage msg = new SecsMessage(16, 15);
-            Item[] pjItems = new Item[int.Parse(batchInfo.BATCH_SIZE)];
+            Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
-            foreach(var lot in batchInfo.LOTDATALIST)
+            foreach(var lot in batchInfo.LOTLIST)
             {
                 var pjIdItem = Item.A(lot.LOT_ID);
                 var meatItem = Item.B((byte)13);
@@ -678,11 +690,11 @@ namespace EAP.EC.KS_CM300
         {
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.FOUP_ID.Trim() == carrierId.Trim());
+            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
             SecsMessage msg = new SecsMessage(14, 9);
-            Item[] pjItems = new Item[int.Parse(batchInfo.BATCH_SIZE)];
+            Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
-            foreach(var lot in batchInfo.LOTDATALIST)
+            foreach(var lot in batchInfo.LOTLIST)
             {
                 Item pjItem = Item.L(new Item[] { Item.A(lot.LOT_ID),Item.L(),Item.L() });
                 pjItems[index] = pjItem;
@@ -690,7 +702,7 @@ namespace EAP.EC.KS_CM300
             }
             Item cjItem = Item.L(new Item[] { 
                 Item.L(new Item[] {Item.A("ObjID"),Item.A("ControlJob101")}),
-                Item.L(new Item[]{Item.A("CarrierInputSpec"),Item.L(new Item[] { Item.A(batchInfo.FOUP_ID)}) }),
+                Item.L(new Item[]{Item.A("CarrierInputSpec"),Item.L(new Item[] { Item.A(batchInfo.CARRIERID)}) }),
                 Item.L(new Item[]{Item.A("ProcessingCtrlSpec"),Item.L(pjItems) }),
                 Item.L(new Item[] {Item.A("ProcessOrderMgmt"),Item.U1((byte)3)}),
                 Item.L(new Item[] {Item.A("StartMethod"),Item.Boolean(true)}),

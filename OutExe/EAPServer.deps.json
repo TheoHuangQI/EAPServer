@@ -12,7 +12,9 @@
           "Microsoft.Extensions.Configuration": "3.0.0",
           "Microsoft.Extensions.Configuration.FileExtensions": "3.0.0",
           "Microsoft.Extensions.Configuration.Json": "3.0.0",
-          "Microsoft.Extensions.Options": "8.0.0"
+          "Microsoft.Extensions.Options": "8.0.0",
+          "Apache.NMS.ActiveMQ": "2.1.0.0",
+          "Apache.NMS": "2.0.0.0"
         },
         "runtime": {
           "EAPServer.dll": {}
@@ -209,19 +211,19 @@
           }
         }
       },
-      "Apache.NMS/2.0.0.0": {
-        "runtime": {
-          "Apache.NMS.dll": {
-            "assemblyVersion": "2.0.0.0",
-            "fileVersion": "2.0.0.0"
-          }
-        }
-      },
       "Apache.NMS.ActiveMQ/2.1.0.0": {
         "runtime": {
           "Apache.NMS.ActiveMQ.dll": {
             "assemblyVersion": "2.1.0.0",
             "fileVersion": "2.1.0.0"
+          }
+        }
+      },
+      "Apache.NMS/2.0.0.0": {
+        "runtime": {
+          "Apache.NMS.dll": {
+            "assemblyVersion": "2.0.0.0",
+            "fileVersion": "2.0.0.0"
           }
         }
       }
@@ -362,12 +364,12 @@
       "serviceable": false,
       "sha512": ""
     },
-    "Apache.NMS/2.0.0.0": {
+    "Apache.NMS.ActiveMQ/2.1.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""
     },
-    "Apache.NMS.ActiveMQ/2.1.0.0": {
+    "Apache.NMS/2.0.0.0": {
       "type": "reference",
       "serviceable": false,
       "sha512": ""

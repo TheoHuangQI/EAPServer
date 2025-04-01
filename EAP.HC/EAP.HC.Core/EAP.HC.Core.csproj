@@ -10,9 +10,9 @@
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<OutputPath>..\..\OutExe\</OutputPath>
 	</PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-  </ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Secs4Net\Secs4Net.csproj" />
   </ItemGroup>
@@ -24,5 +24,4 @@
       <HintPath>..\..\RenferenceDLL\Apache.NMS.ActiveMQ.dll</HintPath>
     </Reference>
   </ItemGroup>
-
 </Project>

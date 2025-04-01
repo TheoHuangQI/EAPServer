@@ -38,6 +38,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="Apache.NMS">
+      <HintPath>..\RenferenceDLL\Apache.NMS.dll</HintPath>
+    </Reference>
+    <Reference Include="Apache.NMS.ActiveMQ">
+      <HintPath>..\RenferenceDLL\Apache.NMS.ActiveMQ.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="event-report.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

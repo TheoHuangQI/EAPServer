@@ -1,4 +1,6 @@
-﻿using EAP.HC.Core;
+﻿using Apache.NMS.ActiveMQ;
+using Apache.NMS;
+using EAP.HC.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Secs4Net;
@@ -37,6 +39,7 @@ namespace EAPServer
                 EAPContext.Configuration = config;
                 EAPContext.ServerName = config.GetSection("EAPNo").Value.ToString();
                 InitializeEAP();
+                InitialMQ();
                 Thread.Sleep(Timeout.Infinite);
             }
             catch (Exception ex)
@@ -112,6 +115,37 @@ namespace EAPServer
                 Console.WriteLine(ex.Message);
             }
         }
-   
+
+        private static void InitialMQ()
+        {
+#pragma warning disable CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+            Task.Run(async () =>
+            {
+                ActiveMQClient activeMQClient = ActiveMQClient.Current;
+                // 注册事件
+                activeMQClient.ConnectionInterrupted += () => Console.WriteLine("Connection lost");
+                activeMQClient.ConnectionRestored += () => Console.WriteLine("Connection restored");
+                activeMQClient.PermanentFailure += () => Console.WriteLine("Permanent failure");
+                // 使用消息类型过滤器
+                activeMQClient.MessageReceived += (s, e) =>
+                {
+                    switch (e.Message)
+                    {
+                        case ITextMessage textMsg:
+                            MessageProcessor.HandleMessage(textMsg, e);
+                            break;
+                        case IMapMessage mapMsg:
+                            MessageProcessor.HandleMessage(mapMsg, e);
+                            break;
+                        case IBytesMessage bytesMsg:
+                            MessageProcessor.HandleMessage(bytesMsg, e);
+                            break;
+                    }
+                };
+                await activeMQClient.InitializeAsync();
+            });
+#pragma warning restore CS4014 // 由于此调用不会等待，因此在调用完成前将继续执行当前方法
+        }
+
     }
 }

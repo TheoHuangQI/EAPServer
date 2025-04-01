@@ -9,7 +9,6 @@ namespace EAP.HC.Core.Entities.MES
 {
     public class LotInfo
     {
-        public LotState LOT_STATE { get; set; }
 
         public string LOT_ID { get; set; }
 
