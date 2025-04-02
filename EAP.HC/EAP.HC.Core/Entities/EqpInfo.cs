@@ -47,5 +47,8 @@ namespace EAP.HC.Core.Entities
         /// </summary>
         public MESConnectStatus MESConnectStatus { get; set; }
 
+
+        public string Chamber { get; set; }
+
     }
 }

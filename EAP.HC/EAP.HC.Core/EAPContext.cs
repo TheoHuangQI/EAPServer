@@ -38,11 +38,12 @@ namespace EAP.HC.Core
                         {
                             IsInitial = false,
                             EQPID = eqpconfig.Name,
-                            EQPType=eqpconfig.EQPType,
-                            EqpStatus=EQPStatus.IDLE,
-                            ControlStatus=ControlState.EQPOFFLINE,
-                            ConnectStatus=ConnectStatus.DISCONNECTED,
-                            MESConnectStatus=MESConnectStatus.DISCONNECTED
+                            EQPType = eqpconfig.EQPType,
+                            EqpStatus = EQPStatus.IDLE,
+                            ControlStatus = ControlState.EQPOFFLINE,
+                            ConnectStatus = ConnectStatus.DISCONNECTED,
+                            MESConnectStatus = MESConnectStatus.DISCONNECTED,
+                            Chamber = eqpconfig.Chamber
                         });
                     }
                 }

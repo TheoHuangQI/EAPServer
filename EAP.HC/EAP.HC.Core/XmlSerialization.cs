@@ -87,40 +87,6 @@ namespace EAP.HC.Core
             header = ConvertNode<T>(temp);
 
         }
-        /// <summary>
-        /// 将一个对象按XML序列化的方式写入到一个文件
-        /// </summary>
-        /// <param name="o">要序列化的对象</param>
-        /// <param name="path">保存文件路径</param>
-        /// <param name="encoding">编码方式</param>
-        //public static void XmlSerializeToFile(object o, string path, Encoding encoding)
-        //{
-        //    if (string.IsNullOrEmpty(path))
-        //        throw new ArgumentNullException("path");
-
-        //    using (FileStream file = new FileStream(path, FileMode.Create, FileAccess.Write))
-        //    {
-        //        XmlSerializeInternal(file, o, encoding);
-        //    }
-        //}
-
-        /// <summary>
-        /// 读入一个文件，并按XML的方式反序列化对象。
-        /// </summary>
-        /// <typeparam name="T">结果对象类型</typeparam>
-        /// <param name="path">文件路径</param>
-        /// <param name="encoding">编码方式</param>
-        /// <returns>反序列化得到的对象</returns>
-        //public static T XmlDeserializeFromFile<T>(string path, Encoding encoding)
-        //{
-        //    if (string.IsNullOrEmpty(path))
-        //        throw new ArgumentNullException("path");
-        //    if (encoding == null)
-        //        throw new ArgumentNullException("encoding");
-
-        //    string xml = File.ReadAllText(path, encoding);
-        //    return XmlDeserialize<T>(xml);
-        //}
 
         /// <summary>
         /// 从XML字符串中反序列化对象
@@ -211,23 +177,6 @@ namespace EAP.HC.Core
                 }
             }
         }
-
-
-        //public static ResponseHeader DesResponseHeader(string msgStr, out string msgBody)
-        //{
-        //    XmlDocument xmldoc = new XmlDocument();//实例化一个XmlDocument对像
-        //    xmldoc.LoadXml(msgStr);//加载为xml文档
-
-        //    XmlNode node = xmldoc.SelectSingleNode("Header");
-        //    msgBody = xmldoc.SelectSingleNode("Body").InnerText;
-        //    MemoryStream stm = new MemoryStream();
-        //    StreamWriter stw = new StreamWriter(stm);
-        //    stw.Write(node.OuterXml);
-        //    stw.Flush();
-        //    stm.Position = 0;
-        //    XmlSerializer desiral = new XmlSerializer(typeof(ResponseHeader));
-        //    return (desiral.Deserialize(stm) as ResponseHeader);
-        //}
 
         /// <summary>
         /// 序列化成R

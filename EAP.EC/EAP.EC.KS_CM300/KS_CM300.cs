@@ -120,6 +120,12 @@ namespace EAP.EC.KS_CM300
                     case 105:
                         Receive_S6F11_PRJOB_QUEUED(args);
                         break;
+                    case 127:
+                        Receive_S6F11_ProcessStart(args);
+                        break;
+                    case 132:
+                        Receive_S6F11_ProcessEnd(args);
+                        break;
                 }
                 args.SetResultOK();
             }
@@ -224,7 +230,7 @@ namespace EAP.EC.KS_CM300
                     portId = 4;
                     break;
             }
-            var mesbatchInfo = MESService.MES_LotInfoDownloadRequest(eqpId,carrierId);
+            var mesbatchInfo = MESClient.MES_LotInfoDownloadRequest(eqpId,carrierId);
             if (mesbatchInfo == null)
             {
                 args.SetResultNG();
@@ -339,7 +345,7 @@ namespace EAP.EC.KS_CM300
             args.Header[CItems.CarrierId] = carrierId;
             args.Header[CItems.PortId] = portId;
 
-            var res = MESService.MES_TrackIn(eqpId, carrierId);
+            var res = MESClient.MES_TrackIn(eqpId, carrierId);
             if (res)
             {
                 await Send_S16F15_CreatePJ(args);
@@ -384,6 +390,34 @@ namespace EAP.EC.KS_CM300
                 }
             }
             await Send_S14F9_CreateCJ(args);
+        }
+
+
+        public void Receive_S6F11_ProcessStart(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+            if (rootItem.Items.Length != 3)
+            {
+                args.SetResultNG();
+                return;
+            }
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0][0]).ToString().Trim();
+            MESClient.MES_LotStart(eqpId, carrierId);
+        }
+
+        public void Receive_S6F11_ProcessEnd(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+            if (rootItem.Items.Length != 3)
+            {
+                args.SetResultNG();
+                return;
+            }
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0][0]).ToString().Trim();
+            MESClient.MES_LotEnd(eqpId, carrierId);
+            MESClient.MES_TrackOut(eqpId, carrierId);
         }
         #endregion Receive  Message
 
@@ -631,6 +665,22 @@ namespace EAP.EC.KS_CM300
             args.SetResultOK();
         }
 
+
+        public async Task<List<string>> Send_S7F19_GetRecipeList(Arguments args)
+        {
+            var EqpId = args.Header[CItems.EqpId].ToString();
+            SecsMessage msg = new SecsMessage(7, 19);
+            var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
+            var reply = await context.SecsGem.SendAsync(msg);
+            var count = reply.SecsItem.Items.Count();
+            List<string> recipeList = new List<string>();
+            for(int i = 0; i < count; i++)
+            {
+                recipeList.Add(SecsItemUtil.GetItemValue(reply.SecsItem.Items[i]).ToString());
+            }
+            return recipeList;
+        }
+
         public async Task Send_S16F21_SelectPJSpace(Arguments args)
         {
             var EqpId = args.Header[CItems.EqpId].ToString();
@@ -723,6 +773,13 @@ namespace EAP.EC.KS_CM300
         #endregion Send Message
 
 
+        public List<string> GetPPIDList(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var recipeList = Send_S7F19_GetRecipeList(args).Result;
+            return recipeList;
+        }
+
         public void HsmsConnect(Arguments args)
         {
             //建立逻辑连接
@@ -780,6 +837,8 @@ namespace EAP.EC.KS_CM300
         {
             try
             {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var ChamberList = AppCache.Current.EqpInfos[eqpId].Chamber.Split(',').ToList();
                 Dictionary<uint, List<uint>> dataReportDic = new Dictionary<uint, List<uint>>();
                 Dictionary<uint, List<uint>> eventLinkRptDic = new Dictionary<uint, List<uint>>();
                 string path = Path.Combine(EAPContext.RootPath, $"event-report.xml");
@@ -806,6 +865,20 @@ namespace EAP.EC.KS_CM300
                     {
                         string value2 = XmlUtils.XmlGetNodeAttrVal(item2, "id");
                         uint vid = Convert.ToUInt32(value2);
+                        if(vid>=20000 && vid <= 40000)
+                        {
+                            var flag = (vid - 20000) % 100;
+                            if (flag == 0 || flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5 || flag == 6 || flag == 7)
+                            {
+                                var chIndex = (vid - flag - 20000) / 100;
+                                if (!ChamberList.Contains(chIndex.ToString()))
+                                {
+                                    dataReportDic.Remove(rptid);
+                                    break;
+                                }
+                            }
+                        }
+                        
 
                         if (!dataReportDic[rptid].Contains(vid))
                         {
@@ -820,6 +893,30 @@ namespace EAP.EC.KS_CM300
                 {
                     string value3 = XmlUtils.XmlGetNodeAttrVal(item3, "id");
                     uint ceid = Convert.ToUInt32(value3);
+                    if (ceid >= 20000 && ceid <30000)
+                    {
+                        var flag = (ceid - 20000) % 100;
+                        if (flag == 0 || flag == 1 || flag == 10 || flag ==11)
+                        {
+                            var chIndex = (ceid - flag - 20000) / 100;
+                            if (!ChamberList.Contains(chIndex.ToString()))
+                            {
+                                continue;
+                            }
+                        }
+                    }
+                    else if (ceid >= 30000 && ceid < 40000)
+                    {
+                        var flag = (ceid - 30000) % 100;
+                        if (flag == 0 || flag == 1 || flag == 2 || flag == 3)
+                        {
+                            var chIndex = (ceid - flag - 30000) / 100;
+                            if (!ChamberList.Contains(chIndex.ToString()))
+                            {
+                                continue;
+                            }
+                        }
+                    }
                     if (eventLinkRptDic.ContainsKey(ceid))
                     {
                         eventLinkRptDic.Remove(ceid);
