@@ -12,6 +12,9 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EAP.HC.Core.Entities.MES;
+using EAP.RC.MES;
+using System.Net;
 
 namespace EAPServer
 {
@@ -87,8 +90,7 @@ namespace EAPServer
                                 SecsBase.ConnectionChange(context,_connector.State); 
                             };
                             _connector.Start(_cancellationTokenSource.Token);
-
-
+                            MESClient.Send_EapState(eqpid, EAPState.Run);
                             while (true)
                             {
                                 if (_connector.State == ConnectionState.Selected)

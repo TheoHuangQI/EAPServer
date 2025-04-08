@@ -24,6 +24,7 @@ namespace EAP.HC.Core.Entities
         private int t7;
         private int t8;
         private string chamber;
+        private int loadport;
 
 
         public string Name { get { return name;  } set{ name = value;} }
@@ -42,5 +43,6 @@ namespace EAP.HC.Core.Entities
         public int T7 { get { return t7; } set { t7 = value; } }
         public int T8 { get { return t8; } set { t8 = value; } }
         public string Chamber { get { return chamber; } set { chamber = value; } }
+        public int LoadPort { get { return loadport; } set { loadport = value; } }
     }
 }

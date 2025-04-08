@@ -24,7 +24,6 @@ namespace EAP.HC.Core
             try
             {
                 Current.EqpInfos = new Dictionary<string, EqpInfo>();
-                Current.PortInfo = new Dictionary<string, PortInfo>();
                 Current.MesBatchInfos = new Dictionary<string, MESLotInfoDownloadReply>();
                 Current.PjQuendList = new List<string>();
                 //读配置文件
@@ -40,11 +39,6 @@ namespace EAP.HC.Core
         /// 当前设备列表信息
         /// </summary>
         public Dictionary<string,EqpInfo> EqpInfos { get; set; }
-
-        /// <summary>
-        /// 当前设备Port信息
-        /// </summary>
-        public Dictionary<string, PortInfo> PortInfo { get; set; }
 
         /// <summary>
         /// MES lot 信息

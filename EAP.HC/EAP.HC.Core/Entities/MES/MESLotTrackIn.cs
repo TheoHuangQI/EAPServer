@@ -9,9 +9,8 @@ namespace EAP.HC.Core.Entities.MES
 {
     [Serializable]
     [XmlRoot("Body")]
-    public class MESLotTrackIn
+    public class MESLotTrackIn : MQBody
     {
-        public string EQUIPMENTID { get; set; }
         public string CARRIERID { get; set; }
         [XmlArray("LOTLIST")]
         [XmlArrayItem("LOT")]

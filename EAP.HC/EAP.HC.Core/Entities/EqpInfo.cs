@@ -50,5 +50,11 @@ namespace EAP.HC.Core.Entities
 
         public string Chamber { get; set; }
 
+        public int LoadPort { get; set; }
+
+        /// <summary>
+        /// 当前设备Port信息
+        /// </summary>
+        public Dictionary<int, PortInfo> PortInfo { get; set; }
     }
 }

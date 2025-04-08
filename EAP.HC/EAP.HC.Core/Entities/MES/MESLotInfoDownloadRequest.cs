@@ -9,9 +9,8 @@ namespace EAP.HC.Core.Entities.MES
 {
     [Serializable]
     [XmlRoot("Body")]
-    public class MESLotInfoDownloadRequest
+    public class MESLotInfoDownloadRequest : MQBody
     {
-        public string EQUIPMENTID { get; set; }
         public string CARRIERID { get; set; }
     }
 }

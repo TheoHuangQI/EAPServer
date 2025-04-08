@@ -58,6 +58,7 @@ namespace EAP.HC.Core
 
     public enum PortStatus
     {
+        Idle,
         WAITPPSELECT,
         PPSELECTED,
         CREATWAFER,

@@ -11,5 +11,6 @@ namespace EAP.HC.Core.Entities.MES
     [XmlRoot("Body")]
     public class MQBody
     {
+        public string EQUIPMENTID { get; set; }
     }
 }

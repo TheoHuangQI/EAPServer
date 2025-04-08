@@ -4,9 +4,8 @@ namespace EAP.HC.Core.Entities.MES
 {
     [Serializable]
     [XmlRoot("Body")]
-    public class EqpPPIDList
+    public class EqpPPIDList: MQBody
     {
-        public string EQUIPMENTID { get; set; }
 
         public List<string> PPLIST { get; set; }
     }

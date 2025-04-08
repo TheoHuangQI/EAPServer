@@ -35,6 +35,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\EAP.HC\EAP.HC.Core\EAP.HC.Core.csproj" />
+    <ProjectReference Include="..\EAP.RC\EAP.RC.MES\EAP.RC.MES.csproj" />
   </ItemGroup>
 
   <ItemGroup>

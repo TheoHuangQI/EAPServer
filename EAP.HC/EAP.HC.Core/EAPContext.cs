@@ -43,8 +43,21 @@ namespace EAP.HC.Core
                             ControlStatus = ControlState.EQPOFFLINE,
                             ConnectStatus = ConnectStatus.DISCONNECTED,
                             MESConnectStatus = MESConnectStatus.DISCONNECTED,
-                            Chamber = eqpconfig.Chamber
+                            Chamber = eqpconfig.Chamber,
+                            LoadPort = eqpconfig.LoadPort,
+                            PortInfo = new Dictionary<int, PortInfo>()
                         });
+                        for(int i=1;i<= AppCache.Current.EqpInfos[eqpconfig.Name].LoadPort; i++)
+                        {
+                            AppCache.Current.EqpInfos[eqpconfig.Name].PortInfo.Add(i, new PortInfo()
+                            {
+                                PortNo = i,
+                                CarrierId = string.Empty,
+                                PortStatus = PortStatus.Idle,
+                                BatchId = string.Empty,
+                                LotIds = new List<string>()
+                            });
+                        }
                     }
                 }
                 return true;

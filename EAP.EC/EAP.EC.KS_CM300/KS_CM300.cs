@@ -1,6 +1,8 @@
 ﻿using EAP.HC.Core;
+using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using EAP.RC.MES;
+using EAPManage.Utils;
 using Newtonsoft.Json.Linq;
 using Secs4Net;
 using System;
@@ -20,6 +22,7 @@ namespace EAP.EC.KS_CM300
 {
     public class KS_CM300
     {
+        private Logger logger = Logger.Inst();
         #region Handler
         public void SecsMsgHandler(Arguments args)
         {
@@ -31,6 +34,7 @@ namespace EAP.EC.KS_CM300
                 {
                     var stream = args.SecsData.PrimaryMessage.S;
                     var function = args.SecsData.PrimaryMessage.F;
+                    MESClient.Send_Message(eqpId,"1",$"Recive SECS  MSG:S{stream}F{function}",LogType.INFO);
                     switch (stream)
                     {
                         case 1:
@@ -81,7 +85,7 @@ namespace EAP.EC.KS_CM300
                 case ConnectionState.Connected:
                     break;
                 case ConnectionState.Selected:
-                    HsmsConnect(args);
+                    HsmsConnectAsync(args);
                     break;
                 case ConnectionState.Retry:
                     HsmsDisConnect(args);
@@ -116,6 +120,9 @@ namespace EAP.EC.KS_CM300
                         break;
                     case 49:
                         Receive_S6F11_SlotMapVerifyok(args);
+                        break;
+                    case 92:
+                        Receive_S6F11_WaferProcessComplete(args);
                         break;
                     case 105:
                         Receive_S6F11_PRJOB_QUEUED(args);
@@ -242,6 +249,7 @@ namespace EAP.EC.KS_CM300
             }
             args.Header[CItems.PortId] = portId;
             args.Header[CItems.CarrierId] = carrierId;
+            AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
             await Send_S3F17_FirstProcessWithCarrier(args);
             if (args.GetResultCode() != "OK")
             {
@@ -290,6 +298,7 @@ namespace EAP.EC.KS_CM300
                     slotMapStr += ";";
                 }
             }
+            MESClient.Send_MapResult(eqpId, portId.ToString(), slotMapStr);
             var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
             if (batchInfo != null)
             {
@@ -364,6 +373,22 @@ namespace EAP.EC.KS_CM300
             }
         }
 
+        public async void Receive_S6F11_WaferProcessComplete(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+            if (rootItem.Items.Length != 3)
+            {
+                args.SetResultNG();
+                return;
+            }
+            string SubstLocSubstLocID= SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString().Trim();
+            var carrierId = SubstLocSubstLocID.Split('.')[0];
+            var slot = SubstLocSubstLocID.Split('.')[1];
+            var portId= AppCache.Current.EqpInfos[eqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
+            MESClient.Send_MapResult(eqpId, portId, slot);
+        }
+        
         public async void Receive_S6F11_PRJOB_QUEUED(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
@@ -391,7 +416,6 @@ namespace EAP.EC.KS_CM300
             }
             await Send_S14F9_CreateCJ(args);
         }
-
 
         public void Receive_S6F11_ProcessStart(Arguments args)
         {
@@ -423,15 +447,6 @@ namespace EAP.EC.KS_CM300
 
 
         #region Send Message
-
-        public void Send_S1F13(Arguments args)
-        {
-            var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
-            SecsMessage msg = new SecsMessage(1, 13);
-            msg.SecsItem = Item.L();
-            var reply = context.SecsGem.SendAsync(msg);
-        }
-
         public async Task Send_S2F37(Arguments args)
         {
             try
@@ -705,6 +720,7 @@ namespace EAP.EC.KS_CM300
             SecsMessage msg = new SecsMessage(16, 15);
             Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
+            List<int> slots = new List<int>();
             foreach(var lot in batchInfo.LOTLIST)
             {
                 var pjIdItem = Item.A(lot.LOT_ID);
@@ -714,6 +730,7 @@ namespace EAP.EC.KS_CM300
                 foreach(var wafer in lot.WAFERS)
                 {
                     slotItems[i] = Item.U1((byte)wafer.SLOT);
+                    slots.Add(wafer.SLOT);
                     i++;
                 }
                 var carrierSpecItem =Item.L(new Item[] { Item.L(new Item[] {Item.A(carrierId),Item.L(slotItems) })});
@@ -733,6 +750,7 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
+            MESClient.Send_MapResult(EqpId, portId.ToString(), string.Join(';', slots)+";");
             args.SetResultOK();
         }
 
@@ -772,7 +790,6 @@ namespace EAP.EC.KS_CM300
         }
         #endregion Send Message
 
-
         public List<string> GetPPIDList(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
@@ -780,12 +797,23 @@ namespace EAP.EC.KS_CM300
             return recipeList;
         }
 
-        public void HsmsConnect(Arguments args)
+        public async Task HsmsConnectAsync(Arguments args)
         {
             //建立逻辑连接
             var eqpId = args.Header[CItems.EqpId].ToString();
-            Send_S1F13(args);
+            var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
+            SecsMessage msg = new SecsMessage(1, 13);
+            msg.SecsItem = Item.L();
+            var reply = await context.SecsGem.SendAsync(msg);
+            byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
+            if (retCode == null || retCode != 0)
+            {
+                args.SetResultNG("Send S1F13, Equipment Reply Fail.");
+                return;
+            }
+            MESClient.Send_EqpState(eqpId, EQPState.Connected);
             AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.CONNECTED;
+            args.SetResultOK();
         }
 
         public void HsmsDisConnect(Arguments args)

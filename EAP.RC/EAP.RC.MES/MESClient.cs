@@ -1,5 +1,6 @@
 ﻿using EAP.HC.Core;
 using EAP.HC.Core.Entities.MES;
+using EAPManage.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -187,6 +188,140 @@ namespace EAP.RC.MES
         }
 
         #endregion MES_TrackOut 批次结束
+
+        #region Send_Message 消息推送
+        /// <summary>
+        /// 批次开始
+        /// </summary>
+        public static void Send_Message(string eqpId,string portId, string message, LogType logType)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDMESSAGE";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                MessageBody msg = new MessageBody();
+                msg.EQUIPMENTID = eqpId;
+                msg.MESSAGE = message;
+                msg.TYPE = logType.ToString();
+                msg.PORT = portId;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                var replyHeader = new MQHeader();
+                 ActiveMQClient.Current.SendRequest<MessageBody>(xmlMessage, out replyHeader);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_Message 消息推送
+
+        #region Send_MapResult 推送Map结果
+        /// <summary>
+        /// 批次开始
+        /// </summary>
+        public static void Send_MapResult(string eqpId, string portId, string Map)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDMAPRESULT";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                MapResult msg = new MapResult();
+                msg.EQUIPMENTID = eqpId;
+                msg.MapStr = Map;
+                msg.PORT = portId;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                var replyHeader = new MQHeader();
+                ActiveMQClient.Current.SendRequest<MapResult>(xmlMessage, out replyHeader);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_Message 消息推送
+
+        #region Send_EapState 推送EAP 程序状态
+        public static void Send_EapState(string eqpId,EAPState state)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDEAPSTATE";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                State msg = new State();
+                msg.EQUIPMENTID = eqpId;
+                msg.EAPState = state;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                var replyHeader = new MQHeader();
+                ActiveMQClient.Current.SendRequest<State>(xmlMessage, out replyHeader);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_EapState 推送EAP 程序状态
+
+        #region Send_EqpState 推送设备连接状态
+        public static void Send_EqpState(string eqpId, EQPState state)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDEQPSTATE";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                State msg = new State();
+                msg.EQUIPMENTID = eqpId;
+                msg.EQPState = state;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                var replyHeader = new MQHeader();
+                ActiveMQClient.Current.SendRequest<State>(xmlMessage, out replyHeader);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_EqpState 推送设备连接状态
+
+        #region Send_ControlState 推送设备控制状态
+        public static void Send_ControlState(string eqpId, ControlState state)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDCONTROLSTATE";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                State msg = new State();
+                msg.EQUIPMENTID = eqpId;
+                msg.ControlState = state;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                var replyHeader = new MQHeader();
+                ActiveMQClient.Current.SendRequest<State>(xmlMessage, out replyHeader);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_ControlState 推送设备控制状态
 
     }
 }
