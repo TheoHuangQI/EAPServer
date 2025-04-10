@@ -1044,10 +1044,12 @@
 		<DV id="26007" />
 	</REPORT>
 	<REPORT id="6000">
-		<DV id="6000" />
+		<DV id="29" />
+		<!--<DV id="6000" />-->
 	</REPORT>
 	<REPORT id="5000">
-		<DV id="130300009" />
+		<DV id="29" />
+		<!--<DV id="130300009" />
 		<DV id="130700012" />
 		<DV id="130800012" />
 		<DV id="130100093" />
@@ -1056,22 +1058,8 @@
 		<DV id="130700014" />
 		<DV id="130800014" />
 		<DV id="130100097" />
-		<DV id="130100098" />
+		<DV id="130100098" />-->
 	</REPORT>
-	<EVENT id="11101" enabled="1" />
-	<EVENT id="11102" enabled="1" />
-	<EVENT id="11103" enabled="1" />
-	<EVENT id="11104" enabled="1" />
-	<EVENT id="11105" enabled="1" />
-	<EVENT id="11106" enabled="1" />
-	<EVENT id="11107" enabled="1" />
-	<EVENT id="11108" enabled="1" />
-	<EVENT id="11109" enabled="1" />
-	<EVENT id="11110" enabled="1" />
-	<EVENT id="11111" enabled="1" />
-	<EVENT id="11113" enabled="1" />
-	<EVENT id="11114" enabled="1" />
-	<EVENT id="11115" enabled="1" />
 	<EVENT id="20100" enabled="1">
 		<RPT id="20100" />
 		<RPT id="5000" />
@@ -1732,12 +1720,9 @@
 	<EVENT id="134" enabled="1">
 		<RPT id="500" />
 	</EVENT>
-	<EVENT id="11116" enabled="1" />
 	<EVENT id="11117" enabled="1">
 		<RPT id="110" />
 	</EVENT>
-	<EVENT id="11118" enabled="1" />
-	<EVENT id="11119" enabled="1" />
 	<EVENT id="144" enabled="1">
 		<RPT id="400" />
 	</EVENT>

@@ -188,7 +188,8 @@ namespace EAP.HC.Core
         public static string XmlSerializeMessage<R>(R obj, string body) where R : new()
         {
             var msg = XmlSerialize(obj);
-            msg = msg.Replace("<Body />", body).ToXmlFormat();
+            string msgStr= msg.Replace("<Body />", body);
+            msg = msgStr.ToXmlFormat();
             return msg;
         }
 

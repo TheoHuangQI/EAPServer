@@ -32,5 +32,9 @@ namespace EAP.HC.Core.Entities
         /// 当前Port 正在Run的LotId（同时可能存在多个）
         /// </summary>
         public List<string> LotIds { get; set; }
+
+        public AccessMode AccessState { get; set; }
+
+        public TransferStatus TransferStatus { get; set; }
     }
 }

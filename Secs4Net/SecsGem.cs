@@ -74,7 +74,8 @@ public sealed class SecsGem : ISecsGem, IDisposable
     {
         if (_hsmsConnector.State != ConnectionState.Selected)
         {
-            throw new SecsException("Device is not selected");
+            return null;
+            //throw new SecsException("Device is not selected");
         }
 
         var token = ValueTaskCompletionSource<SecsMessage>.Create();
@@ -251,10 +252,10 @@ public sealed class SecsGem : ISecsGem, IDisposable
     {
         if (secondaryMessage.F == 0)
         {
-            source.TrySetException(new SecsException(secondaryMessage, Resources.SxF0));
+            //source.TrySetException(new SecsException(secondaryMessage, Resources.SxF0));
+            source.TrySetResult(null);
             return;
         }
-
         if (secondaryMessage.S == 9)
         {
             switch (secondaryMessage.F)

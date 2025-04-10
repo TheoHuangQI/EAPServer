@@ -97,4 +97,20 @@ namespace EAP.HC.Core
         ACTIVE,
         PASSIVE
     }
+
+    public enum AccessMode : byte
+    {
+        Manual,
+        Auto
+    }
+
+    public enum TransferStatus : byte
+    {
+        OutOfService,
+        TransferBlocked,
+        ReadyToLoad,
+        ReadyToUnload,
+        InService,
+        TransferReady
+    }
 }

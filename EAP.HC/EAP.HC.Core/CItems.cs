@@ -18,7 +18,9 @@ namespace EAP.HC.Core
         public static string ConnectionState = "ConnectionState";
         public static string SlotMap = "SlotMap";
         public static string BatchInfo = "BatchInfo";
-        
+        public static string VID = "VID";
+        public static string Check = "Check";
+
 
     }
 }

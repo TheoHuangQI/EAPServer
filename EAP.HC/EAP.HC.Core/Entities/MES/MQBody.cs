@@ -12,5 +12,7 @@ namespace EAP.HC.Core.Entities.MES
     public class MQBody
     {
         public string EQUIPMENTID { get; set; }
+
+        public string LOADPORT { get; set; }
     }
 }
