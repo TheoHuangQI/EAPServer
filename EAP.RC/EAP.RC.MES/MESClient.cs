@@ -272,7 +272,7 @@ namespace EAP.RC.MES
             try
             {
                 MQHeader header = new MQHeader();
-                header.MESSAGENAME = "SENDEQPSTATE";
+                header.MESSAGENAME = "EQPSTATE";
 
                 var requestMessage = new MQData();
                 requestMessage.mQHeader = header;
