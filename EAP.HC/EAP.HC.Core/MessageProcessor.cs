@@ -1,12 +1,21 @@
 ﻿using Apache.NMS;
 using Apache.NMS.ActiveMQ.Commands;
 using EAP.HC.Core.Entities.MES;
+using Secs4Net;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
+using System.Xml;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Transaction = EAP.HC.Core.Entities.MES.Transaction;
 
 namespace EAP.HC.Core
 {
@@ -171,6 +180,51 @@ namespace EAP.HC.Core
                             var xmlBody = XmlSerialization.SerializeOnlyBody(mQBody);
                             var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
                             mrea.Reply(xmlMessage);
+                            break;
+                        }
+                    case "TestItemStart":
+                        {
+                            EAPTestItemStart eapTestItem= XmlSerialization.DeserializeNodeObj<EAPTestItemStart>(message, "Request", "Body");
+                            var eqpId = eapTestItem.EQUIPMENTID;
+                            var testItem = eapTestItem.EAPTestItem;
+                            var context = EAPContext.contexts.FirstOrDefault(u => u.EquipmentID == eqpId);
+                            var resCode= SecsBase.StartTest(context, testItem);
+                            if (resCode)
+                            {
+                                res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            }
+                            else
+                            {
+                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                            }
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(eapTestItem);
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
+                            break;
+                        }
+                    case "TestBatchStart":
+                        {
+                            EAPTestBatchStart eAPTestBatch = XmlSerialization.DeserializeNodeObj<EAPTestBatchStart>(message, "Request", "Body");
+                            var eqpId = eAPTestBatch.EQUIPMENTID;
+                            var context = EAPContext.contexts.FirstOrDefault(u => u.EquipmentID == eqpId);
+                            var testItems = eAPTestBatch.EAPTestBatch.TestItems;
+
+
+
+                            //var resCode = SecsBase.StartTest(context, testItem);
+                            //if (resCode)
+                            //{
+                            //    res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            //}
+                            //else
+                            //{
+                            //    res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                            //}
+                            //var xmlBody = XmlSerialization.SerializeOnlyBody(eapTestItem);
+                            //var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            //mrea.Reply(xmlMessage);
+                            break;
+
                             break;
                         }
                 }

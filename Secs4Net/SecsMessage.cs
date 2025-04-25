@@ -4,6 +4,8 @@ public sealed class SecsMessage : IDisposable
 {
     public override string ToString() => $"'S{S}F{F}' {(ReplyExpected ? "W" : string.Empty)} {Name ?? string.Empty}";
 
+
+
     /// <summary>
     /// message stream number
     /// </summary>
@@ -14,6 +16,7 @@ public sealed class SecsMessage : IDisposable
     /// </summary>
     public byte F { get; }
 
+    public string? Description { get; set; }
     /// <summary>
     /// expect reply message
     /// </summary>

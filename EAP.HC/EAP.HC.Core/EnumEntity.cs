@@ -113,4 +113,10 @@ namespace EAP.HC.Core
         InService,
         TransferReady
     }
+
+    public enum TestType
+    {
+        EQUIPMENT,
+        LOT
+    }
 }

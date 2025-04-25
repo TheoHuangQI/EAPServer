@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace EAP.HC.Core
 {
@@ -51,5 +52,6 @@ namespace EAP.HC.Core
                 secsgem = value;
             }
         }
+        public List<SECSTransaction> transactions { get; set; }
     }
 }

@@ -7,12 +7,14 @@ using Newtonsoft.Json.Linq;
 using Secs4Net;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using System.Xml;
 using System.Xml.Linq;
 using static System.Net.Mime.MediaTypeNames;
@@ -20,9 +22,51 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EAP.EC.KS_CM300
 {
+    public class EventSort
+    {
+        public int index;
+        public int ceid;
+        public bool state;
+    }
+
     public class KS_CM300
     {
+
+        public static List<int> substrateInitCeids = new List<int> {81, 90,144, 140,141, 11117, 70};
+        public static List<int> substrateRunCeids = new List<int> { 82, 91, 102, 101, 84, 102, 85,92 };
+        public static List<int> mm = new List<int>() {14, 31, 35, 46, 51, 37, 59,127,106};
+        public static List<object> ceids = 
+            new List<object> 
+            { 14,31,35,46,51,37,59, // MaterialArrived
+              42,27,10009,34,48,   //First S3F17
+              49,  //Second S3F17
+              105,   //S16f15
+              //S14F9
+              123,125,127,106,138,136,108,139,52,110,132,75,53,33,25,27,10005,32,73,15,72};
+
+        public List<EventSort> eventSorts = new List<EventSort>();
         private Logger logger = Logger.Inst();
+
+        public static bool check=false;
+        public static bool error = false;
+        public KS_CM300()
+        {
+            int i = 0;
+            foreach (var ceid in ceids)
+            {
+                EventSort eventSort = new EventSort();
+                
+                if (ceid is int)
+                {
+                    eventSort.ceid =(int)ceid;
+                    eventSort.state = false;
+                    eventSort.index = i;
+                    eventSorts.Add(eventSort);
+                    i++;
+                }
+            }
+        }
+
         #region Handler
         public void SecsMsgHandler(Arguments args)
         {
@@ -97,6 +141,7 @@ namespace EAP.EC.KS_CM300
         {
             try
             {
+                var eqpId = args.Header[CItems.EqpId].ToString();
                 var rootItem = args.SecsData.PrimaryMessage.SecsItem;
                 Item replyItem = Item.B((byte)0);
                 SecsMessage replyMsg = new SecsMessage(6, 12);
@@ -105,6 +150,91 @@ namespace EAP.EC.KS_CM300
 
                 var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
                 var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
+
+                if (!substrateInitCeids.Contains(ceid) && !substrateRunCeids.Contains(ceid) && ceid < 20000)
+                {
+                    if (ceid == eventSorts[0].ceid)
+                    {
+                        check = true;
+                        error = false;
+                        foreach (var evn in eventSorts)
+                        {
+                            evn.state = false;
+                        }
+                        eventSorts[0].state = true;
+                    }
+                    else if (ceid == eventSorts[eventSorts.Count - 1].ceid)
+                    {
+                        if (mm.Contains(ceid))
+                        {
+                            var env = eventSorts.FirstOrDefault(a => a.ceid == ceid);
+                            env.state = true;
+                        }
+                        else
+                        {
+                            if (check && !error)
+                            {
+                                var Lastevn = eventSorts.LastOrDefault(a => a.state == true);
+                                var evn = eventSorts.FirstOrDefault(a => a.state == false);
+                                if (evn.ceid != ceid)
+                                {
+                                    string message = $"The Event Sequence Is Incorrect. The Previous Event CEID={Lastevn.ceid}, And The Next Event CEID Should Have Been {evn.ceid} , But In Fact, The Event After {Lastevn.ceid} is {ceid}";
+                                    MESClient.Send_Exception(eqpId, "0", message);
+                                    error = true;
+                                }
+                                else
+                                {
+                                    evn.state = true;
+                                }
+                            }
+                        }
+                        check = false;
+                    }
+                    else
+                    {
+                        if (mm.Contains(ceid))
+                        {
+                            var env = eventSorts.FirstOrDefault(a => a.ceid == ceid);
+                            env.state = true;
+                        }
+                        else
+                        {
+                            if (check && !error)
+                            {
+                                var Lastevn = eventSorts.LastOrDefault(a => a.state == true);
+                                var evn = eventSorts.FirstOrDefault(a => a.state == false);
+                                if (evn.ceid != ceid)
+                                {
+                                    string message = $"The Event Sequence Is Incorrect. The Previous Event CEID={Lastevn.ceid}, And The Next Event CEID Should Have Been {evn.ceid} , But In Fact, The Event After {Lastevn.ceid} is {ceid}";
+                                    MESClient.Send_Exception(eqpId, "0", message);
+                                    error = true;
+                                }
+                                else
+                                {
+                                    evn.state = true;
+                                }
+                            }
+                        }
+                    }
+                    if (ceid == 73) //自动取一下Foup
+                    {
+                        SecsMessage msg = new SecsMessage(2, 41);
+                        msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToUnload"), Item.L() });
+                        var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                        var reply = context.SecsGem.SendAsync(msg);
+                    }
+                    else if (ceid == 72) //自动放一下Foup
+                    {
+                        Thread.Sleep(3000);
+                        SecsMessage msg = new SecsMessage(2, 41);
+                        msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToLoad"), Item.L() });
+                        var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                        var reply = context.SecsGem.SendAsync(msg);
+                    }
+                }
+                  
+                
+
                 switch (ceid)
                 {
                     case 8:
@@ -121,7 +251,7 @@ namespace EAP.EC.KS_CM300
                     case 73:
                         Receive_S6F11_LPTransferStateChange(args);
                         break;
-                    case 37:
+                    case 59:
                         Receive_S6F11_CIDWaitingForHost(args);
                         break;
                     case 48:
@@ -151,7 +281,6 @@ namespace EAP.EC.KS_CM300
             }
         }
         #endregion Handler
-
 
         #region Receive  Message
 
@@ -233,14 +362,20 @@ namespace EAP.EC.KS_CM300
                                     eqp.Value.IsInitial = true;
                                 }
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                              //  MESClient.Send_ControlState(eqpId, (ControlState)controlState);
                                 if (controlState != 5)
                                 {
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
                                 }
                                 args.Header[CItems.Check] = false;
-                                Send_S1F3_Get_AccessMode(args);
-                                Send_S1F3_Get_TransferStatus(args);
+                              //  Send_S1F3_Get_AccessMode(args);
+                               // Send_S1F3_Get_TransferStatus(args);
+                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                                //foreach (var trans in context.transactions)
+                                //{
+                                //    if(trans.Direction=="H->E" || trans.Direction=="E<-H")
+                                //        context.SecsGem.SendAsync(trans.message);
+                                //}
                                 break;
                             }
                             
@@ -610,7 +745,6 @@ namespace EAP.EC.KS_CM300
             MESClient.MES_TrackOut(eqpId, carrierId);
         }
         #endregion Receive  Message
-
 
         #region Send Message
         public ControlState Send_S1F3_Get_ControlState(Arguments args)
@@ -1106,6 +1240,7 @@ namespace EAP.EC.KS_CM300
         }
         #endregion Send Message
 
+        #region Others
         public List<string> GetPPIDList(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
@@ -1233,7 +1368,6 @@ namespace EAP.EC.KS_CM300
                     }
                 }
 
-
                 XmlNodeList xmlNodeList3 = xmlNode.SelectNodes("EVENT");
                 foreach (XmlNode item3 in xmlNodeList3)
                 {
@@ -1288,7 +1422,6 @@ namespace EAP.EC.KS_CM300
             {
                 args.SetResultNG(ex.Message);
             }
-           
         }
 
         public bool Heart(Arguments args)
@@ -1303,6 +1436,140 @@ namespace EAP.EC.KS_CM300
                 return true;
             }
             return false;
-        } 
+        }
+
+        public bool StartTest(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            EAPTestItem testItem = args.Header[CItems.TestItem] as EAPTestItem;
+            var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
+            SecsMessage message = new SecsMessage((byte)testItem.Stream, (byte)testItem.Function);
+            if (!string.IsNullOrEmpty(testItem.DataItemContent))
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                XmlNode dataNode = xmlDocument.CreateNode(XmlNodeType.Element, "DataItem", "");
+                dataNode.InnerXml = testItem.DataItemContent;
+                if (dataNode.ChildNodes.Count > 0 && (testItem.Direction == "H->E" || testItem.Direction == "E<-H"))
+                {
+                    message.SecsItem =EAPContext.GetMessageSecsItem(dataNode.ChildNodes[0]);
+                }
+            }
+            var reply = context.SecsGem.SendAsync(message).Result;
+            if (reply != null)
+            {
+                XmlDocument xmlDocument = new XmlDocument();
+                XmlNode dataNode = xmlDocument.CreateNode(XmlNodeType.Element, "DataItem", "");
+                dataNode.InnerXml = testItem.ReplyDataItemContent;
+                var elementNodes = dataNode.ChildNodes.OfType<XmlElement>().ToList();
+                Item replySecsItem= EAPContext.GetMessageSecsItem(elementNodes[0]);
+                SECSITEM secsItem = GetSecsItemObj(elementNodes[0]);
+                if(testItem.ReplyStream ==reply.S  && testItem.ReplyFunction == reply.F)
+                {
+                   var res= CheckItem(reply.SecsItem, secsItem);
+                   return res;
+                }
+                return false;
+            }
+            return false;
+        }
+
+        public static SECSITEM GetSecsItemObj(XmlElement node)
+        {
+            SECSITEM secsItem = new SECSITEM()
+            {
+                Type = node.Name,
+                count = int.Parse(node.GetAttribute("Count")),
+                Fixed = bool.Parse(node.GetAttribute("Fixed")),
+                ItemName = node.GetAttribute("ItemName"),
+                Value = node.InnerText,
+                ChildItems = new List<SECSITEM>()
+            };
+            var childNodes = node.ChildNodes.OfType<XmlElement>().ToList();
+            if (childNodes.Count > 0)
+            {
+                foreach(var childNode in childNodes)
+                {
+                    var childSecsItem = GetSecsItemObj(childNode);
+                    secsItem.ChildItems.Add(childSecsItem);
+                }
+            }
+            return secsItem;
+        }
+
+        public static bool CheckItem(Item replyItem,SECSITEM secsItem)
+        {
+            //先校验节点格式是否对的上
+            if (!CheckSecsItemFormart(replyItem.Format, secsItem.Type))
+                return false;
+            //非List节点
+            if (replyItem.Format != SecsFormat.List)
+            {
+                //根据Fixed配置决定是否校验节点值
+                if (secsItem.Fixed)
+                {
+                    //根据count决定校验方式
+                    if (secsItem.count == 0) //表示不校验具体值，只需要有该节点即可
+                    {
+                        return true;
+                    }
+                    else //表示需要校验具体值，设备回复中该节点值必须和配置的一模一样
+                    {
+                        var replyValue = SecsItemUtil.GetItemValue(replyItem).ToString();
+                        if (replyValue != secsItem.Value)
+                            return false;
+                        return true;
+                    }
+                }
+                return true;
+            }
+            //List节点校验子节点数量
+            else
+            {
+                if (secsItem.Fixed)
+                {
+                    if (secsItem.count == 9999)  //表示List下可能有N个节点，但不会是0节点
+                    {
+                        if (replyItem.Items.Count() > 0)
+                            return true;
+                        return false;
+                    }
+                    else if(secsItem.count == 0) //表示List下不能有节点
+                    {
+                        if (replyItem.Items.Count() > 0)
+                            return false;
+                        return true;
+                    }
+                    else//表示配置了具体的节点数量，设备的回复需要对的上
+                    {
+                        if (replyItem.Items.Count() != secsItem.count)
+                            return false;
+                        int i = 0;
+                        foreach(var item in replyItem.Items)
+                        {
+                           var res= CheckItem(item, secsItem.ChildItems[i]);
+                            if (!res)
+                                return false;
+                           i++;
+                        }
+                        return true;
+                    }
+                }
+                return true;
+            }
+        }
+
+        public static bool CheckSecsItemFormart(SecsFormat format,string name)
+        {
+            if (format.ToString() == "List" && name == "L")
+                return true;
+            if (format.ToString() == "Binary" && name == "B")
+                return true;
+            if (format.ToString() == "Boolean" && name == "BOOLEAN")
+                return true;
+            if (format.ToString()==name)
+                return true;
+            return false;
+        }
+        #endregion
     }
 }

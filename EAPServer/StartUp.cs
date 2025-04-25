@@ -103,7 +103,7 @@ namespace EAPServer
                             {
                                 EquipmentID = eqpconfig.Name,
                                 EqpType = eqpconfig.EQPType,
-                                SecsGem = _secsGem
+                                SecsGem = _secsGem,
                             };
                             EAPContext.contexts.Add(context);
 
