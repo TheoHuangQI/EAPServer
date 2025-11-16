@@ -125,7 +125,7 @@ namespace EAP.RC.MES
             try
             {
                 MQHeader header = new MQHeader();
-                header.MESSAGENAME = "LOTSTART";
+                header.MESSAGENAME = "LOTEND";
 
                 var requestMessage = new MQData();
                 requestMessage.mQHeader = header;

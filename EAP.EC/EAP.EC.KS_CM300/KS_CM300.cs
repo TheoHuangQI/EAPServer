@@ -13,6 +13,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Xml;
@@ -31,40 +32,13 @@ namespace EAP.EC.KS_CM300
 
     public class KS_CM300
     {
-
-        public static List<int> substrateInitCeids = new List<int> {81, 90,144, 140,141, 11117, 70};
-        public static List<int> substrateRunCeids = new List<int> { 82, 91, 102, 101, 84, 102, 85,92 };
-        public static List<int> mm = new List<int>() {14, 31, 35, 46, 51, 37, 59,127,106};
-        public static List<object> ceids = 
-            new List<object> 
-            { 14,31,35,46,51,37,59, // MaterialArrived
-              42,27,10009,34,48,   //First S3F17
-              49,  //Second S3F17
-              105,   //S16f15
-              //S14F9
-              123,125,127,106,138,136,108,139,52,110,132,75,53,33,25,27,10005,32,73,15,72};
-
-        public List<EventSort> eventSorts = new List<EventSort>();
         private Logger logger = Logger.Inst();
+        private System.Object obj = new System.Object();
 
         public static bool check=false;
         public static bool error = false;
         public KS_CM300()
         {
-            int i = 0;
-            foreach (var ceid in ceids)
-            {
-                EventSort eventSort = new EventSort();
-                
-                if (ceid is int)
-                {
-                    eventSort.ceid =(int)ceid;
-                    eventSort.state = false;
-                    eventSort.index = i;
-                    eventSorts.Add(eventSort);
-                    i++;
-                }
-            }
         }
 
         #region Handler
@@ -150,90 +124,6 @@ namespace EAP.EC.KS_CM300
 
                 var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
                 var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
-
-                if (!substrateInitCeids.Contains(ceid) && !substrateRunCeids.Contains(ceid) && ceid < 20000)
-                {
-                    if (ceid == eventSorts[0].ceid)
-                    {
-                        check = true;
-                        error = false;
-                        foreach (var evn in eventSorts)
-                        {
-                            evn.state = false;
-                        }
-                        eventSorts[0].state = true;
-                    }
-                    else if (ceid == eventSorts[eventSorts.Count - 1].ceid)
-                    {
-                        if (mm.Contains(ceid))
-                        {
-                            var env = eventSorts.FirstOrDefault(a => a.ceid == ceid);
-                            env.state = true;
-                        }
-                        else
-                        {
-                            if (check && !error)
-                            {
-                                var Lastevn = eventSorts.LastOrDefault(a => a.state == true);
-                                var evn = eventSorts.FirstOrDefault(a => a.state == false);
-                                if (evn.ceid != ceid)
-                                {
-                                    string message = $"The Event Sequence Is Incorrect. The Previous Event CEID={Lastevn.ceid}, And The Next Event CEID Should Have Been {evn.ceid} , But In Fact, The Event After {Lastevn.ceid} is {ceid}";
-                                    MESClient.Send_Exception(eqpId, "0", message);
-                                    error = true;
-                                }
-                                else
-                                {
-                                    evn.state = true;
-                                }
-                            }
-                        }
-                        check = false;
-                    }
-                    else
-                    {
-                        if (mm.Contains(ceid))
-                        {
-                            var env = eventSorts.FirstOrDefault(a => a.ceid == ceid);
-                            env.state = true;
-                        }
-                        else
-                        {
-                            if (check && !error)
-                            {
-                                var Lastevn = eventSorts.LastOrDefault(a => a.state == true);
-                                var evn = eventSorts.FirstOrDefault(a => a.state == false);
-                                if (evn.ceid != ceid)
-                                {
-                                    string message = $"The Event Sequence Is Incorrect. The Previous Event CEID={Lastevn.ceid}, And The Next Event CEID Should Have Been {evn.ceid} , But In Fact, The Event After {Lastevn.ceid} is {ceid}";
-                                    MESClient.Send_Exception(eqpId, "0", message);
-                                    error = true;
-                                }
-                                else
-                                {
-                                    evn.state = true;
-                                }
-                            }
-                        }
-                    }
-                    if (ceid == 73) //自动取一下Foup
-                    {
-                        SecsMessage msg = new SecsMessage(2, 41);
-                        msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToUnload"), Item.L() });
-                        var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                        var reply = context.SecsGem.SendAsync(msg);
-                    }
-                    else if (ceid == 72) //自动放一下Foup
-                    {
-                        Thread.Sleep(3000);
-                        SecsMessage msg = new SecsMessage(2, 41);
-                        msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToLoad"), Item.L() });
-                        var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                        var reply = context.SecsGem.SendAsync(msg);
-                    }
-                }
-                  
-                
 
                 switch (ceid)
                 {
@@ -362,20 +252,19 @@ namespace EAP.EC.KS_CM300
                                     eqp.Value.IsInitial = true;
                                 }
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                              //  MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
                                 if (controlState != 5)
                                 {
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
                                 }
                                 args.Header[CItems.Check] = false;
-                              //  Send_S1F3_Get_AccessMode(args);
-                               // Send_S1F3_Get_TransferStatus(args);
+                                Send_S1F3_Get_TransferStatus(args);
                                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                                //foreach (var trans in context.transactions)
-                                //{
-                                //    if(trans.Direction=="H->E" || trans.Direction=="E<-H")
-                                //        context.SecsGem.SendAsync(trans.message);
-                                //}
+                                foreach (var trans in context.transactions)
+                                {
+                                    if (trans.Direction == "H->E" || trans.Direction == "E<-H")
+                                        context.SecsGem.SendAsync(trans.message);
+                                }
                                 break;
                             }
                             
@@ -479,23 +368,49 @@ namespace EAP.EC.KS_CM300
                         case 72:
                             {
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.ReadyToLoad;
+                                var carrierId = eqp.Value.PortInfo[portId].CarrierId;
+                                var batchs = AppCache.Current.MesBatchInfos.Where(a => a.Value.CARRIERID == carrierId);
+                                if(batchs!=null && batchs.Count() > 0)
+                                {
+                                    foreach(var batch in batchs)
+                                    {
+                                        AppCache.Current.MesBatchInfos.Remove(batch.Key);
+                                        if (AppCache.Current.CJQuendList.Keys.Contains(batch.Key))
+                                        {
+                                            AppCache.Current.CJQuendList.Remove(batch.Key);
+                                        }
+                                    }
+                                }
+                                eqp.Value.PortInfo[portId].CarrierId = string.Empty;
                                 MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.ReadyToLoad);
-                                var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
+                                var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 2)
                                 {
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
+                                Random random = new Random();
+                                Thread.Sleep(random.Next(10000, 100000));
+                                SecsMessage msg = new SecsMessage(2, 41);
+                                Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
+                                msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToLoad"), paramItem });
+                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                                var reply = context.SecsGem.SendAsync(msg);
                                 break;
                             }
                         case 73:
                             {
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.ReadyToUnload;
                                 MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.ReadyToUnload);
-                                var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
+                                var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 3)
                                 {
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report ReadyToUnload Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
+                                SecsMessage msg = new SecsMessage(2, 41);
+                                Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
+                                msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToUnload"), paramItem });
+                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                                var reply = context.SecsGem.SendAsync(msg);
                                 break;
                             }
                     }
@@ -519,8 +434,8 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var portstr = SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString().Trim();
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][2][1][0]).ToString().Trim();
+            var portstr = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][2]).ToString().Trim();
             var portId = -1;
             switch (portstr)
             {
@@ -537,8 +452,9 @@ namespace EAP.EC.KS_CM300
                     portId = 4;
                     break;
             }
+            AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
             MESClient.Send_MaterialRecived(eqpId,portId, carrierId);
-            var mesbatchInfo =await MESClient.MES_LotInfoDownloadRequest(eqpId,carrierId);
+            var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId);
             if (mesbatchInfo == null)
             {
                 args.SetResultNG();
@@ -547,6 +463,15 @@ namespace EAP.EC.KS_CM300
             if (!AppCache.Current.MesBatchInfos.ContainsKey(mesbatchInfo.BATCHCHID))
             {
                 AppCache.Current.MesBatchInfos.Add(mesbatchInfo.BATCHCHID, mesbatchInfo);
+            }
+            if (!AppCache.Current.CJQuendList.ContainsKey(mesbatchInfo.BATCHCHID))
+            {
+                AppCache.Current.CJQuendList.Add(mesbatchInfo.BATCHCHID,new Dictionary<string, int>() );
+
+                foreach (var lot in mesbatchInfo.LOTLIST)
+                {
+                    AppCache.Current.CJQuendList[mesbatchInfo.BATCHCHID].Add(lot.LOT_ID,0);
+                }
             }
             args.Header[CItems.PortId] = portId;
             args.Header[CItems.CarrierId] = carrierId;
@@ -568,7 +493,7 @@ namespace EAP.EC.KS_CM300
                 return;
             }
             var portstr = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString().Trim();
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][2][1][0]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][2]).ToString().Trim();
             var portId = -1;
             switch (portstr)
             {
@@ -589,9 +514,9 @@ namespace EAP.EC.KS_CM300
             args.Header[CItems.PortId] = portId;
             var slotMapStr = "";
             List<int> slotMap = new List<int>();
-            if (rootItem.Items[2][3][1][0].Items.Length == 25)
+            if (rootItem.Items[2][0][1][3].Items.Length == 25)
             {
-                foreach(var item in rootItem.Items[2][3][1][0].Items)
+                foreach(var item in rootItem.Items[2][0][1][3].Items)
                 {
                     var value = SecsItemUtil.GetItemValue(item).ToString().Trim();
                     slotMap.Add(int.Parse(value));
@@ -629,8 +554,21 @@ namespace EAP.EC.KS_CM300
             }
             else
             {
-                args.SetResultNG();
-                Send_S3F17_CancelCarrier(args);
+                batchInfo = new MESLotInfoDownloadReply() { LOTLIST = new List<LotInfo>() };
+               
+                LotInfo lotInfo = new LotInfo();
+                lotInfo.LOT_ID = "EAPTEST"+ carrierId;
+                lotInfo.WAFERS = new List<Wafer>();
+                for (int m= 1;m <= 25; m++){
+                    slotMap.Add(3);
+                    lotInfo.WAFERS.Add(new Wafer() { WAFER_ID = "EAPTEST"+ carrierId + m.ToString(), SLOT = m });
+                }
+                batchInfo.LOTLIST.Add(lotInfo);
+                args.Header[CItems.SlotMap] = slotMap;
+                args.Header[CItems.BatchInfo] = batchInfo;
+                await Send_S3F17_SecondProcessWithCarrier(args);
+                //args.SetResultNG();
+                //Send_S3F17_CancelCarrier(args);
             }
         }
 
@@ -650,12 +588,11 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][2][1][0]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][2]).ToString().Trim();
             var portId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString().Trim();
             args.Header[CItems.CarrierId] = carrierId;
             args.Header[CItems.PortId] = portId;
-          
-            var res =await MESClient.MES_TrackIn(eqpId, carrierId);
+            var res = await MESClient.MES_TrackIn(eqpId, carrierId);
             if (res)
             {
                 await Send_S16F15_CreatePJ(args);
@@ -683,7 +620,7 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            string SubstLocSubstLocID= SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString().Trim();
+            string SubstLocSubstLocID= SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][10]).ToString().Trim();
             var carrierId = SubstLocSubstLocID.Split('.')[0];
             var slot = SubstLocSubstLocID.Split('.')[1];
             var portId= AppCache.Current.EqpInfos[eqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
@@ -699,23 +636,29 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var pjid = SecsItemUtil.GetItemValue(rootItem[2][0][1][0]).ToString();
-            var carrierId = SecsItemUtil.GetItemValue(rootItem[2][0][1][2][0][0]).ToString();
-            args.Header[CItems.CarrierId] = carrierId;
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
-            args.Header[CItems.BatchInfo] = batchInfo;
-            AppCache.Current.PjQuendList.Add(pjid);
-            foreach(var lot in batchInfo.LOTLIST)
+            var pjid = SecsItemUtil.GetItemValue(rootItem[2][0][1][1]).ToString();
+            bool creatCJ = true;
+            var cjid = string.Empty;
+            foreach(var cj in AppCache.Current.CJQuendList)
             {
-                if (AppCache.Current.PjQuendList.Contains(lot.LOT_ID))
-                    continue;
-                else
+                if (cj.Value.ContainsKey(pjid))
                 {
-                    args.SetResultNG();
-                    return;
+                    cjid = cj.Key;
+                    cj.Value[pjid] = 1;
+
+                    foreach (var pj in cj.Value.Values)
+                    {
+                        if (pj == 0)
+                            creatCJ = false;
+                    }
                 }
             }
-            await Send_S14F9_CreateCJ(args);
+            if (creatCJ)
+            {
+                var batchInfo = AppCache.Current.MesBatchInfos.FirstOrDefault(a => a.Key == cjid);
+                args.Header[CItems.BatchInfo] = batchInfo.Key;
+                await Send_S14F9_CreateCJ(args);
+            }
         }
 
         public void Receive_S6F11_ProcessStart(Arguments args)
@@ -767,6 +710,63 @@ namespace EAP.EC.KS_CM300
             }
             return ControlState.UNKNOWN;
         }
+
+        public void Send_S1F3_FDCTEST(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            SecsMessage msg = new SecsMessage(1, 3);
+            List<Item> FDCItems = new List<Item>();
+            for (int i = 9; i <= 24; i++)
+            {
+                if (i != 12 && i != 16 && i != 20 && i != 24)
+                {
+                    List<Item> items = new List<Item>() {
+                        Item.U4((uint)((1100+i)*10000+112)),
+                        Item.U4((uint)((1100+i)*10000+123)),
+                        Item.U4((uint)((1100+i)*10000+124)),
+                        Item.U4((uint)((1100+i)*10000+132)),
+                        Item.U4((uint)((1100+i)*10000+133)),
+                        Item.U4((uint)((1100+i)*10000+141)),
+                        Item.U4((uint)((1100+i)*10000+143)),
+                        Item.U4((uint)((1100+i)*10000+151)),
+                        Item.U4((uint)((1100+i)*10000+152)),
+                        Item.U4((uint)((1100+i)*10000+153)),
+                        Item.U4((uint)((1100+i)*10000+154)),
+                        Item.U4((uint)((1100+i)*10000+157)),
+                        Item.U4((uint)((1100+i)*10000+160)),
+                        Item.U4((uint)((1100+i)*10000+161)),
+                        Item.U4((uint)((1100+i)*10000+162)),
+                        Item.U4((uint)((1100+i)*10000+164)),
+                        Item.U4((uint)((1100+i)*10000+170)),
+                        Item.U4((uint)((1100+i)*10000+171)),
+                        Item.U4((uint)((1100+i)*10000+172)),
+                        Item.U4((uint)((1100+i)*10000+174)),
+                        Item.U4((uint)((1100+i)*10000+206)),
+                        Item.U4((uint)((1100+i)*10000+207)),
+                        Item.U4((uint)((1100+i)*10000+208)),
+                        Item.U4((uint)((1100+i)*10000+209)),
+                        Item.U4((uint)((1100+i)*10000+210)),
+                        Item.U4((uint)((1100+i)*10000+211)),
+                        Item.U4((uint)((1100+i)*10000+212)),
+                        Item.U4((uint)((1100+i)*10000+213)),
+                        Item.U4((uint)((1100+i)*10000+214)),
+                        Item.U4((uint)((1100+i)*10000+216)),
+                        Item.U4((uint)((1100+i)*10000+217)),
+                        Item.U4((uint)((1100+i)*10000+112)),
+                    };
+                    FDCItems.AddRange(items);
+                }
+            }
+            msg.SecsItem = Item.L(FDCItems.ToArray());
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+            while (true)
+            {
+                var reply = context.SecsGem.SendAsync(msg).Result;
+                Thread.Sleep(1000);
+            }
+        }
+
+
         public List<AccessMode> Send_S1F3_Get_AccessMode(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
@@ -1101,7 +1101,7 @@ namespace EAP.EC.KS_CM300
             var reply = await context.SecsGem.SendAsync(msg);
             if (reply != null)
             {
-                int retCode = (int)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
+                int retCode =(byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
                 {
                     args.SetResultNG($"Send_S3F17_CancelCarrier, Equipment Reject,Return Code:{retCode}.");
@@ -1203,20 +1203,58 @@ namespace EAP.EC.KS_CM300
 
         public async Task Send_S14F9_CreateCJ(Arguments args)
         {
+
+            var batchId = args.Header[CItems.BatchInfo].ToString();
+            var batchInfo = AppCache.Current.MesBatchInfos[batchId];
             var EqpId = args.Header[CItems.EqpId].ToString();
-            var carrierId = args.Header[CItems.CarrierId].ToString();
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
+            var carrierId = batchInfo.CARRIERID;
+            var portId = AppCache.Current.EqpInfos[EqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
             SecsMessage msg = new SecsMessage(14, 9);
             Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
+            List<int> slots = new List<int>();
             foreach(var lot in batchInfo.LOTLIST)
             {
+                foreach(var wafer in lot.WAFERS)
+                {
+                    slots.Add(wafer.SLOT);
+                }
                 Item pjItem = Item.L(new Item[] { Item.A(lot.LOT_ID),Item.L(),Item.L() });
                 pjItems[index] = pjItem;
                 index++;
             }
-            Item cjItem = Item.L(new Item[] { 
-                Item.L(new Item[] {Item.A("ObjID"),Item.A("ControlJob101")}),
+            Item sourceItem = Item.L(new Item[slots.Count]);
+            Item destItem = Item.L(new Item[slots.Count]);
+            int slotindex = 0;
+            foreach (var slot in slots)
+            {
+                sourceItem.Items[slotindex] = Item.U1((byte)slot);
+                destItem.Items[slotindex] = Item.U1((byte)slot);
+                slotindex++;
+            }
+            var destcarrierId = string.Empty;
+            switch (portId)
+            {
+                case "1":
+                    destcarrierId = AppCache.Current.EqpInfos[EqpId].PortInfo[2].CarrierId;
+                    break;
+                case "2":
+                    destcarrierId = AppCache.Current.EqpInfos[EqpId].PortInfo[1].CarrierId;
+                    break;
+                case "3":
+                    destcarrierId = AppCache.Current.EqpInfos[EqpId].PortInfo[4].CarrierId;
+                    break;
+                case "4":
+                    destcarrierId = AppCache.Current.EqpInfos[EqpId].PortInfo[3].CarrierId;
+                    break;
+            }
+            
+             var MtrlOutSpecItem = Item.L(new Item[] { Item.L(new Item[]{
+             Item.L(new Item[]{Item.A(batchInfo.CARRIERID), sourceItem }),
+              Item.L(new Item[]{Item.A(destcarrierId) ,destItem  }),
+             }) });
+             Item cjItem = Item.L(new Item[] { 
+                Item.L(new Item[] {Item.A("ObjID"),Item.A("ControlJob101"+carrierId)}),
                 Item.L(new Item[]{Item.A("CarrierInputSpec"),Item.L(new Item[] { Item.A(batchInfo.CARRIERID)}) }),
                 Item.L(new Item[]{Item.A("ProcessingCtrlSpec"),Item.L(pjItems) }),
                 Item.L(new Item[] {Item.A("ProcessOrderMgmt"),Item.U1((byte)3)}),
@@ -1376,7 +1414,7 @@ namespace EAP.EC.KS_CM300
                     if (ceid >= 20000 && ceid <30000)
                     {
                         var flag = (ceid - 20000) % 100;
-                        if (flag == 0 || flag == 1 || flag == 10 || flag ==11)
+                        if (flag == 0 || flag == 1 || flag == 10 || flag == 11)
                         {
                             var chIndex = (ceid - flag - 20000) / 100;
                             if (!ChamberList.Contains(chIndex.ToString()))

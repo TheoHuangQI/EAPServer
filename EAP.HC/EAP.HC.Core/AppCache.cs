@@ -25,7 +25,7 @@ namespace EAP.HC.Core
             {
                 Current.EqpInfos = new Dictionary<string, EqpInfo>();
                 Current.MesBatchInfos = new Dictionary<string, MESLotInfoDownloadReply>();
-                Current.PjQuendList = new List<string>();
+                Current.CJQuendList = new Dictionary<string, Dictionary<string,int>>();
                 //读配置文件
             }
             catch (Exception)
@@ -44,7 +44,6 @@ namespace EAP.HC.Core
         /// MES lot 信息
         /// </summary>
         public Dictionary<string, MESLotInfoDownloadReply> MesBatchInfos { get; set; }
-
-        public List<string> PjQuendList { get; set; }
+        public Dictionary<string,Dictionary<string,int>> CJQuendList { get; set; }
     }
 }

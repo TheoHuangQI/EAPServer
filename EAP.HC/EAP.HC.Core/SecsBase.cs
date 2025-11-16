@@ -41,8 +41,12 @@ namespace EAP.HC.Core
             {
                 try
                 {
-                    method.Invoke(instance, new object[] { args }); // 调用无参数的方法
-                                                                                       // 如果有参数，可以这样调用：method.Invoke(instance, new object[] { arg1, arg2 });
+                    ThreadPool.QueueUserWorkItem(_ =>
+                    {
+                        method.Invoke(instance, new object[] { args });   // 调用无参数的方法
+                    });
+
+                  
                 }
                 catch (Exception ex)
                 {
