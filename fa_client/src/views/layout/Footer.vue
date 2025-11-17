@@ -20,6 +20,5 @@ export default {
   /* 以下代码可确保页脚始终位于底部 */
   margin-top: auto; /* Flexbox 自动将页脚推到底部 */
   position: sticky;
-  top: 100vh; /* 始终位于视口底部 */
 }
 </style>

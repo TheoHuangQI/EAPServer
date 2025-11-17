@@ -14,7 +14,7 @@
     background-image: url('~@/assets/background.jpg'); /* 设置背景图片 */
     background-position: center; /* 背景图片居中 */
     background-repeat: no-repeat; /* 背景图片不重复 */
-    height: 100vh; /* 设置容器高度为视口高度 */
+    height: 100%; /* 设置容器高度为视口高度 */
     padding: 20px; /* 添加内边距 */
     color: #fff; /* 设置文字颜色为白色 */
     text-align: center; /* 文字居中 */

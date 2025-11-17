@@ -11,5 +11,10 @@ module.exports = defineConfig({
   },
   configureWebpack: {
     devtool: 'source-map'
-  }
+  },
+  devServer: {
+    client: {
+    overlay: false
+    }
+    }
 })

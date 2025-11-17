@@ -6,11 +6,15 @@ import router from './router'; // 引入路由配置
 import '@fortawesome/fontawesome-free/css/all.css';
 import store from './store'  
 import * as echarts from 'echarts';
+import * as mermaid from 'mermaid';
+
+
+import Tree from '@/components'
 
 Vue.config.productionTip = false
 // 使用 Element UI
 Vue.use(ElementUI);
-
+Vue.use(Tree)
 
 new Vue({
   router,// 注入路由

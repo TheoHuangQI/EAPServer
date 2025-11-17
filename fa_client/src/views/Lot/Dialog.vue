@@ -15,6 +15,7 @@
       <!-- 批次号 -->
       <el-form-item label="批次号：" prop="lotId">
         <el-input 
+        :disabled="this.isEdit"
           v-model="formData.lotId"
           placeholder="请输入批次号"
           clearable
@@ -124,7 +125,7 @@ export default {
     return {
       dialogVisible: this.visible,
       formData: { ...this.form },
-      ppidOptions: ['PPID-A001', 'PPID-B002', 'PPID-C003', 'PPID-D004'],
+      ppidOptions: [],
       rules: {
         lotId: [
           { required: true, message: '请输入批次号', trigger: 'blur' }

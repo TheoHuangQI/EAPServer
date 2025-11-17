@@ -2,13 +2,13 @@
     <div class="app-container">
       <!-- 操作栏 -->
       <el-card class="filter-card" shadow="never">
-        <el-row :gutter="20">
-          <el-col :xs="24" :sm="16" :md="12" :lg="8">
+        <el-row :gutter="20" >
+          <el-col :span="4">
             <el-input v-model="lotId" placeholder="LotId" clearable @keyup.enter.native="handleSearch">
               <i slot="prefix" class="el-icon-search el-input__icon" />
             </el-input>
           </el-col>
-          <el-col :xs="24" :sm="8" :md="12" :lg="16" class="operation-col">
+          <el-col :span="20" class="operation-col">
             <el-button-group>
               <el-button type="primary" @click="handleSearch">
                 <i class="el-icon-search" /> 查询
@@ -29,18 +29,19 @@
          <el-table 
          :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
          style="width: 100%" stripe @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column type="selection" width="55" align="center" reserve-selection/>
           <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
           <el-table-column prop="lotId" label="LOT ID" align="center" />
           <el-table-column prop="qty" label="QTY" />
           <el-table-column prop="ppid" label="PPID"/>
           <el-table-column prop="lotState" label="Status">
             <template #default="scope">
-            <span v-if="scope.row.lotState === 0">WaitTrackIn</span>
-            <span v-else-if="scope.row.lotState === 1">TrackIn</span>
-            <span v-else-if="scope.row.lotState === 2">LotStart</span>
-            <span v-else-if="scope.row.lotState === 3">LotEnd</span>
-            <span v-else-if="scope.row.lotState === 4">TrackOut</span>
+              <span v-if="scope.row.lotState === 0">Idle</span>
+            <span v-if="scope.row.lotState === 1">WaitTrackIn</span>
+            <span v-else-if="scope.row.lotState === 2">TrackIn</span>
+            <span v-else-if="scope.row.lotState === 3">LotStart</span>
+            <span v-else-if="scope.row.lotState === 4">LotEnd</span>
+            <span v-else-if="scope.row.lotState === 5">TrackOut</span>
           </template>
           </el-table-column>
           <el-table-column prop="batchId" label="Batch"/>

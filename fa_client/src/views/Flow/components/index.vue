@@ -1,0 +1,218 @@
+<template>
+  <div :id="id" class="mermaid">{{ parseCode }}</div>
+</template>
+
+<script>
+import mermaid from 'mermaid'
+export default {
+  name: 'VueMermaid',
+  props: {
+    id: {
+      type: String,
+      required: true
+    },
+    type: {
+      type: String,
+      default: 'graph TD'
+    },
+    nodes: {
+      type: Array,
+      required: true
+    },
+    styles: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
+    config: {
+      type: Object,
+      default() {
+        return {
+          theme: 'default',
+          startOnLoad: true,
+          securityLevel: 'loose'
+        }
+      }
+    }
+  },
+  data: function() {
+    return {
+      edges: [
+        { type: 'default', open: '[', close: ']' },
+        { type: 'round', open: '(', close: ')' },
+        { type: 'circle', open: '((', close: '))' },
+        { type: 'asymetric', open: '>', close: ']' },
+        { type: 'rhombus', open: '{', close: '}' }
+      ]
+    }
+  },
+  computed: {
+    nodeObject() {
+      const { nodes } = this
+      if (Array.isArray(nodes) && nodes.length > 0) {
+        const arrayToObject = (arr, keyField) =>
+          Object.assign({}, ...arr.map(item => ({ [item[keyField]]: item })))
+        return arrayToObject(nodes, 'id')
+      } else {
+        return {}
+      }
+    },
+    customStyle() {
+      const { nodes, styles } = this
+      const nodeStyles = nodes
+        .filter(node => node.style)
+        .map(node => `style ${node.id} ${node.style}`)
+      return nodeStyles.concat(styles)
+    },
+    parseCode() {
+      const { nodes } = this
+      if (Array.isArray(nodes) && nodes.length > 0) {
+        const parseCode = this.type + '\n'
+        const groupNodes = this.getGroupNodes(nodes)
+        const code = parseCode + groupNodes + this.customStyle.join(' \n')
+        this.load(code)
+        return code
+      } else {
+        return ''
+      }
+    }
+  },
+  created() {
+    this.init()
+  },
+  mounted() {
+    this.$nextTick().then(() => {
+      this.load(this.parseCode)
+    })
+  },
+  methods: {
+    getGroupNodes(nodes) {
+      const innerMap = new Map()
+      nodes.forEach(element => {
+        const group = element.group || ''
+        const data = innerMap.get(group) || { nids: new Set(), narr: [] }
+        data.nids.add(element.id)
+        data.narr.push(element)
+        innerMap.set(group, data)
+      })
+      return [...innerMap.entries()]
+        .map(item => {
+          const [groupName, entry] = item
+          const { nids, narr } = entry
+          if (groupName !== '') {
+            const innerNodes = []
+            const outNodes = []
+            narr.forEach(node => {
+              if (node.next) {
+                innerNodes.push({
+                  id: node.id,
+                  text: node.text,
+                  style: node.style
+                })
+                node.next.forEach(id => {
+                  if (nids.has(id)) {
+                    innerNodes.push({
+                      id: node.id,
+                      text: node.text,
+                      link: node.link,
+                      next: [id]
+                    })
+                  } else {
+                    outNodes.push({
+                      id: node.id,
+                      text: node.text,
+                      link: node.link,
+                      next: [id]
+                    })
+                  }
+                })
+              } else {
+                innerNodes.push(node)
+              }
+            })
+            const innerNodesStr = this.buildNodesStr(innerNodes)
+            const outNodeStr = this.buildNodesStr(outNodes)
+            return `subgraph ${groupName} \n ${innerNodesStr} end \n ${outNodeStr}`
+          } else {
+            const nodesStr = this.buildNodesStr(narr)
+            return nodesStr
+          }
+        })
+        .join(' \n')
+    },
+    buildNodesStr(nodes) {
+      return (
+        nodes
+          .map(item => {
+            if (item.next && item.next.length > 0) {
+              return item.next
+                .map(n => {
+                  const next = this.nodeObject[n] || this.nodeObject[n.id]
+                  if (next != null && typeof next !== 'undefined') {
+                    return `${this.buildNode(item)}${this.buildLink(
+                      item
+                    )}${this.buildNode(next)}`
+                  } else {
+                    // TODO error
+                    return `${this.buildNode(item)}`
+                  }
+                })
+                .join('\n')
+            } else {
+              return `${this.buildNode(item)}`
+            }
+          })
+          .join('\n') +
+        '\n' +
+        nodes
+          .filter(item => item.editable)
+          .map(item => {
+            return `click ${item.id} "javascript:mermaidClick('${item.id}');"`
+          })
+          .join('\n') +
+        '\n'
+      )
+    },
+    buildNode(item) {
+      const edge = !item.edgeType
+        ? this.edges.find(e => {
+          return e.type === 'default'
+        })
+        : this.edges.find(e => {
+          return e.type === item.edgeType
+        })
+      return `${item.id}${edge.open}${item.text}${edge.close}`
+    },
+    buildLink(item) {
+      return item.link ? item.link : '-->'
+    },
+    init() {
+      const _t = this
+      window.mermaidClick = function($event) {
+        _t.edit($event)
+      }
+    mermaid.initialize(this.config)
+    },
+    load(code) {
+      if (code) {
+        var container = document.getElementById(this.id)
+        if (container) {
+          container.removeAttribute('data-processed')
+          container.replaceChild(
+            document.createTextNode(code),
+            container.firstChild
+          )
+        mermaid.init(code, container)
+        }
+      }
+    },
+    edit($event) {
+      this.$emit('nodeClick', $event)
+    }
+  }
+}
+</script>
+
+<style>
+</style>

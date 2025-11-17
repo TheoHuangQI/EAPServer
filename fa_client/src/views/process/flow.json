@@ -1,0 +1,119 @@
+{
+  "flowName": "测试流程",
+  "equipmentType": "测试类型",
+  "productId": "测试产品",
+  "defaultFlow": true,
+  "flow": {
+      "nodes": [
+          {
+              "id": "84e50fe5",
+              "label": "起点",
+              "type": "start",
+              "approver": []
+          },
+          {
+              "id": "7b55fb9a",
+              "label": "常规节点",
+              "type": "normal",
+              "auditRules": "user",
+              "approver": [
+                  10054
+              ]
+          },
+          {
+              "id": "a98e6cc4",
+              "label": "常规节点",
+              "type": "normal",
+              "auditRules": "user",
+              "approver": [
+                  10065
+              ]
+          },
+          {
+              "id": "d7660e4d",
+              "label": "串行",
+              "type": "serial",
+              "approver": []
+          },
+          {
+              "id": "723b2529",
+              "label": "常规节点",
+              "type": "normal",
+              "auditRules": "group",
+              "approver": [
+                  1
+              ]
+          },
+          {
+              "id": "ad88fc55",
+              "label": "常规节点",
+              "type": "normal",
+              "auditRules": "group",
+              "approver": [
+                  88
+              ]
+          },
+          {
+              "id": "54e342c6",
+              "label": "并行",
+              "type": "parallel",
+              "auditRules": "",
+              "approver": []
+          },
+          {
+              "id": "8eb757af",
+              "label": "终点",
+              "type": "end",
+              "auditRules": "",
+              "approver": []
+          }
+      ],
+      "edges": [
+          {
+              "id": "8a3cef0d",
+              "source": "84e50fe5",
+              "target": "7b55fb9a"
+          },
+          {
+              "id": "19343aa7",
+              "source": "84e50fe5",
+              "target": "a98e6cc4"
+          },
+          {
+              "id": "9a05095d",
+              "source": "7b55fb9a",
+              "target": "d7660e4d"
+          },
+          {
+              "id": "ec903255",
+              "source": "a98e6cc4",
+              "target": "d7660e4d"
+          },
+          {
+              "id": "719cc36b",
+              "source": "d7660e4d",
+              "target": "723b2529"
+          },
+          {
+              "id": "d550e0cb",
+              "source": "d7660e4d",
+              "target": "ad88fc55"
+          },
+          {
+              "id": "f3be9deb",
+              "source": "723b2529",
+              "target": "54e342c6"
+          },
+          {
+              "id": "a7c62864",
+              "source": "ad88fc55",
+              "target": "54e342c6"
+          },
+          {
+              "id": "813e5f07",
+              "source": "54e342c6",
+              "target": "8eb757af"
+          }
+      ]
+  }
+}

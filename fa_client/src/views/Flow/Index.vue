@@ -1,366 +1,234 @@
 <template>
-  <div class="container">
-    <el-row class="main-wrapper" :gutter="10">
-      <!-- 左侧列表 -->
-      <el-col :span="3">
-        <div class="left-panel">
-          <div class="search-container">
-            <el-input
-              v-model="searchQuery"
-              placeholder="搜索"
-              prefix-icon="el-icon-search"
-              clearable
-            />
-          </div>
-          <div class="list-container">
-            <div
-              v-for="(item, index) in filteredList"
-              :key="index"
-              class="list-item"
-              :class="{ 'active-item': selectedItem === item }"
-              @click="selectItem(item)"
-            >
-              <div class="item-content">
-                <div class="item-title">{{ item.name }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </el-col>
+    <div class="container">
+        <el-row class="main-wrapper" :gutter="10">
+            <!-- 左侧列表 -->
+            <el-col :span="4">
+                <div class="left-panel">
+                    <div class="search-container">
+                        <el-input v-model="searchQuery" placeholder="搜索" clearable>
+                            <i slot="prefix" class="el-input__icon el-icon-search"></i>
+                        </el-input>
+                    </div>
+                </div>
+            </el-col>
 
-      <!-- 右侧内容 -->
-      <el-col :span="21">
-        <div class="right-panel">
-          <!-- 操作按钮 -->
-          <div class="operation-buttons">
-            <el-button type="primary" icon="el-icon-plus" @click="handleAdd"
-              >添加</el-button
-            >
-            <el-button
-              type="success"
-              icon="el-icon-edit"
-              :disabled="!selectedItem"
-              @click="handleEdit"
-              >修改</el-button
-            >
-            <el-button
-              type="danger"
-              icon="el-icon-delete"
-              :disabled="!selectedItem"
-              @click="handleDelete"
-              >删除</el-button
-            >
-          </div>
+            <!-- 右侧内容 -->
+            <el-col :span="20">
+                <div class="right-panel">
+                    <!-- 操作按钮 -->
+                    <div class="operation-buttons">
+                        <el-button type="primary" icon="el-icon-plus" @click="handleAdd">新建</el-button>
+                        <el-button type="success" icon="el-icon-edit" :disabled="!selectedNode">编辑</el-button>
+                        <el-button type="danger" icon="el-icon-delete" :disabled="!selectedNode">删除</el-button>
+                    </div>
 
-          <!-- 图表区域 -->
-          <div class="chart-container">
-            <div ref="chartContainer" class="chart-content"></div>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
-  </div>
+                    <!-- 流程图容器 -->
+                    <div class="flowchart-container">
+                        <Figure></Figure>
+                    </div>
+                </div>
+            </el-col>
+        </el-row>
+    </div>
 </template>
-
+  
 <script>
-import * as echarts from "echarts";
-
+import Figure from "./Figure.vue";
 export default {
-  data() {
-    return {
-      searchQuery: "",
-      selectedItem: null,
-      list: [
-        {
-          name: "完整事件时序",
-          data: [150, 230, 224, 218, 135, 147, 260],
-        },
-        {
-          name: "E40状态时序",
-          data: [120, 200, 150, 80, 70, 110, 130],
-        },
-        {
-          name: "E87状态时序",
-          data: [320, 332, 301, 334, 390, 330, 320],
-        },
-        {
-          name: "E90状态时序",
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
-        },
-        {
-          name: "Substrate位置时序",
-          data: [50, 232, 201, 154, 190, 330, 410],
-        },
-      ],
-      chart: null,
-    };
-  },
-
-  computed: {
-    filteredList() {
-      const query = this.searchQuery.toLowerCase();
-      return this.list.filter(
-        (item) =>
-          item.name.toLowerCase().includes(query) ||
-          item.description.toLowerCase().includes(query)
-      );
-    },
-  },
-
-  methods: {
-    initChart() {
-      if (this.chart) {
-        this.chart.dispose();
-      }
-      this.chart = echarts.init(this.$refs.chartContainer);
-    },
-
-    updateChart() {
-      if (!this.selectedItem) return;
-
-      const option = {
-        animation: false,
-        grid: {
-          top: 40,
-          right: 40,
-          bottom: 40,
-          left: 60,
-        },
-        tooltip: {
-          trigger: "axis",
-        },
-        xAxis: {
-          type: "category",
-          data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
-          axisLine: {
-            lineStyle: {
-              color: "#ddd",
+    components: {Figure},
+    data() {
+        return {
+            searchQuery: "",
+            layoutConfig: {
+                type: 'hierarchy', // hierarchy | force
+                direction: 'LR', // 布局方向: LR/RL/TB/BT
+                spacing: {
+                    horizontal: 180,
+                    vertical: 120
+                },
+                forceParams: {
+                    charge: -300, // 节点斥力
+                    linkDistance: 100, // 连接线长度
+                    iterations: 300 // 模拟迭代次数
+                }
             },
-          },
-        },
-        yAxis: {
-          type: "value",
-          axisLine: {
-            lineStyle: {
-              color: "#ddd",
-            },
-          },
-          splitLine: {
-            lineStyle: {
-              color: "#eee",
-            },
-          },
-        },
-        series: [
-          {
-            name: this.selectedItem.name,
-            type: "line",
-            smooth: true,
-            data: this.selectedItem.data,
-            itemStyle: {
-              color: "#3b82f6",
-            },
-            areaStyle: {
-              color: {
-                type: "graph",
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  {
-                    offset: 0,
-                    color: "rgba(59,130,246,0.2)",
-                  },
-                  {
-                    offset: 1,
-                    color: "rgba(59,130,246,0.01)",
-                  },
-                ],
-              },
-            },
-          },
-        ],
-      };
-
-      this.chart.setOption(option);
+        };
     },
+    methods: {
+        // // 更新所有连接路径
+        // updateLinksPath() {
+        //     this.links = this.links.map(link => {
+        //         const source = this.nodes.find(n => n.id === link.sourceId);
+        //         const target = this.nodes.find(n => n.id === link.targetId);
+        //         return {
+        //             ...link,
+        //             d: this.generateLinkPath(source, target)
+        //         };
+        //     });
+        // },
+        // // 自动布局入口方法
+        // autoLayout() {
+        //     switch (this.layoutConfig.type) {
+        //         case 'hierarchy':
+        //             this.runHierarchyLayout();
+        //             break;
+        //         case 'force':
+        //             this.runForceDirectedLayout();
+        //             break;
+        //     }
+        //     this.updateLinksPath();
+        // },
+        // // 层次布局算法
+        // runHierarchyLayout() {
+        //     // 1. 构建节点层级关系
+        //     const root = this.buildHierarchyTree();
+        //     // 2. 选择布局算法
+        //     const layout = this.layoutConfig.direction === 'TB' ?
+        //         cluster().size([800, 600]) :
+        //         tree().nodeSize([this.layoutConfig.spacing.horizontal,
+        //             this.layoutConfig.spacing.vertical]);
+        //     // 3. 执行布局计算
+        //     layout(root);
+        //     // 4. 更新节点坐标
+        //     root.descendants().forEach((node, i) => {
+        //         const vueNode = this.nodes[i];
+        //         vueNode.x = node.x;
+        //         vueNode.y = node.y;
+        //     });
+        // },
+        // // 构建树形数据结构
+        // buildHierarchyTree() {
+        //     const nodeMap = new Map(this.nodes.map(n => [n.id, n]));
+        //     const rootNodes = this.nodes.filter(n => !this.links.some(l => l.targetId === n.id));
+        //     const buildTree = (node) => {
+        //         const children = this.links
+        //             .filter(l => l.sourceId === node.id)
+        //             .map(l => nodeMap.get(l.targetId));
+        //         return {
+        //             id: node.id,
+        //             children: children.map(buildTree)
+        //         };
+        //     };
+        //     return hierarchy(rootNodes.map(buildTree)[0]);
+        // },
+        // beforeDestroy() {
+        //     window.removeEventListener('click', this.closeContextMenu);
+        // },
+        // // 力导向布局算法
+        // runForceDirectedLayout() {
+        //     const simulation = forceSimulation(this.nodes)
+        //         .force("link", forceLink(this.links))
+        //         .force("charge", forceManyBody().strength(this.layoutConfig.forceParams.charge))
+        //         .force("x", forceX().strength(0.1))
+        //         .force("y", forceY().strength(0.1));
+        //     // 配置连接力
+        //     simulation.force("link")
+        //         .id(d => d.id)
+        //         .distance(this.layoutConfig.forceParams.linkDistance)
+        //         .links(this.links);
+        //     // 运行动画
+        //     simulation
+        //         .stop()
+        //         .tick(this.layoutConfig.forceParams.iterations),
+        //         // 手动停止模拟
+        //         simulation.stop();
+        // },
+        // // 布局配置界面
+        // layoutControls() {
+        //     return (<div class="layout-controls">
+        //             <el-select v-model={this.layoutConfig.type}>
+        //                 <el-option label="层次布局" value="hierarchy"/>
+        //                 <el-option label="力导向布局" value="force"/>
+        //             </el-select>
 
-    selectItem(item) {
-      this.selectedItem = item;
-      this.$nextTick(() => {
-        this.updateChart();
-      });
+        //             {this.layoutConfig.type === 'hierarchy' && (<el-select v-model={this.layoutConfig.direction}>
+        //                     <el-option label="左→右" value="LR"/>
+        //                     <el-option label="右→左" value="RL"/>
+        //                     <el-option label="上→下" value="TB"/>
+        //                     <el-option label="下→上" value="BT"/>
+        //                 </el-select>)}
+
+        //             <el-button type="primary" onClick={this.autoLayout}>
+        //                 应用布局
+        //             </el-button>
+        //         </div>);
+        // }
     },
-
-    handleAdd() {
-      this.$message({
-        message: "点击了添加按钮",
-        type: "info",
-      });
-    },
-
-    handleEdit() {
-      if (!this.selectedItem) return;
-      this.$message({
-        message: `准备编辑：${this.selectedItem.name}`,
-        type: "warning",
-      });
-    },
-
-    handleDelete() {
-      if (!this.selectedItem) return;
-      this.$confirm(`确定要删除【${this.selectedItem.name}】吗？`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning",
-      })
-        .then(() => {
-          const index = this.list.findIndex(
-            (item) => item === this.selectedItem
-          );
-          this.list.splice(index, 1);
-          this.selectedItem = null;
-          this.$message.success("删除成功");
-        })
-        .catch(() => {});
-    },
-
-    handleResize() {
-      this.chart && this.chart.resize();
-    },
-  },
-
-  mounted() {
-    this.initChart();
-    if (this.list.length > 0) {
-      this.selectItem(this.list[0]);
-    }
-    window.addEventListener("resize", this.handleResize);
-  },
-
-  beforeDestroy() {
-    window.removeEventListener("resize", this.handleResize);
-    if (this.chart) {
-      this.chart.dispose();
-    }
-  },
 };
 </script>
-
+  
 <style scoped>
 .container {
-  height: 100%;
-  background-color: #f5f7fa;
-  box-sizing: border-box; /* 关键修复 */
-  padding: 5px;
-  display: flex;
-  flex-direction: column;
-
+    height: 100%;
+    background: #f0f2f5;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .main-wrapper {
-  flex: 1;
-  min-height: 0; /* 关键！修复 flex 容器内容溢出问题 */
-  display: flex;
+    flex: 1;
+    min-height: 0;
+    /* 关键！修复 flex 容器内容溢出问题 */
+    display: flex;
 }
-/* 确保列高度继承 */
+
 .el-col {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .left-panel {
-  flex: 1;
-  min-height: 0; /* 允许内容收缩 */
-  height: 100%;
-  background: white;
-  padding: 15px;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
-
-.search-container {
-  margin-bottom: 15px;
-}
-
-.list-container {
-  flex: 1;
-  min-height: 0; /* 重要：允许滚动 */
-  overflow-y: auto;
- 
-}
-
-.list-item {
-  padding: 12px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  border-left: 4px solid transparent;
-  transition: all 0.3s;
-  border-radius: 4px;
-}
-
-.list-item:hover {
-  background-color: #f5f7fa;
-}
-
-.active-item {
-  background-color: #ecf5ff;
-  border-left-color: #409eff;
-}
-
-.item-title {
-  font-size: 14px;
-  color: #303133;
-  margin-bottom: 4px;
-  font-weight: 500;
-}
-
-.item-desc {
-  font-size: 12px;
-  color: #909399;
-  line-height: 1.4;
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .right-panel {
-  flex: 1;
-  min-height: 0; /* 允许内容收缩 */
-  height: 100%;
-  padding: 20px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .operation-buttons {
-  text-align:left;
-  margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 
-.operation-buttons .el-button {
-  padding: 10px 20px;
+.flowchart-container {
+    flex: 1;
+    position: relative;
+    border: 1px solid #ebeef5;
+    border-radius: 8px;
+    overflow: auto;
+    background: #f8f9fa;
 }
 
-.chart-container {
-  height:100% ;
-}
 
-.chart-content {
-  width: 100%;
-  height: 100%;
-  background: white;
-  border-radius: 4px;
-}
 
-/* 滚动条样式 */
-.list-container::-webkit-scrollbar {
-  width: 6px;
-}
-.list-container::-webkit-scrollbar-track {
-  background: #f5f5f5;
-}
-.list-container::-webkit-scrollbar-thumb {
-  background: #c0c4cc;
-  border-radius: 4px;
-}
+/* 布局控制样式 */
+/* .layout-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 8px;
+} */
+
+/* 力导向动画过渡 */
+/* .node,
+.connection-line {
+    transition: all 0.5s ease-out;
+} */
 </style>

@@ -1,20 +1,21 @@
 import request from '@/utils/request'
 
-export function GetCarrierList (paramsData) {
+export function Get (paramsData) {
     return request({
-        url: '/Carrier/' + paramsData,
-        method: 'get'
+        url: '/Carrier',
+        method: 'get',
+        params: paramsData
       })
   }
 
-export function GetCarrierListIdle () {
+export function GetIdle () {
     return request({
         url: '/Carrier/Idle',
         method: 'get'
       })
   }
 
-export function AddCarrier(data) {
+export function Add(data) {
   return request({
     url: '/Carrier',
     method: 'post',
@@ -22,7 +23,7 @@ export function AddCarrier(data) {
   })
 }
 
-export function EditCarrier(data) {
+export function Edit(data) {
   return request({
     url: '/Carrier',
     method: 'put',
@@ -30,10 +31,12 @@ export function EditCarrier(data) {
   })
 }
 
-export function DeleteCarrier(data) {
+export function Delete(data) {
   return request({
     url: '/Carrier',
     method: 'delete',
     data: data
   })
 }
+
+

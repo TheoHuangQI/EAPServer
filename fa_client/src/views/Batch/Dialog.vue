@@ -81,7 +81,7 @@
 
 <script>
 import { GetLotListIdle} from "@/api/lot"
-import { GetCarrierListIdle} from "@/api/carrier"
+import { GetIdle} from "@/api/carrier"
 
 export default {
   props: {
@@ -103,7 +103,7 @@ export default {
       dialogVisible: this.visible,
       formData: { ...this.form },
       lotSearch: '',
-      devices: ['设备A-123', '设备B-456', '设备C-789', '设备D-012'],
+      devices: ['AHEG07'],
       carriers: [],
       lots: []
     }
@@ -118,7 +118,7 @@ export default {
     },
   },
   created () {
-    this.getLotList()
+     this.getLotList()
     this.getCarrierList()
   },
   methods: {
@@ -128,7 +128,8 @@ export default {
           })
     },
     getCarrierList(){
-      GetCarrierListIdle('').then(res=>{
+      debugger
+      GetIdle('').then(res=>{
             this.carriers = res.data.list
           })
     },

@@ -48,7 +48,7 @@ export default {
             menuItems: [
                 {
                     title: "首页",
-                    icon: "fas fa-chart-line",
+                    icon: "fas fa-home",
                     isOpen: false,
                 },
                 {
@@ -58,29 +58,37 @@ export default {
                     children: ["用户列表", "角色权限"],
                 },
                 {
-                    title: "批次管理",
-                    icon: "fas fa-file-alt",
+                    title: "作业信息",
+                    icon: "fas fa-align-justify",
                     isOpen: false,
                     children: ["载具管理", "LOT 管理", "Batch 管理"],
                 },
                 {
-                    title: "作业管理",
+                    title: "设备管理",
                     icon: "fas fa-cog",
                     isOpen: false,
-                    children: ["EAP看板", "历史记录"],
+                    children: ["设备列表","EAP看板", "作业记录","异常记录"],
                 },
                 {
-                    title: "测试用例",
-                    icon: "fas fa-file-alt",
+                    title: "数据采集",
+                    icon: "fas fa-database",
                     isOpen: false,
-                    children: ["测试用例库", "测试结果"],
+                    children: ["采集规则","采集历史"],
+                },
+                {
+                    title: "测试管理",
+                    icon: "fas fa-briefcase",
+                    isOpen: false,
+                    children: ["单测试项","复合测试项","测试模版","测试用例","测试结果"],
                 },
                 {
                     title: "流程控制",
-                    icon: "fas fa-file-alt",
+                    icon: "fas fa-sort-amount-asc",
                     isOpen: false,
                     children: ["控制列表"],
                 },
+
+                
             ]
         }
     },
@@ -114,6 +122,38 @@ export default {
                 case '控制列表':
                     this.$router.push('/Flow');
                     break;
+                case 'EAP看板':
+                    this.$router.push('/EAP');
+                    break;
+                case '设备列表':
+                    this.$router.push('/EqpList');
+                    break;
+                case '异常记录':
+                    this.$router.push('/Exception');
+                    break;
+                case '作业记录':
+                    this.$router.push('/RunHistory');
+                    break;
+                case '采集规则':
+                    this.$router.push('/DataRule');
+                    break; 
+                case '采集历史':
+                    this.$router.push('/DataHistory');
+                    break; 
+                case '单测试项':
+                    this.$router.push('/TestItem');
+                    break;
+                case '复合测试项':
+                    this.$router.push('/TestItemBatch');
+                    break;
+                case '测试模版':
+                    this.$router.push('/TestTemplate');
+                    break;
+                case '测试用例':
+                    this.$router.push('/TestCase');
+                    break;
+
+                    
             }
         },
     }
@@ -130,6 +170,7 @@ export default {
     border-right: 1px solid #ddd;
     transition: all 0.3s ease;
     z-index: 40;
+    overflow-y: auto;
 }
 
 .sidebar--collapsed {

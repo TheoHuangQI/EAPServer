@@ -12,7 +12,7 @@
         prop="carrierId"
         :rules="[{ required: true, message: '请输入载具编号', trigger: 'blur' }]"
       >
-        <el-input v-model="formData.carrierId" placeholder="请输入载具编号" />
+        <el-input :disabled="this.isEdit" v-model="formData.carrierId" placeholder="请输入载具编号" />
       </el-form-item>
       <el-form-item
         label="尺寸"
@@ -22,13 +22,14 @@
         <el-input v-model="formData.size" placeholder="请输入尺寸" />
       </el-form-item>
       <el-form-item
+        v-if="this.isEdit"
         label="使用状态"
         prop="in_use"
         :rules="[{ required: true, message: '请选择使用状态', trigger: 'change' }]"
       >
         <el-select v-model="formData.in_use" placeholder="请选择状态" style="width: 100%">
-          <el-option label="使用中" :value="1" />
-          <el-option label="空闲" :value="0" />
+          <el-option label="空闲" :value="1" />
+          <el-option label="使用中" :value="2" />
         </el-select>
       </el-form-item>
     </el-form>

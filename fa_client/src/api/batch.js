@@ -30,3 +30,11 @@ export function DeleteBatch(data) {
     data: data
   })
 }
+
+export function DeleteBatchs(data) {
+  return request({
+    url: '/Batch/DeleteBatchs',
+    method: 'delete',
+    data: data
+  })
+}

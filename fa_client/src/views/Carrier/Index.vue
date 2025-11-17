@@ -3,12 +3,17 @@
     <!-- 操作栏 -->
     <el-card class="filter-card" shadow="never">
       <el-row :gutter="20">
-        <el-col :xs="24" :sm="16" :md="12" :lg="8">
-          <el-input v-model="carrierId" placeholder="载具编号" clearable @keyup.enter.native="handleSearch">
+        <el-col :span="4">
+          <el-input v-model="pageInfo.carrierId" placeholder="载具编号" clearable @keyup.enter.native="handleSearch">
             <i slot="prefix" class="el-icon-search el-input__icon" />
           </el-input>
         </el-col>
-        <el-col :xs="24" :sm="8" :md="12" :lg="16" class="operation-col">
+        <el-col :span="4">
+        <el-select v-model="pageInfo.in_use" placeholder="使用状态" clearable>
+          <el-option  v-for="option in stateOptions" :key="option.value" :label="option.label" :value="option.value" />
+        </el-select>
+      </el-col>
+        <el-col :span="16" class="operation-col">
           <el-button-group>
             <el-button type="primary" @click="handleSearch">
               <i class="el-icon-search" /> 查询
@@ -27,16 +32,17 @@
     <!-- 数据表格 -->
     <el-card class="table-card" shadow="never">
        <el-table 
-       :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-       style="width: 100%" stripe @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" align="center" />
+       :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)"
+       style="width: 100%"  stripe @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" align="center" reserve-selection />
         <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
         <el-table-column prop="carrierId" label="载具编号" align="center" />
         <el-table-column prop="size" label="尺寸" />
         <el-table-column prop="in_use" label="使用状态">
           <template #default="scope">
-            <span v-if="scope.row.in_use === 0">空闲</span>
-            <span v-else>使用中</span>
+            <el-tag :type="scope.row.in_use === 1 ? 'success' : 'warning'">
+              {{ scope.row.in_use === 1 ? '空闲' : '使用中' }}
+            </el-tag>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
@@ -52,8 +58,8 @@
       </el-table>
 
       <!-- 分页 -->
-      <el-pagination class="pagination-wrapper" :current-page="currentPage" :page-sizes="[5, 10, 20]"
-        :page-size="pageSize" :total="total" layout="total, sizes, prev, pager, next, jumper"
+      <el-pagination class="pagination-wrapper" :current-page="pageInfo.pageNo" :page-sizes="[5, 10, 20]"
+        :page-size="pageInfo.pageSize" :total="total" layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange" @current-change="handlePageChange" />
     </el-card>
 
@@ -63,23 +69,30 @@
 </template>
 
 <script>
-import { GetCarrierList, AddCarrier,EditCarrier,DeleteCarrier} from "@/api/carrier"
+import { Get, Add,Edit,Delete} from "@/api/carrier"
 import Dialog from "./Dialog.vue"
 export default {
   components: { Dialog },
   data() {
     return {
+      stateOptions: [
+        { value: 1, label: '空闲' },
+        { value: 2, label: '使用中' }
+      ],
+      pageInfo: {
+        carrierId: '',
+        in_use: null,
+        pageNo: 1,
+        pageSize: 10,
+      },
+      total:0,
       loading: false,
-      carrierId: '',
       selectedRows: [],
       showModal: false,
       isEdit: false,
       tableData: [
       ],
       formData: this.getDefaultForm(),
-      currentPage: 1,
-      pageSize: 10,
-      total: 35,
     }
   },
   created() {
@@ -90,16 +103,16 @@ export default {
       return {
         carrierId: '',
         size: '',
-        in_use: 0
+        in_use: 1
       }
     },
     indexHandler(index) {
-      return (this.currentPage - 1) * this.pageSize + index + 1
+      return (this.pageInfo.pageNo - 1) * this.pageInfo.pageSize + index + 1
     },
     async fetchData() {
       this.loading = true
       try {
-        const res = await GetCarrierList(this.carrierId)
+        const res = await Get(this.pageInfo)
         this.tableData = res.data.list
         this.total = res.data.total
       } finally {
@@ -126,7 +139,7 @@ export default {
         cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
       }).then(() => {
-        DeleteCarrier(row).then(res=>{
+        Delete([row.id]).then(res=>{
           if (res.return == "OK") {
               this.$message.success('删除成功')
               this.fetchData()
@@ -142,31 +155,38 @@ export default {
         this.$message.warning('请至少选择一条记录')
         return
       }
-
       this.$confirm(`确定删除选中的 ${this.selectedRows.length} 条记录吗？`, '警告', {
         type: 'warning',
         confirmButtonText: '确认删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
       }).then(() => {
-        this.$message.success('批量删除成功')
+        Delete(this.selectedRows).then(res=>{
+          if (res.return == "OK") {
+              this.$message.success('批量删除成功')
+              this.fetchData()
+            }
+            else {
+              this.$message.error(res.message)
+            }
+        });
       }).catch(() => { })
     },
     handleSelectionChange(selection) {
       this.selectedRows = selection.map(item => item.id)
     },
     handleSizeChange(val) {
-      this.pageSize = val
-      this.currentPage = 1
+      this.pageInfo.pageSize = val
+      this.pageInfo.pageNo = 1
     },
     handlePageChange(val) {
-      this.currentPage = val
+      this.pageInfo.pageNo = val
     },
     handleDialogSubmit(formData) {
       this.loading = true
       try {
         if (this.isEdit) {
-          const res = EditCarrier(formData).then(res => {
+          const res = Edit(formData).then(res => {
             if (res.return == "OK") {
               this.$message.success('修改成功')
               this.fetchData()
@@ -177,7 +197,7 @@ export default {
           })
         }
         else {
-          const res = AddCarrier(formData).then(res => {
+          const res = Add(formData).then(res => {
             if (res.return == "OK") {
               this.$message.success('添加成功')
               this.fetchData()

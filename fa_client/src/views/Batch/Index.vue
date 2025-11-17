@@ -3,12 +3,12 @@
       <!-- 操作栏 -->
       <el-card class="filter-card" shadow="never">
         <el-row :gutter="20">
-          <el-col :xs="24" :sm="16" :md="12" :lg="8">
+          <el-col :span="4">
             <el-input v-model="batchId" placeholder="Batch Id" clearable @keyup.enter.native="handleSearch">
               <i slot="prefix" class="el-icon-search el-input__icon" />
             </el-input>
           </el-col>
-          <el-col :xs="24" :sm="8" :md="12" :lg="16" class="operation-col">
+          <el-col :span="20" class="operation-col">
             <el-button-group>
               <el-button type="primary" @click="handleSearch">
                 <i class="el-icon-search" /> 查询
@@ -29,7 +29,7 @@
          <el-table 
          :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
          style="width: 100%" stripe @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column type="selection" width="55" align="center" reserve-selection/>
           <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
           <el-table-column prop="batchId" label="Batch ID" align="center" />
           <el-table-column prop="tid" label="TID"/>
@@ -61,7 +61,7 @@
   </template>
   
   <script>
-  import { GetBatchList, AddBatch,EditBatch,DeleteBatch} from "@/api/batch"
+  import { GetBatchList, AddBatch,EditBatch,DeleteBatch,DeleteBatchs} from "@/api/batch"
 
   import Dialog from "./Dialog.vue"
   export default {
@@ -152,7 +152,15 @@
           cancelButtonText: '取消',
           confirmButtonClass: 'el-button--danger'
         }).then(() => {
-          this.$message.success('批量删除成功')
+          DeleteBatchs(this.selectedRows).then(res=>{
+          if (res.return == "OK") {
+              this.$message.success('批量删除成功')
+              this.fetchData()
+            }
+            else {
+              this.$message.error(res.message)
+            }
+        });
         }).catch(() => { })
       },
       handleSelectionChange(selection) {
