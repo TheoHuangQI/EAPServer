@@ -36,7 +36,7 @@ export default {
     },
     watch: {
         SourceData(newVal) {
-            debugger
+            //debugger
             this.allOptions=[];
             newVal.forEach(element => {
                 this.allOptions.push({
@@ -47,7 +47,7 @@ export default {
            
         },
         selectedkeys(newVal){
-            debugger
+            //debugger
             this.selectedOptions=[];
             newVal.forEach(ele => {
                 this.selectedOptions.push(ele.id);

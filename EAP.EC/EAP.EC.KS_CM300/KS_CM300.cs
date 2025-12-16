@@ -8,7 +8,9 @@ using Secs4Net;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -30,13 +32,30 @@ namespace EAP.EC.KS_CM300
         public bool state;
     }
 
+    public class VIDItem
+    {
+        public int VID;
+        public string type;
+        public string value;
+        public string name;
+    }
+
+    public class CH
+    {
+        public string name;
+        public bool start;
+    }
+
     public class KS_CM300
     {
         private Logger logger = Logger.Inst();
         private System.Object obj = new System.Object();
 
-        public static bool check=false;
+        public static bool check = false;
         public static bool error = false;
+
+        public static bool L2CH1Start = false;
+
         public KS_CM300()
         {
         }
@@ -81,7 +100,7 @@ namespace EAP.EC.KS_CM300
                         default:
                             break;
                     }
-                   // MESClient.Send_Message(eqpId, "1", $"Recive SECS  MSG:S{stream}F{function}", LogType.INFO);
+                    // MESClient.Send_Message(eqpId, "1", $"Recive SECS  MSG:S{stream}F{function}", LogType.INFO);
                 }
                 args.SetResultOK();
 
@@ -162,6 +181,53 @@ namespace EAP.EC.KS_CM300
                     case 132:
                         Receive_S6F11_ProcessEnd(args);
                         break;
+                    case 20900:
+                    case 21000:
+                    case 21100:
+                    case 21200:
+                    case 21300:
+                    case 21400:
+                    case 21500:
+                    case 21600:
+                    case 21700:
+                    case 21800:
+                    case 21900:
+                    case 22000:
+                    case 22100:
+                    case 22200:
+                    case 22300:
+                    case 22400:
+                    case 20901:
+                    case 21001:
+                    case 21101:
+                    case 21201:
+                    case 21301:
+                    case 21401:
+                    case 21501:
+                    case 21601:
+                    case 21701:
+                    case 21801:
+                    case 21901:
+                    case 22001:
+                    case 22101:
+                    case 22201:
+                    case 22301:
+                    case 22401:
+                        //if (ceid == 20900 || ceid == 21000)
+                        //{
+                        //    L2CH1Start = true;
+                        //}
+                        //else if (ceid == 20901)
+                        //{
+                        //    L2CH1Start = false;
+                        //}
+                        //while (L2CH1Start)
+                        //{
+                        //    Send_S1F3_GetL2CH1_AllDifferenceSVIDValue(args);
+
+                        //    Thread.Sleep(1000);
+                        //}
+                        break;
                 }
                 args.SetResultOK();
             }
@@ -239,35 +305,59 @@ namespace EAP.EC.KS_CM300
                                 }
                                 args.Header[CItems.Check] = false;
                                 Send_S1F3_Get_AccessMode(args);
+                                Send_S1F3_Get_AllDifferenceSVID(args);
                                 Send_S1F3_Get_TransferStatus(args);
                                 break;
                             }
-                            
+
                         case 10:
                             {
-                                eqp.Value.ControlStatus = ControlState.REMOTE;
-                                if (!eqp.Value.IsInitial)
+
+                                LoadSVIDDef();
+                                //Send_S1F3_Get_AllDifferenceSVID(args);
+                                while (true)
                                 {
-                                    await HsmsInitial(args);
-                                    eqp.Value.IsInitial = true;
+                                    Stopwatch sw = Stopwatch.StartNew();
+                                    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+
+                                    Thread.Sleep(1020);
+                                    sw.Stop();
+                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 }
-                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                if (controlState != 5)
-                                {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
-                                }
-                                args.Header[CItems.Check] = false;
-                                Send_S1F3_Get_TransferStatus(args);
-                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                                foreach (var trans in context.transactions)
-                                {
-                                    if (trans.Direction == "H->E" || trans.Direction == "E<-H")
-                                        context.SecsGem.SendAsync(trans.message);
-                                }
+
+                                //eqp.Value.ControlStatus = ControlState.REMOTE;
+                                //if (!eqp.Value.IsInitial)
+                                //{
+                                //    await HsmsInitial(args);
+                                //    eqp.Value.IsInitial = true;
+                                //}
+                                //var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
+                                //MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                                //if (controlState != 5)
+                                //{
+                                //    MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
+                                //}
+                                //args.Header[CItems.Check] = false;
+                                //Send_S1F3_Get_TransferStatus(args);
+                                //Send_S1F3_Get_AllDifferenceSVID(args);
+                                //while (true)
+                                //{
+                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+
+                                //    Thread.Sleep(1000);
+                                //}
+                                //var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+                                //if (context.transactions != null)
+                                //{
+                                //    foreach (var trans in context.transactions)
+                                //    {
+                                //        if (trans.Direction == "H->E" || trans.Direction == "E<-H")
+                                //            await context.SecsGem.SendAsync(trans.message);
+                                //    }
+                                //}
                                 break;
                             }
-                            
+
                     }
                 }
             }
@@ -275,8 +365,6 @@ namespace EAP.EC.KS_CM300
             {
                 args.SetResultNG(ex.Message);
             }
-
-
         }
 
         /// <summary>
@@ -294,7 +382,7 @@ namespace EAP.EC.KS_CM300
                     return;
                 }
                 var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
-                var portId= int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString());
+                var portId = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString());
                 var eqp = AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId);
                 if (eqp.Value != null)
                 {
@@ -370,9 +458,9 @@ namespace EAP.EC.KS_CM300
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.ReadyToLoad;
                                 var carrierId = eqp.Value.PortInfo[portId].CarrierId;
                                 var batchs = AppCache.Current.MesBatchInfos.Where(a => a.Value.CARRIERID == carrierId);
-                                if(batchs!=null && batchs.Count() > 0)
+                                if (batchs != null && batchs.Count() > 0)
                                 {
-                                    foreach(var batch in batchs)
+                                    foreach (var batch in batchs)
                                     {
                                         AppCache.Current.MesBatchInfos.Remove(batch.Key);
                                         if (AppCache.Current.CJQuendList.Keys.Contains(batch.Key))
@@ -453,7 +541,7 @@ namespace EAP.EC.KS_CM300
                     break;
             }
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
-            MESClient.Send_MaterialRecived(eqpId,portId, carrierId);
+            MESClient.Send_MaterialRecived(eqpId, portId, carrierId);
             var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId);
             if (mesbatchInfo == null)
             {
@@ -466,11 +554,11 @@ namespace EAP.EC.KS_CM300
             }
             if (!AppCache.Current.CJQuendList.ContainsKey(mesbatchInfo.BATCHCHID))
             {
-                AppCache.Current.CJQuendList.Add(mesbatchInfo.BATCHCHID,new Dictionary<string, int>() );
+                AppCache.Current.CJQuendList.Add(mesbatchInfo.BATCHCHID, new Dictionary<string, int>());
 
                 foreach (var lot in mesbatchInfo.LOTLIST)
                 {
-                    AppCache.Current.CJQuendList[mesbatchInfo.BATCHCHID].Add(lot.LOT_ID,0);
+                    AppCache.Current.CJQuendList[mesbatchInfo.BATCHCHID].Add(lot.LOT_ID, 0);
                 }
             }
             args.Header[CItems.PortId] = portId;
@@ -516,7 +604,7 @@ namespace EAP.EC.KS_CM300
             List<int> slotMap = new List<int>();
             if (rootItem.Items[2][0][1][3].Items.Length == 25)
             {
-                foreach(var item in rootItem.Items[2][0][1][3].Items)
+                foreach (var item in rootItem.Items[2][0][1][3].Items)
                 {
                     var value = SecsItemUtil.GetItemValue(item).ToString().Trim();
                     slotMap.Add(int.Parse(value));
@@ -533,7 +621,7 @@ namespace EAP.EC.KS_CM300
                     foreach (var wafer in lot.WAFERS)
                     {
 
-                        if (slotMap[wafer.SLOT-1]!=3)
+                        if (slotMap[wafer.SLOT - 1] != 3)
                         {
                             args.SetResultNG($"SlotMap  Check Fail: MES Slot :{wafer.SLOT} Not Exist in Carrier,EQP Slot Map: {slotMapStr}");
                             goto ExitLoop;
@@ -546,22 +634,23 @@ namespace EAP.EC.KS_CM300
                     Send_S3F17_CancelCarrier(args);
                     return;
                 }
-                args.Header[CItems.SlotMap]= slotMap;
+                args.Header[CItems.SlotMap] = slotMap;
                 args.Header[CItems.BatchInfo] = batchInfo;
                 await Send_S3F17_SecondProcessWithCarrier(args);
-                if(args.GetResultCode()!="OK")
+                if (args.GetResultCode() != "OK")
                     Send_S3F17_CancelCarrier(args);
             }
             else
             {
                 batchInfo = new MESLotInfoDownloadReply() { LOTLIST = new List<LotInfo>() };
-               
+
                 LotInfo lotInfo = new LotInfo();
-                lotInfo.LOT_ID = "EAPTEST"+ carrierId;
+                lotInfo.LOT_ID = "EAPTEST" + carrierId;
                 lotInfo.WAFERS = new List<Wafer>();
-                for (int m= 1;m <= 25; m++){
+                for (int m = 1; m <= 25; m++)
+                {
                     slotMap.Add(3);
-                    lotInfo.WAFERS.Add(new Wafer() { WAFER_ID = "EAPTEST"+ carrierId + m.ToString(), SLOT = m });
+                    lotInfo.WAFERS.Add(new Wafer() { WAFER_ID = "EAPTEST" + carrierId + m.ToString(), SLOT = m });
                 }
                 batchInfo.LOTLIST.Add(lotInfo);
                 args.Header[CItems.SlotMap] = slotMap;
@@ -620,13 +709,13 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            string SubstLocSubstLocID= SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][10]).ToString().Trim();
+            string SubstLocSubstLocID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][10]).ToString().Trim();
             var carrierId = SubstLocSubstLocID.Split('.')[0];
             var slot = SubstLocSubstLocID.Split('.')[1];
-            var portId= AppCache.Current.EqpInfos[eqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
+            var portId = AppCache.Current.EqpInfos[eqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
             MESClient.Send_MapResult(eqpId, portId, slot);
         }
-        
+
         public async void Receive_S6F11_PRJOB_QUEUED(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
@@ -639,7 +728,7 @@ namespace EAP.EC.KS_CM300
             var pjid = SecsItemUtil.GetItemValue(rootItem[2][0][1][1]).ToString();
             bool creatCJ = true;
             var cjid = string.Empty;
-            foreach(var cj in AppCache.Current.CJQuendList)
+            foreach (var cj in AppCache.Current.CJQuendList)
             {
                 if (cj.Value.ContainsKey(pjid))
                 {
@@ -698,7 +787,7 @@ namespace EAP.EC.KS_CM300
             Item[] items = new Item[] { Item.U4(29) };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply =context.SecsGem.SendAsync(msg).Result;
+            var reply = context.SecsGem.SendAsync(msg).Result;
             if (reply != null)
             {
                 var res = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[0]).ToString());
@@ -775,7 +864,7 @@ namespace EAP.EC.KS_CM300
             Item[] items = new Item[] { Item.U4(164) };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply =context.SecsGem.SendAsync(msg).Result;
+            var reply = context.SecsGem.SendAsync(msg).Result;
             if (reply != null)
             {
                 var access1 = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[0][0]).ToString());
@@ -801,7 +890,7 @@ namespace EAP.EC.KS_CM300
                 return null;
             }
         }
-        public  List<TransferStatus> Send_S1F3_Get_TransferStatus(Arguments args)
+        public List<TransferStatus> Send_S1F3_Get_TransferStatus(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
             var check = (bool)args.Header[CItems.Check];
@@ -834,6 +923,364 @@ namespace EAP.EC.KS_CM300
             {
                 return null;
             }
+        }
+
+        public void Send_S1F3_Get_AllDifferenceSVID(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+
+            foreach (var kv in dict)
+            {
+                int svid = kv.Key;
+                string definedType = kv.Value;
+
+                SecsMessage msg = new SecsMessage(1, 3);
+                msg.SecsItem = Item.L(Item.U4((uint)svid));   // 发送 SVID
+
+                SecsMessage reply = null;
+
+                try
+                {
+                    reply = context.SecsGem.SendAsync(msg).Result;
+                }
+                catch (Exception ex)
+                {
+                    LogSVIDError(svid, $"Send S1F3 failed: {ex.Message}", "SVID_Check_Result");
+                    continue;
+                }
+
+                if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
+                {
+                    LogSVIDError(svid, $"Empty S1F3 reply", "SVID_Check_Result");
+                    continue;
+                }
+
+                var item = reply.SecsItem[0];
+                var actualFormat = item.Format.ToString();
+
+                switch (actualFormat)
+                {
+                    case "ASCII":
+                        actualFormat = "A";
+                        continue;
+                    case "List":
+                        actualFormat = "L";
+                        continue;
+                }
+
+                if (!string.Equals(definedType, actualFormat, StringComparison.OrdinalIgnoreCase))
+                {
+                    LogSVIDError(svid, $"Format mismatch: CSV={definedType}, Actual={actualFormat}", "SVID_Check_Result");
+                }
+
+                if (item.Format != SecsFormat.List)
+                {
+                    if (item.Count > 0)
+                    {
+                        try
+                        {
+                            var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+
+                            if (int.TryParse(rawValue, out int value))
+                            {
+                                if (value == -1)
+                                {
+                                    LogSVIDError(svid, "Value = -1", "SVID_Check_Result");
+                                }
+                            }
+                            else
+                            {
+                                LogSVIDError(svid, $"Cannot parse value: {rawValue}", "SVID_Check_Result");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogSVIDError(svid, $"Value parse error: {ex.Message}", "SVID_Check_Result");
+                        }
+                    }
+                    else
+                    {
+                        LogSVIDError(svid, "Item has no children", "SVID_Check_Result");
+                    }
+                }
+            }
+        }
+
+        public void Send_S1F3_Get_AllDifferenceSVIDValue(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+            bool first = false;
+
+            if (dict.Count == 0)
+            {
+                return;
+            }
+            SecsMessage msg = new SecsMessage(1, 3);
+            nextVIDList.Clear();
+            var item1 = new Item[L2CH1FlwSvidDict.Count];
+            int i = 0;
+            foreach (var chItem in L2CH1FlwSvidDict)
+            {
+                int svid = chItem.Key;
+                item1[i] = Item.U4((uint)svid);
+                i++;
+            }
+            msg.SecsItem = Item.L(item1);
+            SecsMessage reply = null;
+            try
+            {
+                reply = context.SecsGem.SendAsync(msg).Result;
+            }
+            catch (Exception ex)
+            {
+                LogSVIDError(0, $"Send S1F3 failed: {ex.Message}, {msg.SecsItem}", "SVID_ValueCheck_Result");
+            }
+
+            if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
+            {
+                LogSVIDError(0, $"Empty S1F3 reply, {msg.SecsItem}", "SVID_ValueCheck_Result");
+            }
+
+            for (int j = 0; j < reply.SecsItem.Items.Length; j++)
+            {
+                Item resItem = reply.SecsItem.Items[j];
+                var actualFormat = resItem.Format.ToString();
+                string svidTemp = SecsItemUtil.GetItemValue(item1[j])?.ToString();
+                if (int.TryParse(svidTemp, out int svid))
+                {
+                    if (resItem.Count > 0)
+                    {
+                        try
+                        {
+                            var rawValue = SecsItemUtil.GetItemValue(resItem)?.ToString();
+                            if (!currentVIDList.Any(item => item.VID == svid))
+                            {
+                                first = true;
+                                currentVIDList.Add(new VIDItem()
+                                {
+                                    VID = svid,
+                                    type = actualFormat,
+                                    value = rawValue
+                                });
+                            }
+                            else
+                            {
+                                first = false;
+                            }
+
+                            nextVIDList.Add(new VIDItem()
+                            {
+                                VID = svid,
+                                type = actualFormat,
+                                value = rawValue
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
+                        }
+                    }
+                    else
+                    {
+                        //LogSVIDError(svid, "Item has no children", "SVID_ValueCheck_Result");
+                    }
+                }
+            }
+
+            if (!first)
+            {
+                foreach (var kv in currentVIDList)
+                {
+                    if (nextVIDList.Any(item => item.VID == kv.VID))
+                    {
+                        VIDItem vidItem = nextVIDList.FirstOrDefault(item => item.VID == kv.VID);
+
+                        if (kv.value == "0" || vidItem.value == "0")
+                        {
+                            kv.value = vidItem.value;
+                            continue;
+                        }
+                        if (string.Equals(kv.value, vidItem.value, StringComparison.OrdinalIgnoreCase))
+                        {
+                            LogSVIDError(kv.VID, $"Value match: last={kv.value}, current={vidItem.value}, name={allSvidDict[kv.VID].name}", "SVID_ValueCheck_Result");
+                        }
+                        else
+                        {
+                            kv.value = vidItem.value;
+                        }
+                    }
+                    else
+                    {
+                        LogSVIDError(kv.VID, "第一次查询到的SVID，本次查不到值", "SVID_ValueCheck_Result");
+                    }
+                }
+            }
+        }
+
+        public void Send_S1F3_GetL2CH1_AllDifferenceSVIDValue(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+
+            if (dict.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var vidItem in L2CH1FlwSvidDict)
+            {
+                int svid = vidItem.Key;
+                string definedType = vidItem.Value.type;
+
+                SecsMessage msg = new SecsMessage(1, 3);
+                msg.SecsItem = Item.L(Item.U4((uint)svid));
+
+                SecsMessage reply = null;
+
+                try
+                {
+                    reply = context.SecsGem.SendAsync(msg).Result;
+                }
+                catch (Exception ex)
+                {
+                    LogSVIDError(svid, $"Send S1F3 failed: {ex.Message}", "SVID_ValueCheck_Result");
+                    continue;
+                }
+
+                if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
+                {
+                    LogSVIDError(svid, $"Empty S1F3 reply", "SVID_ValueCheck_Result");
+                    continue;
+                }
+
+                var item = reply.SecsItem[0];
+
+                //if (item.Format != SecsFormat.List)
+                {
+                    if (item.Count > 0)
+                    {
+                        try
+                        {
+                            var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+
+                            //如果前后值相等就打印
+                            if (L2CH1FlwSvidDict[svid].value == rawValue)
+                            {
+                                LogSVIDError(svid, $"Value mismatch: current={L2CH1FlwSvidDict[svid].value}, next={rawValue}", "SVID_ValueCheck_Result");
+                            }
+                            else
+                            {
+                                L2CH1FlwSvidDict[svid].value = rawValue;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
+                        }
+                    }
+                    else
+                    {
+                        //LogSVIDError(svid, "Item has no children", "SVID_ValueCheck_Result");
+                    }
+                }
+            }
+        }
+
+        private void LogSVIDError(int svid, string msg, string fileName)
+        {
+            try
+            {
+                string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+                string logFile = Path.Combine(desktop, $"{fileName}.csv");
+
+                // 如果文件不存在，写入表头
+                if (!File.Exists(logFile))
+                {
+                    File.WriteAllText(logFile, "Time,SVID,Message\r\n");
+                }
+
+                string line = $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff},{svid},\"{msg}\"\r\n";
+
+                File.AppendAllText(logFile, line);
+            }
+            catch (Exception ex)
+            {
+                // 最终兜底，避免因为日志写失败影响主流程
+                Console.WriteLine($"[LogSVIDError FAILED] {ex.Message}");
+            }
+        }
+
+        string path = @"D:\projects\S25011\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
+        Dictionary<int, string> dict = new Dictionary<int, string>();
+        Dictionary<int, VIDItem> allSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> L2CH1FlwSvidDict = new Dictionary<int, VIDItem>();
+        List<VIDItem> currentVIDList = new List<VIDItem>();
+        List<VIDItem> nextVIDList = new List<VIDItem>();
+
+        public void LoadSVIDDef()
+        {
+            dict.Clear();
+            if (!File.Exists(path))
+            {
+                return;
+            }
+            var lines = File.ReadAllLines(path);
+            foreach (var line in lines)
+            {
+                // 跳过空行或表头
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("id,"))
+                    continue;
+
+                var parts = line.Split(',');
+
+                // 必须至少包含 id 和 type 字段
+                if (parts.Length < 3)
+                    continue;
+
+                // 解析 ID
+                if (int.TryParse(parts[0], out int id))
+                {
+                    string type = parts[2].Trim();  // type 列
+                    dict[id] = type;
+                    allSvidDict[id] = new VIDItem()
+                    {
+                        VID = id,
+                        type = type,
+                        name = parts[1]
+                    };
+
+                    //currentVIDList.Add(new VIDItem()
+                    //{
+                    //    VID = id,
+                    //    type = type,
+                    //    value = "0"
+                    //});
+                    //nextVIDList.Add(new VIDItem()
+                    //{
+                    //    VID = id,
+                    //    type = type,
+                    //    value = "0"
+                    //});
+                }
+            }
+
+            foreach (var svid in allSvidDict.Values)
+            {
+                if (IsMatchL2CH1VlvFlwPV(svid.name))
+                {
+                    L2CH1FlwSvidDict[svid.VID] = svid;
+                }
+            }
+        }
+
+        public static bool IsMatchL2CH1VlvFlwPV(string input)
+        {
+            if (string.IsNullOrEmpty(input))
+                return false;
+
+            return Regex.IsMatch(input, @"^L3CH1_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^L3CH2_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^L3CH3_Vlv\d+FlwPV$");
         }
 
         public async void Send_S1F3_Get_DataVarible(Arguments args)
@@ -940,7 +1387,7 @@ namespace EAP.EC.KS_CM300
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
                     if (retCode == null || retCode != 0)
                     {
-                        args.SetResultNG("Send S2F37, Equipment Reject.");
+                        args.SetResultNG("Send S2F35, Equipment Reject.");
                         return;
                     }
                 }
@@ -989,7 +1436,7 @@ namespace EAP.EC.KS_CM300
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
                     if (retCode == null || retCode != 0)
                     {
-                        args.SetResultNG("Send S2F37, Equipment Reject.");
+                        args.SetResultNG("Send S2F33, Equipment Reject.");
                         return;
                     }
                 }
@@ -1034,12 +1481,12 @@ namespace EAP.EC.KS_CM300
 
             Item[] slotItems = new Item[25];
             Item[] contentItems = new Item[25];
-            for(int i = 0; i < 25; i++)
+            for (int i = 0; i < 25; i++)
             {
                 slotItems[i] = Item.U1((byte)eqpSlotMap[i]);
-                Wafer wafer=null;
-                string LotId=string.Empty;
-                foreach(var lot in batchInfo.LOTLIST)
+                Wafer wafer = null;
+                string LotId = string.Empty;
+                foreach (var lot in batchInfo.LOTLIST)
                 {
                     wafer = lot.WAFERS.FirstOrDefault(m => m.SLOT == (i + 1));
                     LotId = lot.LOT_ID;
@@ -1047,14 +1494,14 @@ namespace EAP.EC.KS_CM300
                         goto ExitLoop;
                 }
             ExitLoop:
-                contentItems[i] = wafer== null ? Item.L(new Item[] { Item.A(""), Item.A("") }) : Item.L(new Item[] { Item.A(LotId), Item.A(wafer.WAFER_ID) });
+                contentItems[i] = wafer == null ? Item.L(new Item[] { Item.A(""), Item.A("") }) : Item.L(new Item[] { Item.A(LotId), Item.A(wafer.WAFER_ID) });
             }
             Item mapItem = Item.L();
-            Item[] items = new Item[] { Item.U4((byte)0), Item.A("ProceedWithCarrier"), Item.A(carrierId), Item.U1((byte)portId), Item.L(new Item[] {Item.L(Item.A("ContentMap"),Item.L(contentItems)), Item.L(Item.A("SlotMap"), Item.L(slotItems)) }) };
+            Item[] items = new Item[] { Item.U4((byte)0), Item.A("ProceedWithCarrier"), Item.A(carrierId), Item.U1((byte)portId), Item.L(new Item[] { Item.L(Item.A("ContentMap"), Item.L(contentItems)), Item.L(Item.A("SlotMap"), Item.L(slotItems)) }) };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
             var reply = await context.SecsGem.SendAsync(msg);
-            if(reply != null)
+            if (reply != null)
             {
                 int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
@@ -1101,7 +1548,7 @@ namespace EAP.EC.KS_CM300
             var reply = await context.SecsGem.SendAsync(msg);
             if (reply != null)
             {
-                int retCode =(byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
+                int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
                 {
                     args.SetResultNG($"Send_S3F17_CancelCarrier, Equipment Reject,Return Code:{retCode}.");
@@ -1118,10 +1565,10 @@ namespace EAP.EC.KS_CM300
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
             var reply = await context.SecsGem.SendAsync(msg);
             List<string> recipeList = new List<string>();
-            if (reply !=null)
+            if (reply != null)
             {
                 var count = reply.SecsItem.Items.Count();
-                
+
                 for (int i = 0; i < count; i++)
                 {
                     recipeList.Add(SecsItemUtil.GetItemValue(reply.SecsItem.Items[i]).ToString());
@@ -1142,7 +1589,7 @@ namespace EAP.EC.KS_CM300
             SecsMessage msg = new SecsMessage(16, 21);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
             var reply = await context.SecsGem.SendAsync(msg);
-            if(reply != null)
+            if (reply != null)
             {
                 int retCode = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem).ToString());
                 if (retCode <= 0)
@@ -1171,21 +1618,21 @@ namespace EAP.EC.KS_CM300
                 var meatItem = Item.B((byte)13);
                 var slotItems = new Item[lot.WAFERS.Count];
                 int i = 0;
-                foreach(var wafer in lot.WAFERS)
+                foreach (var wafer in lot.WAFERS)
                 {
                     slotItems[i] = Item.U1((byte)wafer.SLOT);
                     slots.Add(wafer.SLOT);
                     i++;
                 }
-                var carrierSpecItem =Item.L(new Item[] { Item.L(new Item[] {Item.A(carrierId),Item.L(slotItems) })});
+                var carrierSpecItem = Item.L(new Item[] { Item.L(new Item[] { Item.A(carrierId), Item.L(slotItems) }) });
                 var recipeSpecItem = Item.L(new Item[] { Item.U1((byte)1), Item.A(lot.PPID), Item.L() });
                 var startItem = Item.Boolean(true);
                 var pauseEventItem = Item.L();
 
-                pjItems[index] = Item.L(new Item[] { pjIdItem,meatItem,carrierSpecItem,recipeSpecItem,startItem,pauseEventItem });
+                pjItems[index] = Item.L(new Item[] { pjIdItem, meatItem, carrierSpecItem, recipeSpecItem, startItem, pauseEventItem });
                 index++;
             }
-            msg.SecsItem = Item.L(new Item[] {Item.U1((byte)0),Item.L(pjItems) });
+            msg.SecsItem = Item.L(new Item[] { Item.U1((byte)0), Item.L(pjItems) });
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
             var reply = await context.SecsGem.SendAsync(msg);
             if (reply != null)
@@ -1213,13 +1660,13 @@ namespace EAP.EC.KS_CM300
             Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
             List<int> slots = new List<int>();
-            foreach(var lot in batchInfo.LOTLIST)
+            foreach (var lot in batchInfo.LOTLIST)
             {
-                foreach(var wafer in lot.WAFERS)
+                foreach (var wafer in lot.WAFERS)
                 {
                     slots.Add(wafer.SLOT);
                 }
-                Item pjItem = Item.L(new Item[] { Item.A(lot.LOT_ID),Item.L(),Item.L() });
+                Item pjItem = Item.L(new Item[] { Item.A(lot.LOT_ID), Item.L(), Item.L() });
                 pjItems[index] = pjItem;
                 index++;
             }
@@ -1248,12 +1695,12 @@ namespace EAP.EC.KS_CM300
                     destcarrierId = AppCache.Current.EqpInfos[EqpId].PortInfo[3].CarrierId;
                     break;
             }
-            
-             var MtrlOutSpecItem = Item.L(new Item[] { Item.L(new Item[]{
+
+            var MtrlOutSpecItem = Item.L(new Item[] { Item.L(new Item[]{
              Item.L(new Item[]{Item.A(batchInfo.CARRIERID), sourceItem }),
               Item.L(new Item[]{Item.A(destcarrierId) ,destItem  }),
              }) });
-             Item cjItem = Item.L(new Item[] { 
+            Item cjItem = Item.L(new Item[] {
                 Item.L(new Item[] {Item.A("ObjID"),Item.A("ControlJob101"+carrierId)}),
                 Item.L(new Item[]{Item.A("CarrierInputSpec"),Item.L(new Item[] { Item.A(batchInfo.CARRIERID)}) }),
                 Item.L(new Item[]{Item.A("ProcessingCtrlSpec"),Item.L(pjItems) }),
@@ -1262,10 +1709,10 @@ namespace EAP.EC.KS_CM300
                 Item.L(new Item[] {Item.A("MtrlOutSpec"),Item.L()}),
                 Item.L(new Item[] {Item.A("PauseEvent"),Item.L()}),
             });
-            msg.SecsItem = Item.L(new Item[] {Item.A("Equipment"),Item.A("ControlJob"), cjItem });
+            msg.SecsItem = Item.L(new Item[] { Item.A("Equipment"), Item.A("ControlJob"), cjItem });
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
             var reply = await context.SecsGem.SendAsync(msg);
-            if(reply != null)
+            if (reply != null)
             {
                 var res = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[2][0]).ToString());
                 if (res != 0)
@@ -1301,7 +1748,7 @@ namespace EAP.EC.KS_CM300
                 return;
             }
             MESClient.Send_EqpState(eqpId, EQPState.Connected);
-            
+
             AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.CONNECTED;
             args.SetResultOK();
         }
@@ -1329,7 +1776,7 @@ namespace EAP.EC.KS_CM300
                         //disable
                         args.Header[CItems.Enable] = false;
                         await Send_S2F37(args);
-                        if (args.GetResultCode()!="OK") return;
+                        if (args.GetResultCode() != "OK") return;
                         await Send_S2F35(args);
                         if (args.GetResultCode() != "OK") return;
                         await Send_S2F33(args);
@@ -1345,11 +1792,11 @@ namespace EAP.EC.KS_CM300
                 }
                 args.SetResultOK();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 args.SetResultNG(ex.Message);
             }
-            
+
         }
 
         private void LoadInitiaLXml(Arguments args)
@@ -1384,20 +1831,28 @@ namespace EAP.EC.KS_CM300
                     {
                         string value2 = XmlUtils.XmlGetNodeAttrVal(item2, "id");
                         uint vid = Convert.ToUInt32(value2);
-                        if(vid>=20000 && vid <= 40000)
+                        if (vid >= 20000 && vid <= 40000)
                         {
-                            var flag = (vid - 20000) % 100;
-                            if (flag == 0 || flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5 || flag == 6 || flag == 7)
+                            string ch = vid.ToString().Substring(1, 2);
+                            ch = ch.TrimStart('0');
+                            if (!ChamberList.Contains(ch))
                             {
-                                var chIndex = (vid - flag - 20000) / 100;
-                                if (!ChamberList.Contains(chIndex.ToString()))
-                                {
-                                    dataReportDic.Remove(rptid);
-                                    break;
-                                }
+                                dataReportDic.Remove(rptid);
+                                break;
                             }
+
+                            //var flag = (vid - 20000) % 100;
+                            //if (flag == 0 || flag == 1 || flag == 2 || flag == 3 || flag == 4 || flag == 5 || flag == 6 || flag == 7)
+                            //{
+                            //    var chIndex = (vid - flag - 20000) / 100;
+                            //    if (!ChamberList.Contains(chIndex.ToString()))
+                            //    {
+                            //        dataReportDic.Remove(rptid);
+                            //        break;
+                            //    }
+                            //}
                         }
-                        
+
 
                         if (!dataReportDic[rptid].Contains(vid))
                         {
@@ -1411,30 +1866,42 @@ namespace EAP.EC.KS_CM300
                 {
                     string value3 = XmlUtils.XmlGetNodeAttrVal(item3, "id");
                     uint ceid = Convert.ToUInt32(value3);
-                    if (ceid >= 20000 && ceid <30000)
+
+                    if (ceid >= 20000 && ceid < 40000)
                     {
-                        var flag = (ceid - 20000) % 100;
-                        if (flag == 0 || flag == 1 || flag == 10 || flag == 11)
+                        string ch = ceid.ToString().Substring(1, 2);
+                        ch = ch.TrimStart('0');
+                        if (!ChamberList.Contains(ch))
                         {
-                            var chIndex = (ceid - flag - 20000) / 100;
-                            if (!ChamberList.Contains(chIndex.ToString()))
-                            {
-                                continue;
-                            }
+                            continue;
                         }
                     }
-                    else if (ceid >= 30000 && ceid < 40000)
-                    {
-                        var flag = (ceid - 30000) % 100;
-                        if (flag == 0 || flag == 1 || flag == 2 || flag == 3)
-                        {
-                            var chIndex = (ceid - flag - 30000) / 100;
-                            if (!ChamberList.Contains(chIndex.ToString()))
-                            {
-                                continue;
-                            }
-                        }
-                    }
+
+                    //if (ceid >= 20000 && ceid < 30000)
+                    //{
+                    //    var flag = (ceid - 20000) % 100;
+                    //    if (flag == 0 || flag == 1 || flag == 10 || flag == 11)
+                    //    {
+                    //        var chIndex = (ceid - flag - 20000) / 100;
+                    //        if (!ChamberList.Contains(chIndex.ToString()))
+                    //        {
+                    //            continue;
+                    //        }
+                    //    }
+                    //}
+                    //else if (ceid >= 30000 && ceid < 40000)
+                    //{
+                    //    var flag = (ceid - 30000) % 100;
+                    //    if (flag == 0 || flag == 1 || flag == 2 || flag == 3 || flag == 10 || flag == 11)
+                    //    {
+                    //        var chIndex = (ceid - flag - 30000) / 100;
+                    //        if (!ChamberList.Contains(chIndex.ToString()))
+                    //        {
+                    //            continue;
+                    //        }
+                    //    }
+                    //}
+
                     if (eventLinkRptDic.ContainsKey(ceid))
                     {
                         eventLinkRptDic.Remove(ceid);
@@ -1467,7 +1934,7 @@ namespace EAP.EC.KS_CM300
             var eqpId = args.Header[CItems.EqpId].ToString();
             var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
             SecsMessage msg = new SecsMessage(1, 1);
-            var reply =context.SecsGem.SendAsync(msg).Result;
+            var reply = context.SecsGem.SendAsync(msg).Result;
             if (reply != null)
             {
                 args.SetResultOK();
@@ -1489,7 +1956,7 @@ namespace EAP.EC.KS_CM300
                 dataNode.InnerXml = testItem.DataItemContent;
                 if (dataNode.ChildNodes.Count > 0 && (testItem.Direction == "H->E" || testItem.Direction == "E<-H"))
                 {
-                    message.SecsItem =EAPContext.GetMessageSecsItem(dataNode.ChildNodes[0]);
+                    message.SecsItem = EAPContext.GetMessageSecsItem(dataNode.ChildNodes[0]);
                 }
             }
             var reply = context.SecsGem.SendAsync(message).Result;
@@ -1499,12 +1966,12 @@ namespace EAP.EC.KS_CM300
                 XmlNode dataNode = xmlDocument.CreateNode(XmlNodeType.Element, "DataItem", "");
                 dataNode.InnerXml = testItem.ReplyDataItemContent;
                 var elementNodes = dataNode.ChildNodes.OfType<XmlElement>().ToList();
-                Item replySecsItem= EAPContext.GetMessageSecsItem(elementNodes[0]);
+                Item replySecsItem = EAPContext.GetMessageSecsItem(elementNodes[0]);
                 SECSITEM secsItem = GetSecsItemObj(elementNodes[0]);
-                if(testItem.ReplyStream ==reply.S  && testItem.ReplyFunction == reply.F)
+                if (testItem.ReplyStream == reply.S && testItem.ReplyFunction == reply.F)
                 {
-                   var res= CheckItem(reply.SecsItem, secsItem);
-                   return res;
+                    var res = CheckItem(reply.SecsItem, secsItem);
+                    return res;
                 }
                 return false;
             }
@@ -1525,7 +1992,7 @@ namespace EAP.EC.KS_CM300
             var childNodes = node.ChildNodes.OfType<XmlElement>().ToList();
             if (childNodes.Count > 0)
             {
-                foreach(var childNode in childNodes)
+                foreach (var childNode in childNodes)
                 {
                     var childSecsItem = GetSecsItemObj(childNode);
                     secsItem.ChildItems.Add(childSecsItem);
@@ -1534,7 +2001,7 @@ namespace EAP.EC.KS_CM300
             return secsItem;
         }
 
-        public static bool CheckItem(Item replyItem,SECSITEM secsItem)
+        public static bool CheckItem(Item replyItem, SECSITEM secsItem)
         {
             //先校验节点格式是否对的上
             if (!CheckSecsItemFormart(replyItem.Format, secsItem.Type))
@@ -1571,7 +2038,7 @@ namespace EAP.EC.KS_CM300
                             return true;
                         return false;
                     }
-                    else if(secsItem.count == 0) //表示List下不能有节点
+                    else if (secsItem.count == 0) //表示List下不能有节点
                     {
                         if (replyItem.Items.Count() > 0)
                             return false;
@@ -1582,12 +2049,12 @@ namespace EAP.EC.KS_CM300
                         if (replyItem.Items.Count() != secsItem.count)
                             return false;
                         int i = 0;
-                        foreach(var item in replyItem.Items)
+                        foreach (var item in replyItem.Items)
                         {
-                           var res= CheckItem(item, secsItem.ChildItems[i]);
+                            var res = CheckItem(item, secsItem.ChildItems[i]);
                             if (!res)
                                 return false;
-                           i++;
+                            i++;
                         }
                         return true;
                     }
@@ -1596,7 +2063,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public static bool CheckSecsItemFormart(SecsFormat format,string name)
+        public static bool CheckSecsItemFormart(SecsFormat format, string name)
         {
             if (format.ToString() == "List" && name == "L")
                 return true;
@@ -1604,7 +2071,7 @@ namespace EAP.EC.KS_CM300
                 return true;
             if (format.ToString() == "Boolean" && name == "BOOLEAN")
                 return true;
-            if (format.ToString()==name)
+            if (format.ToString() == name)
                 return true;
             return false;
         }

@@ -5,7 +5,7 @@
     "ConnectionMode": "ACTIVE",
     "LocalIP": "127.0.0.1",
     "LocalPort": 5000,
-    "RemoteIP": "127.0.0.1",
+    "RemoteIP": "192.168.233.196",
     "RemotePort": 5000,
     "EQPType": "KS_CM300",
     "T3": 45,

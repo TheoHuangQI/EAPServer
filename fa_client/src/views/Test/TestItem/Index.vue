@@ -111,7 +111,7 @@ export default {
     async fetchData() {
       this.loading = true
       try {
-        debugger
+        //debugger
         const res = await GetTestItemList(this.messageName)
         this.tableData = res.data.list
         this.total = res.data.total

@@ -183,7 +183,7 @@
         },
         "runtime": {
           "EAP.HC.Core.dll": {
-            "assemblyVersion": "1.0.0",
+            "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
         }
@@ -194,7 +194,7 @@
         },
         "runtime": {
           "EAP.RC.MES.dll": {
-            "assemblyVersion": "1.0.0",
+            "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
         }
@@ -209,7 +209,7 @@
         },
         "runtime": {
           "Secs4Net.dll": {
-            "assemblyVersion": "1.0.0",
+            "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
         }

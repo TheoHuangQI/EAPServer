@@ -128,7 +128,6 @@ export default {
           })
     },
     getCarrierList(){
-      debugger
       GetIdle('').then(res=>{
             this.carriers = res.data.list
           })

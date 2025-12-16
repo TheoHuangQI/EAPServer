@@ -91,6 +91,7 @@ activeMQClient.MessageReceived += (s, e) =>
     }
 };
 await activeMQClient.InitializeAsync();
+//_ = activeMQClient.InitializeAsync();//MQ没装的话，就用这行代码，把上面的注释掉
 #endregion MQ初始化
 
 #region 开启Monitor

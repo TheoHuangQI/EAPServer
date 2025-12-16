@@ -70,7 +70,7 @@ export default {
             })
         },
         selectedOptions(newVal) {
-            debugger
+            //debugger
             // 保存选择的顺序
             const selectedItems = []
             newVal.forEach(key => {
