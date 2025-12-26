@@ -13,11 +13,34 @@ namespace EAP.RC.MES
 {
     public class MESClient
     {
+        #region Send_LPAcessMode 推送LP Access状态
+        public static void Send_SVIDValue(string eqpId, VID vID)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "VIDVALUE";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                vID.EQUIPMENTID= eqpId;
+
+                var xmlBody = XmlSerialization.SerializeOnlyBody(vID);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                ActiveMQClient.Current.SendRequestAsync<LPAccessMode>(xmlMessage);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_LPAcessMode 推送LP Access状态
+
         #region MES_LotInfoDownloadRequest Lot信息请求
         /// <summary>
         /// Lot信息请求
         /// </summary>
-        public async static Task<MESLotInfoDownloadReply> MES_LotInfoDownloadRequest(string eqpId,string carrierId)
+        public async static Task<MESLotInfoDownloadReply> MES_LotInfoDownloadRequest(string eqpId, string carrierId)
         {
             try
             {
@@ -32,7 +55,7 @@ namespace EAP.RC.MES
                 lotRequest.CARRIERID = carrierId;
                 var xmlBody = XmlSerialization.SerializeOnlyBody(lotRequest);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var replyData =await ActiveMQClient.Current.SendRequestAsync<MESLotInfoDownloadReply>(xmlMessage);
+                var replyData = await ActiveMQClient.Current.SendRequestAsync<MESLotInfoDownloadReply>(xmlMessage);
                 if (replyData != null)
                 {
                     return replyData;
@@ -52,7 +75,7 @@ namespace EAP.RC.MES
         /// <summary>
         /// 批次进站
         /// </summary>
-        public async static Task<bool> MES_TrackIn(string eqpId,string carrierId)
+        public async static Task<bool> MES_TrackIn(string eqpId, string carrierId)
         {
             try
             {
@@ -69,10 +92,10 @@ namespace EAP.RC.MES
                 var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
                 mESLotTrackIn.LOTLIST.AddRange(batchInfo.LOTLIST.Select(P => P.LOT_ID).ToList());
 
-               var xmlBody = XmlSerialization.SerializeOnlyBody(mESLotTrackIn);
+                var xmlBody = XmlSerialization.SerializeOnlyBody(mESLotTrackIn);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var res =await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
-                return res==null? false :true;
+                var res = await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
+                return res == null ? false : true;
             }
             catch (Exception ex)
             {
@@ -105,8 +128,8 @@ namespace EAP.RC.MES
 
                 var xmlBody = XmlSerialization.SerializeOnlyBody(mESLotTrackIn);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var res =await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
-                return res==null ? false : true;
+                var res = await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
+                return res == null ? false : true;
             }
             catch (Exception ex)
             {
@@ -139,7 +162,7 @@ namespace EAP.RC.MES
 
                 var xmlBody = XmlSerialization.SerializeOnlyBody(mESLotTrackIn);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var res =await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
+                var res = await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
                 return res == null ? false : true;
             }
             catch (Exception ex)
@@ -173,7 +196,7 @@ namespace EAP.RC.MES
 
                 var xmlBody = XmlSerialization.SerializeOnlyBody(mESLotTrackIn);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var res =await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
+                var res = await ActiveMQClient.Current.SendRequestAsync<MESLotTrackIn>(xmlMessage);
                 return res == null ? false : true;
             }
             catch (Exception ex)
@@ -188,7 +211,7 @@ namespace EAP.RC.MES
         /// <summary>
         /// 批次开始
         /// </summary>
-        public static void  Send_Message(string eqpId,string portId, string message, LogType logType)
+        public static void Send_Message(string eqpId, string portId, string message, LogType logType)
         {
             try
             {
@@ -242,7 +265,7 @@ namespace EAP.RC.MES
         #endregion Send_Message 消息推送
 
         #region Send_EapState 推送EAP 程序状态
-        public static void Send_EapState(string eqpId,int LoadPort,EAPState state)
+        public static void Send_EapState(string eqpId, int LoadPort, EAPState state)
         {
             try
             {
@@ -315,7 +338,7 @@ namespace EAP.RC.MES
         #endregion Send_ControlState 
 
         #region Send_LPTransferStatus 推送LP Transfer 状态
-        public static void Send_LPTransferStatus(string eqpId,string portId, TransferStatus status)
+        public static void Send_LPTransferStatus(string eqpId, string portId, TransferStatus status)
         {
             try
             {
@@ -391,7 +414,7 @@ namespace EAP.RC.MES
         #endregion Send_Exception 推送异常记录
 
         #region Send_MaterialRecived 推送物料到达信息
-        public static void Send_MaterialRecived(string eqpId,int portId,string CarrierId)
+        public static void Send_MaterialRecived(string eqpId, int portId, string CarrierId)
         {
             MQHeader header = new MQHeader();
             header.MESSAGENAME = "MaterialRecived";

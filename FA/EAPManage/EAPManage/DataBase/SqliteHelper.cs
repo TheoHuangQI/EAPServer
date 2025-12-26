@@ -150,6 +150,11 @@
                 throw;
             }
         }
+
+        public ISugarQueryable<T> Queryable()
+        {
+            return _db.Queryable<T>();
+        }
     }
 
     /// <summary>

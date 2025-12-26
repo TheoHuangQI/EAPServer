@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <!-- 操作栏 -->
-    <el-card class="filter-card" shadow="never">
+    <el-card v-if="false" class="filter-card" shadow="never">
       <el-row :gutter="20">
         <el-col :xs="4" :sm="4" :md="4" :lg="4">
           <el-input v-model="pageInfo.eqpId" placeholder="设备ID" clearable @keyup.enter.native="handleSearch">
@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- 数据表格 -->
-    <el-card class="table-card" shadow="never">
+    <el-card v-if="false" class="table-card" shadow="never">
       <el-table :data="tableData.slice((pageInfo.pageNo - 1) * pageInfo.pageSize, pageInfo.pageNo * pageInfo.pageSize)" style="width: 100%" stripe
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" reserve-selection/>
@@ -80,11 +80,42 @@
         :page-size="pageInfo.pageSize" :total="total" layout="total, sizes, prev, pager, next, jumper"
         @size-change="handleSizeChange" @current-change="handlePageChange" />
     </el-card>
+    
+
+    <el-row :gutter="20">
+      <!-- 时间选择器 -->
+      <el-col  style="margin-bottom: 10px" :span="24">
+        <el-date-picker
+          v-model="pageInfo.timeRange"
+          type="datetimerange"
+          range-separator="至"
+          start-placeholder="开始时间"
+          end-placeholder="结束时间"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          clearable
+        />
+
+        <el-button type="primary" @click="handleSearch" style="margin-left: 10px">
+          <i class="el-icon-search" /> 查询
+        </el-button>
+      </el-col>
+
+      <!-- 图表 -->
+      <el-col :span="24">
+        <el-card class="chart-card">
+          <div ref="chart" style="height: 750px;"></div>
+        </el-card>
+      </el-col>
+    </el-row>
+
   </div>
+  
 </template>
   
 <script>
 import { GetList, Add, Edit, Delete} from "@/api/dataRule"
+import { GetSvidTrend } from '@/api/vidValue'
+import * as echarts from 'echarts'
 
 export default {
   data() {
@@ -100,6 +131,7 @@ export default {
       pageInfo: {
         eqpId: '',
         vid: '',
+        timeRange: [],
         pageNo: 1,
         pageSize: 10,
       },
@@ -142,7 +174,15 @@ export default {
       }
     },
     handleSearch() {
+      this.pageInfo.pageNo = 1
       this.fetchData()
+
+      if (!this.pageInfo.timeRange || this.pageInfo.timeRange.length !== 2) {
+        this.$message.warning('请选择时间范围')
+        return
+      }
+
+      this.fetchSvidTrend()
     },
     handleAdd() {
       this.isEdit = false
@@ -245,6 +285,116 @@ export default {
       } finally {
         this.loading = false
       }
+    },
+    drawChart(seriesData) {
+      const chart = echarts.init(this.$refs.chart)
+
+      if (!seriesData || seriesData.length === 0) {
+        chart.clear()
+        return
+      }
+
+      const xAxisData = seriesData[0].points.map(p => p.time)
+      const totalPoints = xAxisData.length
+
+      // 计算 20 个刻度的步长
+      const step = Math.max(1, Math.floor(totalPoints / 20))
+
+      const series = seriesData.map(item => ({
+        name: item.name || `VID-${item.vid}`,
+        type: 'line',
+        smooth: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        data: item.points.map(p => p.value),
+        emphasis: {
+          focus: 'series'
+        }
+      }))
+
+      const option = {
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          }
+        },
+        legend: {
+          type: 'scroll',
+          orient: 'vertical',
+          right: 10,
+          top: 20,
+          bottom: 20,
+          width: 160
+        },
+        grid: {
+          left: 60,
+          right: 200,
+          top: 40,
+          bottom: 60,
+          containLabel: true
+        },
+        xAxis: {
+          type: 'category',
+          data: xAxisData,
+          name: '时间',
+          axisLabel: {
+            rotate: 45,
+            formatter: function (value, index) {
+              // 只显示 20 个左右的刻度
+              return index % step === 0 ? value : ''
+            }
+          }
+        },
+        yAxis: {
+          type: 'value',
+          name: '值'
+        },
+        series
+      }
+
+      chart.setOption(option, true)
+
+      // 绑定点击事件（见下一节）
+      this.bindChartClick(chart, seriesData)
+    },
+    async fetchSvidTrend() {
+      GetSvidTrend({
+        eqpId: this.pageInfo.eqpId,
+        startTime: this.pageInfo.timeRange[0],
+        endTime: this.pageInfo.timeRange[1]
+      }).then(res => {
+        if (res.return === 'OK') {
+          this.drawChart(res.data)
+        } else {
+          this.$message.error(res.MESSAGE)
+        }
+      })
+    },
+    bindChartClick(chart, seriesData) {
+      chart.off('click')
+
+      chart.on('click', params => {
+        if (params.componentType !== 'series') return
+
+        const seriesIndex = params.seriesIndex
+        const dataIndex = params.dataIndex
+
+        const seriesItem = seriesData[seriesIndex]
+        const point = seriesItem.points[dataIndex]
+
+        this.$alert(
+          `
+          VID：${seriesItem.vid || seriesItem.name}
+          时间：${point.time}
+          值：${point.value}
+          `,
+          seriesItem.name,
+          {
+            confirmButtonText: '确定'
+          }
+        )
+      })
     }
   }
 }

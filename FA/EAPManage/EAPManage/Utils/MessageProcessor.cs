@@ -23,7 +23,7 @@ namespace EAPManage.Utils
                     _logService = scope.ServiceProvider.GetRequiredService<LogService>();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -157,11 +157,11 @@ namespace EAPManage.Utils
                                         state = (int)LotRunState.Start,
                                         startTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
                                         carrierId = mESLotTrackIn.CARRIERID,
-                                        portId=portInfo.portId,
-                                        portName=portInfo.portName
+                                        portId = portInfo.portId,
+                                        portName = portInfo.portName
                                     });
 
-                                    if (dbres <= 0 ||!resCode)
+                                    if (dbres <= 0 || !resCode)
                                     {
                                         flag = false;
                                     }
@@ -210,13 +210,13 @@ namespace EAPManage.Utils
                                         LotState = LotState.TrackOut
                                     });
 
-                                   var resCode = DataFactory.Current.RunHistory.Update(u=>u.eqpId==mESLotTrackIn.EQUIPMENTID && u.lotId==lot && u.endTime==null,u=>new RunHistory()
+                                    var resCode = DataFactory.Current.RunHistory.Update(u => u.eqpId == mESLotTrackIn.EQUIPMENTID && u.lotId == lot && u.endTime == null, u => new RunHistory()
                                     {
                                         state = (int)LotRunState.End,
                                         endTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
                                     });
 
-                                    if (dbres <= 0 || resCode<=0)
+                                    if (dbres <= 0 || resCode <= 0)
                                     {
                                         flag = false;
                                     }
@@ -397,7 +397,7 @@ namespace EAPManage.Utils
                                 transferState = (int)transferStatus
                             });
                             _logService.SendMessage(eqpid, portId, "TransferState", ((int)transferStatus).ToString(), "info");
-                            
+
                             break;
                         }
                     case "MaterialRecived":
@@ -432,6 +432,30 @@ namespace EAPManage.Utils
                                 lotId = lotIds
                             });
                             _logService.SendMessage(eqpid, port.ToString(), "lot", lotIds, "info");
+                            break;
+                        }
+                    case "VIDVALUE":
+                        {
+                            res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            VID request = XmlSerialization.DeserializeNodeObj<VID>(message, "Request", "Body");
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(request);
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
+
+                            var eqpid = request.EQUIPMENTID;
+                            var vid = request.vID;
+                            var type = request.type;
+                            var value = request.value;
+                            var name = request.name;
+                            DataFactory.Current.VIDValue.Insert(new VIDValue()
+                            {
+                                eqpId = eqpid,
+                                VId = vid,
+                                type = type,
+                                value = value,
+                                name = name,
+                                time = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff")
+                            });
                             break;
                         }
                 }

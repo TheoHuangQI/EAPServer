@@ -203,7 +203,6 @@ export default {
             }
           }
           else if (log.type == "Map") {
-            debugger
             var maps = log.message.split(";")
             var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
             if (lpinfo != null) {

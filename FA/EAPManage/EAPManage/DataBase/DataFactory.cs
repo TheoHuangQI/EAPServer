@@ -43,15 +43,16 @@ namespace EAPManage.DataBase
                 TestTemplate = new SqliteHelper<TestTemplate>(_db);
                 TestTemplateItem = new SqliteHelper<TestTemplateItem>(_db);
                 TestHistory = new SqliteHelper<TestHistory>(_db);
+                VIDValue = new SqliteHelper<VIDValue>(_db);
             }
         }
         private SqlSugarScope _db;
-        public  SqliteHelper<User> User;
-        public  SqliteHelper<Carrier> Carrier;
-        public  SqliteHelper<LotInfo> Lot;
-        public  SqliteHelper<Wafer> Wafer;
-        public  SqliteHelper<Batch> Batch;
-        public  SqliteHelper<Equipment> Equipment;
+        public SqliteHelper<User> User;
+        public SqliteHelper<Carrier> Carrier;
+        public SqliteHelper<LotInfo> Lot;
+        public SqliteHelper<Wafer> Wafer;
+        public SqliteHelper<Batch> Batch;
+        public SqliteHelper<Equipment> Equipment;
         public SqliteHelper<ExceptionRecord> ExceptionRecord;
         public SqliteHelper<PortInfo> PortInfo;
         public SqliteHelper<RunHistory> RunHistory;
@@ -64,6 +65,7 @@ namespace EAPManage.DataBase
         public SqliteHelper<TestTemplate> TestTemplate;
         public SqliteHelper<TestTemplateItem> TestTemplateItem;
         public SqliteHelper<TestHistory> TestHistory;
-        
+        public SqliteHelper<VIDValue> VIDValue;
+
     }
 }
