@@ -473,17 +473,17 @@ namespace EAP.EC.KS_CM300
                         case 10:
                             {
 
-                                //LoadSVIDDef();
-                                //Send_S1F3_Get_AllDifferenceSVID(args);
-                                //while (true)
-                                //{
-                                //    Stopwatch sw = Stopwatch.StartNew();
-                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+                                LoadSVIDDef();
+                                //Send_S1F3_Get_AllDifferenceSVIDValue(args);
+                                while (true)
+                                {
+                                    Stopwatch sw = Stopwatch.StartNew();
+                                    Send_S1F3_Get_AllDifferenceSVIDValue(args);
 
-                                //    Thread.Sleep(1020);
-                                //    sw.Stop();
-                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
-                                //}
+                                    Thread.Sleep(990);
+                                    sw.Stop();
+                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                }
 
                                 //eqp.Value.ControlStatus = ControlState.REMOTE;
                                 //if (!eqp.Value.IsInitial)
@@ -1176,6 +1176,14 @@ namespace EAP.EC.KS_CM300
             if (dict.Count == 0)
             {
                 return;
+            }
+            L2CH1FlwSvidDict.Clear();
+            foreach (var item in allSvidDict)
+            {
+                if (IsMatchL2CH1VlvFlwPV(item.Value.name))
+                {
+                    L2CH1FlwSvidDict.Add(item.Key, item.Value);
+                }
             }
             SecsMessage msg = new SecsMessage(1, 3);
             nextVIDList.Clear();
