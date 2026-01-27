@@ -447,6 +447,7 @@ namespace EAPManage.Utils
                             var type = request.type;
                             var value = request.value;
                             var name = request.name;
+                            var abnormal = request.abnormal;
                             DataFactory.Current.VIDValue.Insert(new VIDValue()
                             {
                                 eqpId = eqpid,
@@ -454,7 +455,8 @@ namespace EAPManage.Utils
                                 type = type,
                                 value = value,
                                 name = name,
-                                time = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff")
+                                time = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                                AbnormalFlag = (int)abnormal
                             });
                             break;
                         }

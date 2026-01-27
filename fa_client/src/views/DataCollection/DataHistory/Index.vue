@@ -84,7 +84,23 @@
 
     <el-row :gutter="20">
       <!-- 时间选择器 -->
-      <el-col  style="margin-bottom: 10px" :span="24">
+      <el-col style="margin-bottom: 10px" :span="24">
+
+        <!-- 异常类型选择 -->
+        <el-select
+          v-model="pageInfo.abnormalFlag"
+          clearable
+          placeholder="异常类型"
+          style="width: 240px; margin-right: 10px"
+        >
+          <el-option
+            v-for="item in abnormalOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
+
         <el-date-picker
           v-model="pageInfo.timeRange"
           type="datetimerange"
@@ -98,6 +114,7 @@
         <el-button type="primary" @click="handleSearch" style="margin-left: 10px">
           <i class="el-icon-search" /> 查询
         </el-button>
+
       </el-col>
 
       <!-- 图表 -->
@@ -114,12 +131,18 @@
   
 <script>
 import { GetList, Add, Edit, Delete} from "@/api/dataRule"
-import { GetSvidTrend } from '@/api/vidValue'
+import { GetSvidTrend,GetSvidTrendwithAbnormal } from '@/api/vidValue'
 import * as echarts from 'echarts'
 
 export default {
   data() {
     return {
+      abnormalOptions: [
+        { value: 0, label: '与上一次值不同' },   // differentAsPrevious
+        { value: 1, label: '与上一次值相同' },   // SameAsPrevious
+        { value: 2, label: '值为 0' },            // ZeroValue
+        { value: 4, label: '首次采集' },          // FirstValue
+      ],
       loading: false,
       selectedRows: [],
       showModal: false,
@@ -132,6 +155,7 @@ export default {
         eqpId: '',
         vid: '',
         timeRange: [],
+        abnormalFlag: null,
         pageNo: 1,
         pageSize: 10,
       },
@@ -359,18 +383,36 @@ export default {
       this.bindChartClick(chart, seriesData)
     },
     async fetchSvidTrend() {
-      GetSvidTrend({
-        eqpId: this.pageInfo.eqpId,
-        startTime: this.pageInfo.timeRange[0],
-        endTime: this.pageInfo.timeRange[1]
-      }).then(res => {
-        if (res.return === 'OK') {
-          this.drawChart(res.data)
-        } else {
-          this.$message.error(res.MESSAGE)
-        }
-      })
-    },
+  const params = {
+    eqpId: this.pageInfo.eqpId,
+    startTime: this.pageInfo.timeRange[0],
+    endTime: this.pageInfo.timeRange[1]
+  }
+
+  // 选了异常 → 调异常接口
+  if (this.pageInfo.abnormalFlag !== null && this.pageInfo.abnormalFlag !== undefined&& this.pageInfo.abnormalFlag !== '') {
+    params.AbnormalFlag = this.pageInfo.abnormalFlag
+
+    GetSvidTrendwithAbnormal(params).then(res => {
+      if (res.return === 'OK') {
+        this.drawChart(res.data)
+      } else {
+        this.$message.error(res.MESSAGE)
+      }
+    })
+  }
+  else {
+    // 不选异常 → 原接口
+    GetSvidTrend(params).then(res => {
+      if (res.return === 'OK') {
+        this.drawChart(res.data)
+      } else {
+        this.$message.error(res.MESSAGE)
+      }
+    })
+  }
+}
+,
     bindChartClick(chart, seriesData) {
       chart.off('click')
 

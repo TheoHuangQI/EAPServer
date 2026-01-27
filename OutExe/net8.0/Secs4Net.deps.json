@@ -10,11 +10,8 @@
         "dependencies": {
           "CommunityToolkit.HighPerformance": "8.2.2",
           "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
-          "Microsoft.NET.ILLink.Tasks": "8.0.21",
-          "Microsoft.SourceLink.GitHub": "8.0.0",
           "PooledAwait": "1.0.49",
-          "System.IO.Pipelines": "8.0.0",
-          "System.Threading.Channels": "8.0.0"
+          "System.IO.Pipelines": "8.0.0"
         },
         "runtime": {
           "Secs4Net.dll": {}
@@ -28,7 +25,6 @@
           }
         }
       },
-      "Microsoft.Build.Tasks.Git/8.0.0": {},
       "Microsoft.Extensions.Configuration.Abstractions/8.0.0": {
         "dependencies": {
           "Microsoft.Extensions.Primitives": "8.0.0"
@@ -94,14 +90,6 @@
           }
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.21": {},
-      "Microsoft.SourceLink.Common/8.0.0": {},
-      "Microsoft.SourceLink.GitHub/8.0.0": {
-        "dependencies": {
-          "Microsoft.Build.Tasks.Git": "8.0.0",
-          "Microsoft.SourceLink.Common": "8.0.0"
-        }
-      },
       "PooledAwait/1.0.49": {
         "runtime": {
           "lib/netcoreapp3.0/PooledAwait.dll": {
@@ -117,8 +105,7 @@
             "fileVersion": "8.0.23.53103"
           }
         }
-      },
-      "System.Threading.Channels/8.0.0": {}
+      }
     }
   },
   "libraries": {
@@ -133,13 +120,6 @@
       "sha512": "sha512-+zIp8d3sbtYaRbM6hqDs4Ui/z34j7DcUmleruZlYLE4CVxXq+MO8XJyIs42vzeTYFX+k0Iq1dEbBUnQ4z/Gnrw==",
       "path": "communitytoolkit.highperformance/8.2.2",
       "hashPath": "communitytoolkit.highperformance.8.2.2.nupkg.sha512"
-    },
-    "Microsoft.Build.Tasks.Git/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-bZKfSIKJRXLTuSzLudMFte/8CempWjVamNUR5eHJizsy+iuOuO/k2gnh7W0dHJmYY0tBf+gUErfluCv5mySAOQ==",
-      "path": "microsoft.build.tasks.git/8.0.0",
-      "hashPath": "microsoft.build.tasks.git.8.0.0.nupkg.sha512"
     },
     "Microsoft.Extensions.Configuration.Abstractions/8.0.0": {
       "type": "package",
@@ -183,27 +163,6 @@
       "path": "microsoft.extensions.primitives/8.0.0",
       "hashPath": "microsoft.extensions.primitives.8.0.0.nupkg.sha512"
     },
-    "Microsoft.NET.ILLink.Tasks/8.0.21": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-s8H5PZQs50OcNkaB6Si54+v3GWM7vzs6vxFRMlD3aXsbM+aPCtod62gmK0BYWou9diGzmo56j8cIf/PziijDqQ==",
-      "path": "microsoft.net.illink.tasks/8.0.21",
-      "hashPath": "microsoft.net.illink.tasks.8.0.21.nupkg.sha512"
-    },
-    "Microsoft.SourceLink.Common/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-dk9JPxTCIevS75HyEQ0E4OVAFhB2N+V9ShCXf8Q6FkUQZDkgLI12y679Nym1YqsiSysuQskT7Z+6nUf3yab6Vw==",
-      "path": "microsoft.sourcelink.common/8.0.0",
-      "hashPath": "microsoft.sourcelink.common.8.0.0.nupkg.sha512"
-    },
-    "Microsoft.SourceLink.GitHub/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-G5q7OqtwIyGTkeIOAc3u2ZuV/kicQaec5EaRnc0pIeSnh9LUjj+PYQrJYBURvDt7twGl2PKA7nSN0kz1Zw5bnQ==",
-      "path": "microsoft.sourcelink.github/8.0.0",
-      "hashPath": "microsoft.sourcelink.github.8.0.0.nupkg.sha512"
-    },
     "PooledAwait/1.0.49": {
       "type": "package",
       "serviceable": true,
@@ -217,13 +176,6 @@
       "sha512": "sha512-FHNOatmUq0sqJOkTx+UF/9YK1f180cnW5FVqnQMvYUN0elp6wFzbtPSiqbo1/ru8ICp43JM1i7kKkk6GsNGHlA==",
       "path": "system.io.pipelines/8.0.0",
       "hashPath": "system.io.pipelines.8.0.0.nupkg.sha512"
-    },
-    "System.Threading.Channels/8.0.0": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-CMaFr7v+57RW7uZfZkPExsPB6ljwzhjACWW1gfU35Y56rk72B/Wu+sTqxVmGSk4SFUlPc3cjeKND0zktziyjBA==",
-      "path": "system.threading.channels/8.0.0",
-      "hashPath": "system.threading.channels.8.0.0.nupkg.sha512"
     }
   }
 }

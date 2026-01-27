@@ -46,6 +46,7 @@ namespace EAP.EC.KS_CM300
         public string type;
         public string value;
         public string name;
+        public int abnormal;
     }
 
     public class CH
@@ -186,13 +187,15 @@ namespace EAP.EC.KS_CM300
                                 {
                                     LogSVIDErrorAsync(svid, $"Value match: last={curValue}, current={rawValue}", "SVID_ValueCheck_Result");
                                     //AsyncLogger.SVIDError(svid, $"Value match: last={curValue}, current={rawValue}", "SVID_ValueCheck_Result");
+                                    //发给后端，保存到数据库，相同的非0数据
+                                    //MESClient.Send_SVIDValue(eqpId, new VID() { vID = svid, name = vID.name, type = vID.type, value = rawValue, abnormal = (int)VIDAbnormalType.SameAsPrevious });
                                 }
                                 else
                                 {
                                     svidDict[svid].value = rawValue;
+                                    //发给后端，保存到数据库，不同的数据
+                                    //MESClient.Send_SVIDValue(eqpId, new VID() { vID = svid, name = vID.name, type = vID.type, value = rawValue, abnormal = (int)VIDAbnormalType.None });
                                 }
-                                //发给后端，保存到数据库
-                                MESClient.Send_SVIDValue(eqpId, new VID() { vID = svid, name = vID.name, type = vID.type, value = rawValue });
                             }
                             catch (Exception ex)
                             {
@@ -349,7 +352,7 @@ namespace EAP.EC.KS_CM300
                         Receive_S6F11_ProcessEnd(args);
                         break;
                     default:
-                        await HandleChannelCEIDAsync(ceid, args);
+                        //await HandleChannelCEIDAsync(ceid, args);
                         break;
                 }
                 args.SetResultOK();
@@ -456,22 +459,35 @@ namespace EAP.EC.KS_CM300
                             }
                         case 9:
                             {
-                                eqp.Value.ControlStatus = ControlState.LOCAL;
-                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                if (controlState != 4)
-                                {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report LOCAL Event,CEID={ceid},But SVID ControlState ={controlState}  ");
-                                }
-                                args.Header[CItems.Check] = false;
-                                Send_S1F3_Get_AccessMode(args);
-                                //Send_S1F3_Get_AllDifferenceSVID(args);
-                                Send_S1F3_Get_TransferStatus(args);
+                                //await Send_S2F41(args, "go_remote");
+                                //LoadSVIDDef();
+                                //while (true)
+                                //{
+                                //    Stopwatch sw = Stopwatch.StartNew();
+                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+
+                                //    Thread.Sleep(990);
+                                //    sw.Stop();
+                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                //}
+
+                                //eqp.Value.ControlStatus = ControlState.LOCAL;
+                                //var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
+                                //MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                                //if (controlState != 4)
+                                //{
+                                //    MESClient.Send_Exception(eqpId, "0", $"EQP Report LOCAL Event,CEID={ceid},But SVID ControlState ={controlState}  ");
+                                //}
+                                //args.Header[CItems.Check] = false;
+                                //Send_S1F3_Get_AccessMode(args);
+                                ////Send_S1F3_Get_AllDifferenceSVID(args);
+                                //Send_S1F3_Get_TransferStatus(args);
                                 break;
                             }
 
                         case 10:
                             {
+                                //await Send_S2F41(args, "go_local");
 
                                 LoadSVIDDef();
                                 //Send_S1F3_Get_AllDifferenceSVIDValue(args);
@@ -517,7 +533,8 @@ namespace EAP.EC.KS_CM300
                                 //}
                                 break;
                             }
-
+                        default:
+                            break;
                     }
                 }
             }
@@ -1208,7 +1225,8 @@ namespace EAP.EC.KS_CM300
 
             if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
             {
-                LogSVIDError(0, $"Empty S1F3 reply, {msg.SecsItem}", "SVID_ValueCheck_Result");
+                //LogSVIDError(0, $"Empty S1F3 reply, {msg.SecsItem}", "SVID_ValueCheck_Result");
+                return;
             }
 
             for (int j = 0; j < reply.SecsItem.Items.Length; j++)
@@ -1270,14 +1288,21 @@ namespace EAP.EC.KS_CM300
                             kv.value = vidItem.value;
                             continue;
                         }
+                        string vidName = allSvidDict[vidItem.VID]?.name;
                         if (string.Equals(kv.value, vidItem.value, StringComparison.OrdinalIgnoreCase))
                         {
-                            LogSVIDError(kv.VID, $"Value match: last={kv.value}, current={vidItem.value}, name={allSvidDict[kv.VID].name}", "SVID_ValueCheck_Result");
+                            //LogSVIDError(kv.VID, $"Value match: last={kv.value}, current={vidItem.value}, name={allSvidDict[kv.VID].name}", "SVID_ValueCheck_Result");
+                            //发给后端，保存到数据库，相同的非0数据
+                            //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.SameAsPrevious });
                         }
                         else
                         {
                             kv.value = vidItem.value;
+                            //发给后端，保存到数据库，不同的数据
+                            MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.None });
                         }
+                        //string vidName = allSvidDict[vidItem.VID]?.name;
+                        //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value });
                     }
                     else
                     {
@@ -1449,7 +1474,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        string path = @"D:\projects\S25017\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
+        string path = @"D:\projects\Y23002\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
         Dictionary<int, string> dict = new Dictionary<int, string>();
         Dictionary<int, VIDItem> allSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> L2CH1FlwSvidDict = new Dictionary<int, VIDItem>();
@@ -1543,7 +1568,9 @@ namespace EAP.EC.KS_CM300
             if (string.IsNullOrEmpty(input))
                 return false;
 
-            return Regex.IsMatch(input, @"^L3CH1_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^L3CH2_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^L3CH3_Vlv\d+FlwPV$");
+            //return Regex.IsMatch(input, @"^R3CH1_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Vlv\d+FlwPV$");
+            //return Regex.IsMatch(input, @"^R3CH1_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Ana\d+FlwPV$");
+            return Regex.IsMatch(input, @"FlwPV");
         }
 
         public static bool IsMatchCHVlvFlwPV(string input, string matchRule)
@@ -1609,6 +1636,41 @@ namespace EAP.EC.KS_CM300
             catch (Exception ex)
             {
                 args.SetResultNG(ex.Message);
+            }
+        }
+
+        public async Task Send_S2F41(Arguments args, string cmd)
+        {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+
+                SecsMessage msg = new SecsMessage(2, 41);
+
+                Item rcmdItem = Item.A(cmd);
+                Item emptyList = Item.L(new Item[] { });
+                msg.SecsItem = Item.L(new Item[] { rcmdItem, emptyList });
+
+                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+
+                var reply = await context.SecsGem.SendAsync(msg);
+
+                if (reply != null)
+                {
+                    byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
+                    // 校验返回码：0表示成功，非0表示设备拒绝
+                    if (retCode != 0)
+                    {
+                        args.SetResultNG($"Send S2F41 {cmd}, Equipment Reject. ReturnCode: {retCode}");
+                        return;
+                    }
+                }
+
+                args.SetResultOK();
+            }
+            catch (Exception ex)
+            {
+                args.SetResultNG($"Send S2F41 (GO REMOTE) failed: {ex.Message}");
             }
         }
 

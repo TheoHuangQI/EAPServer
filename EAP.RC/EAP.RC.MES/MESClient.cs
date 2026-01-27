@@ -13,7 +13,7 @@ namespace EAP.RC.MES
 {
     public class MESClient
     {
-        #region Send_LPAcessMode 推送LP Access状态
+        #region Send_SVIDValue 推送SVIDValue
         public static void Send_SVIDValue(string eqpId, VID vID)
         {
             try
@@ -34,7 +34,7 @@ namespace EAP.RC.MES
             {
             }
         }
-        #endregion Send_LPAcessMode 推送LP Access状态
+        #endregion Send_SVIDValue 推送SVIDValue
 
         #region MES_LotInfoDownloadRequest Lot信息请求
         /// <summary>
