@@ -55,10 +55,19 @@ namespace EAP.EC.KS_CM300
         public bool start;
     }
 
+    public class EnabledAlarm
+    {
+        public byte ALCD;
+        public uint ALID;
+        public string ALTX;
+    }
+
     public class KS_CM300
     {
         private Logger logger = Logger.Inst();
         private System.Object obj = new System.Object();
+        private readonly object _alarmLock = new object();
+        private readonly Dictionary<uint, EnabledAlarm> _enabledAlarmMap = new Dictionary<uint, EnabledAlarm>();
         Dictionary<int, ChannelContext> _channelMap;
         Dictionary<string, Dictionary<int, VIDItem>> _channelSvidDictMap;
 
@@ -257,6 +266,9 @@ namespace EAP.EC.KS_CM300
                                 case 1:
                                     ReciveMsgS5F1(args);
                                     break;
+                                case 7:
+                                    ReciveMsgS5F7(args);
+                                    break;
                             }
                             break;
                         case 6:
@@ -422,8 +434,107 @@ namespace EAP.EC.KS_CM300
 
         public void ReciveMsgS5F1(Arguments args)
         {
-            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
-            args.SetResultOK();
+            try
+            {
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                if (rootItem == null || rootItem.Count < 3)
+                {
+                    args.SetResultOK();
+                    return;
+                }
+
+                var alcd = ConvertToByte(rootItem[0]);
+                var alid = ConvertToUInt32(rootItem[1]);
+                var altx = SecsItemUtil.GetItemValue(rootItem[2])?.ToString() ?? string.Empty;
+
+                lock (_alarmLock)
+                {
+                    if (alcd == 0)
+                    {
+                        _enabledAlarmMap.Remove(alid);
+                    }
+                    else
+                    {
+                        _enabledAlarmMap[alid] = new EnabledAlarm
+                        {
+                            ALCD = alcd,
+                            ALID = alid,
+                            ALTX = altx
+                        };
+                    }
+                }
+
+                args.SetResultOK();
+            }
+            catch (Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public async void ReciveMsgS5F7(Arguments args)
+        {
+            try
+            {
+                Item[] alarmItems;
+                lock (_alarmLock)
+                {
+                    alarmItems = _enabledAlarmMap.Values
+                        .OrderBy(a => a.ALID)
+                        .Select(a => Item.L(new Item[]
+                        {
+                            Item.B(a.ALCD),
+                            Item.U4(a.ALID),
+                            Item.A(a.ALTX ?? string.Empty)
+                        }))
+                        .ToArray();
+                }
+
+                var replyMsg = new SecsMessage(5, 8)
+                {
+                    SecsItem = Item.L(alarmItems)
+                };
+
+                await args.SecsData.TryReplyAsync(replyMsg);
+                args.SetResultOK();
+            }
+            catch (Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        private static byte ConvertToByte(Item item)
+        {
+            var value = SecsItemUtil.GetItemValue(item);
+            if (value == null)
+                return 0;
+
+            if (value is byte b)
+                return b;
+
+            if (byte.TryParse(value.ToString(), out var parsed))
+                return parsed;
+
+            return 0;
+        }
+
+        private static uint ConvertToUInt32(Item item)
+        {
+            var value = SecsItemUtil.GetItemValue(item);
+            if (value == null)
+                return 0;
+
+            if (value is uint ui)
+                return ui;
+
+            if (value is int i)
+                return i < 0 ? 0u : (uint)i;
+
+            if (uint.TryParse(value.ToString(), out var parsed))
+                return parsed;
+
+            return 0;
         }
 
         /// <summary>
@@ -460,16 +571,16 @@ namespace EAP.EC.KS_CM300
                         case 9:
                             {
                                 //await Send_S2F41(args, "go_remote");
-                                //LoadSVIDDef();
-                                //while (true)
-                                //{
-                                //    Stopwatch sw = Stopwatch.StartNew();
-                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+                                LoadSVIDDef();
+                                while (true)
+                                {
+                                    Stopwatch sw = Stopwatch.StartNew();
+                                    Send_S1F3_Get_AllDifferenceSVIDValue(args);
 
-                                //    Thread.Sleep(990);
-                                //    sw.Stop();
-                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
-                                //}
+                                    Thread.Sleep(150);
+                                    sw.Stop();
+                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                }
 
                                 //eqp.Value.ControlStatus = ControlState.LOCAL;
                                 //var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
@@ -490,13 +601,19 @@ namespace EAP.EC.KS_CM300
                                 //await Send_S2F41(args, "go_local");
 
                                 LoadSVIDDef();
+
+                                //_ = Task.Run(async () =>
+                                //{
+                                //    await Task.Delay(1000);
+                                //    await Send_S5F7_QueryEnabledAlarms(args);
+                                //});
+
                                 //Send_S1F3_Get_AllDifferenceSVIDValue(args);
                                 while (true)
                                 {
                                     Stopwatch sw = Stopwatch.StartNew();
                                     Send_S1F3_Get_AllDifferenceSVIDValue(args);
-
-                                    Thread.Sleep(990);
+                                    await Task.Delay(990);
                                     sw.Stop();
                                     Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 }
@@ -654,7 +771,7 @@ namespace EAP.EC.KS_CM300
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
                                 Random random = new Random();
-                                Thread.Sleep(random.Next(10000, 100000));
+                                Thread.Sleep(random.Next(1000, 4000));
                                 SecsMessage msg = new SecsMessage(2, 41);
                                 Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
                                 msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToLoad"), paramItem });
@@ -1299,7 +1416,7 @@ namespace EAP.EC.KS_CM300
                         {
                             kv.value = vidItem.value;
                             //发给后端，保存到数据库，不同的数据
-                            MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.None });
+                            //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.None });
                         }
                         //string vidName = allSvidDict[vidItem.VID]?.name;
                         //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value });
@@ -1474,7 +1591,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        string path = @"D:\projects\Y23002\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
+        string path = @"D:\projects\S25021\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
         Dictionary<int, string> dict = new Dictionary<int, string>();
         Dictionary<int, VIDItem> allSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> L2CH1FlwSvidDict = new Dictionary<int, VIDItem>();
@@ -1636,6 +1753,56 @@ namespace EAP.EC.KS_CM300
             catch (Exception ex)
             {
                 args.SetResultNG(ex.Message);
+            }
+        }
+
+        public async Task Send_S5F7_QueryEnabledAlarms(Arguments args)
+        {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+
+                SecsMessage msg = new SecsMessage(5, 7);
+                var reply = await context.SecsGem.SendAsync(msg);
+
+                if (reply == null)
+                {
+                    //Console.WriteLine($"[{eqpId}] S5F7 查询失败：S5F8 返回为空");
+                    return;
+                }
+
+                var root = reply.SecsItem;
+                if (root == null || root.Items == null || root.Items.Length == 0)
+                {
+                    //Console.WriteLine($"[{eqpId}] S5F8 无已使能报警");
+                    return;
+                }
+
+                //Console.WriteLine($"[{eqpId}] S5F8 已使能报警数量: {root.Items.Length}");
+                for (int i = 0; i < root.Items.Length; i++)
+                {
+                    var alarmItem = root.Items[i];
+                    if (alarmItem == null || alarmItem.Count < 3)
+                    {
+                        //Console.WriteLine($"[{eqpId}] Alarm[{i + 1}] 格式异常");
+                        continue;
+                    }
+
+                    var alcdObj = SecsItemUtil.GetItemValue(alarmItem[0]);
+                    var alidObj = SecsItemUtil.GetItemValue(alarmItem[1]);
+                    var altxObj = SecsItemUtil.GetItemValue(alarmItem[2]);
+
+                    var alcd = alcdObj?.ToString() ?? string.Empty;
+                    var alid = alidObj?.ToString() ?? string.Empty;
+                    var altx = altxObj?.ToString() ?? string.Empty;
+
+                    //Console.WriteLine($"[{eqpId}] Alarm[{i + 1}] ALCD={alcd}, ALID={alid}, ALTX={altx}");
+                }
+            }
+            catch (Exception ex)
+            {
+                //Console.WriteLine($"Send S5F7 查询报警失败: {ex.Message}");
             }
         }
 
@@ -1936,49 +2103,56 @@ namespace EAP.EC.KS_CM300
 
         public async Task Send_S16F15_CreatePJ(Arguments args)
         {
-            var EqpId = args.Header[CItems.EqpId].ToString();
-            var carrierId = args.Header[CItems.CarrierId].ToString();
-            var portId = int.Parse(args.Header[CItems.PortId].ToString());
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
-            SecsMessage msg = new SecsMessage(16, 15);
-            Item[] pjItems = new Item[batchInfo.BATCHSIZE];
-            int index = 0;
-            List<int> slots = new List<int>();
-            MESClient.Send_LPLotId(EqpId, portId, string.Join(';', batchInfo.LOTLIST.Select(u => u.LOT_ID).ToList()));
-            foreach (var lot in batchInfo.LOTLIST)
+            try
             {
-                var pjIdItem = Item.A(lot.LOT_ID);
-                var meatItem = Item.B((byte)13);
-                var slotItems = new Item[lot.WAFERS.Count];
-                int i = 0;
-                foreach (var wafer in lot.WAFERS)
+                var EqpId = args.Header[CItems.EqpId].ToString();
+                var carrierId = args.Header[CItems.CarrierId].ToString();
+                var portId = int.Parse(args.Header[CItems.PortId].ToString());
+                var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
+                SecsMessage msg = new SecsMessage(16, 15);
+                Item[] pjItems = new Item[batchInfo.BATCHSIZE];
+                int index = 0;
+                List<int> slots = new List<int>();
+                MESClient.Send_LPLotId(EqpId, portId, string.Join(';', batchInfo.LOTLIST.Select(u => u.LOT_ID).ToList()));
+                foreach (var lot in batchInfo.LOTLIST)
                 {
-                    slotItems[i] = Item.U1((byte)wafer.SLOT);
-                    slots.Add(wafer.SLOT);
-                    i++;
-                }
-                var carrierSpecItem = Item.L(new Item[] { Item.L(new Item[] { Item.A(carrierId), Item.L(slotItems) }) });
-                var recipeSpecItem = Item.L(new Item[] { Item.U1((byte)1), Item.A(lot.PPID), Item.L() });
-                var startItem = Item.Boolean(true);
-                var pauseEventItem = Item.L();
+                    var pjIdItem = Item.A(lot.LOT_ID);
+                    var meatItem = Item.B((byte)13);
+                    var slotItems = new Item[lot.WAFERS.Count];
+                    int i = 0;
+                    foreach (var wafer in lot.WAFERS)
+                    {
+                        slotItems[i] = Item.U1((byte)wafer.SLOT);
+                        slots.Add(wafer.SLOT);
+                        i++;
+                    }
+                    var carrierSpecItem = Item.L(new Item[] { Item.L(new Item[] { Item.A(carrierId), Item.L(slotItems) }) });
+                    var recipeSpecItem = Item.L(new Item[] { Item.U1((byte)1), Item.A(lot.PPID), Item.L() });
+                    var startItem = Item.Boolean(true);
+                    var pauseEventItem = Item.L();
 
-                pjItems[index] = Item.L(new Item[] { pjIdItem, meatItem, carrierSpecItem, recipeSpecItem, startItem, pauseEventItem });
-                index++;
-            }
-            msg.SecsItem = Item.L(new Item[] { Item.U1((byte)0), Item.L(pjItems) });
-            var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
-            {
-                var res = (bool)SecsItemUtil.GetItemValue(reply.SecsItem[1][0]);
-                if (!res)
-                {
-                    args.SetResultNG();
-                    return;
+                    pjItems[index] = Item.L(new Item[] { pjIdItem, meatItem, carrierSpecItem, recipeSpecItem, startItem, pauseEventItem });
+                    index++;
                 }
-                MESClient.Send_MapResult(EqpId, portId.ToString(), string.Join(';', slots) + ";");
+                msg.SecsItem = Item.L(new Item[] { Item.U1((byte)0), Item.L(pjItems) });
+                var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
+                var reply = await context.SecsGem.SendAsync(msg);
+                if (reply != null)
+                {
+                    var res = (bool)SecsItemUtil.GetItemValue(reply.SecsItem[1][0]);
+                    if (!res)
+                    {
+                        args.SetResultNG();
+                        return;
+                    }
+                    MESClient.Send_MapResult(EqpId, portId.ToString(), string.Join(';', slots) + ";");
+                }
+                args.SetResultOK();
             }
-            args.SetResultOK();
+            catch (Exception ex)
+            {
+                
+            }
         }
 
         public async Task Send_S14F9_CreateCJ(Arguments args)

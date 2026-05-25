@@ -27,7 +27,7 @@ public class SecsGemOptions
     /// Configure the timeout interval in milliseconds between the primary message sent till to receive the secondary message.
     /// Default value is 45000 milliseconds.
     /// </summary>
-    public int T3 { get; set; } = 45000;
+    public int T3 { get; set; } = 6500000;
 
     /// <summary>
     /// Configure the timeout interval in milliseconds between the connection state transition from <see cref="ConnectionState.Connecting"/> to <see cref="ConnectionState.Connected"/>.
