@@ -26,9 +26,14 @@
 </template>
 <script>
 export default {
+    props: {
+        isCollapsed: {
+            type: Boolean,
+            required: true
+        }
+    },
     data() {
         return {
-            isCollapsed: false,
             avatarUrl: "@assets/logo.png",
             logoUrl:
                 "https://ai-public.mastergo.com/ai/img_res/02469016513ab98d8c035dc0852d545d.jpg",
@@ -36,7 +41,7 @@ export default {
     },
     methods: {
         toggleSidebar() {
-            this.isCollapsed = !this.isCollapsed;
+            this.$emit('toggle-collapse');
         },
     }
 }

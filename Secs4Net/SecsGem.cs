@@ -63,8 +63,12 @@ public sealed class SecsGem : ISecsGem, IDisposable
         Task.Run(async () =>
         {
             var cancellationToken = _cancellationSourceForDataMessageProcessing.Token;
-            await foreach (var (header, rootItem) in _hsmsConnector.GetDataMessages(cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
+            await foreach (var (sessionId, header, rootItem) in _hsmsConnector.GetDataMessages(cancellationToken).WithCancellation(cancellationToken).ConfigureAwait(false))
             {
+                if (_hsmsConnector.SessionId != sessionId)
+                {
+                    continue;
+                }
                 await ProcessDataMessageAsync(header, rootItem, cancellationToken).ConfigureAwait(continueOnCapturedContext: false);
             }
         });
@@ -77,6 +81,7 @@ public sealed class SecsGem : ISecsGem, IDisposable
             return null;
             //throw new SecsException("Device is not selected");
         }
+        var connectionSessionId = _hsmsConnector.SessionId;
 
         var token = ValueTaskCompletionSource<SecsMessage>.Create();
         if (message.ReplyExpected)
@@ -116,7 +121,10 @@ public sealed class SecsGem : ISecsGem, IDisposable
         }
         catch (SocketException)
         {
-            _hsmsConnector.Reconnect();
+            if (_hsmsConnector.SessionId == connectionSessionId)
+            {
+                _hsmsConnector.Reconnect();
+            }
             throw;
         }
 #if NET

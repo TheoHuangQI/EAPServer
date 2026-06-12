@@ -129,13 +129,13 @@ export default {
 
 
 /* 自定义穿梭框样式 */
-::v-deep .el-transfer {
+:deep() .el-transfer {
     display: flex;
     justify-content: flex-start;
     text-align: left;
 }
 
-::v-deep .el-transfer-panel {
+:deep(.el-transfer-panel) {
     width: 35%;
     height: 350px;
     border-radius: 4px;
@@ -143,7 +143,7 @@ export default {
 }
 
 /* 标题容器样式 */
-::v-deep .el-transfer-panel__header {
+:deep(.el-transfer-panel__header) {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
@@ -154,22 +154,22 @@ export default {
 }
 
 /* 主标题样式 */
-::v-deep .el-transfer-panel__header .el-checkbox {
+:deep(.el-transfer-panel__header .el-checkbox) {
     height: 100% !important;
     display: flex !important;
     align-items: center !important;
 }
 
-::v-deep .el-transfer-panel__body {
+:deep(.el-transfer-panel__body) {
     height: calc(100% - 40px);
 }
 
-::v-deep .el-transfer-panel__list {
+:deep(.el-transfer-panel__list) {
     height: 100%;
     padding: 5px 0;
 }
 
-::v-deep .el-transfer-panel__item {
+:deep(.el-transfer-panel__item) {
     display: flex !important;
     align-items: center !important;
     padding: 0px 12px !important;
@@ -177,14 +177,14 @@ export default {
     /* 固定最小高度 */
 }
 
-::v-deep .el-checkbox {
+:deep(.el-checkbox) {
     display: flex !important;
     align-items: center !important;
     width: 100%;
     /* 撑满容器 */
 }
 
-::v-deep .el-checkbox__label {
+:deep(.el-checkbox__label) {
     line-height: 1.5 !important;
     vertical-align: middle !important;
     font-size: 14px !important;
@@ -192,7 +192,7 @@ export default {
     /* 调整间距 */
 }
 
-::v-deep .el-checkbox__input {
+:deep(.el-checkbox__input) {
     vertical-align: middle !important;
     position: relative;
     top: -1px;
@@ -202,16 +202,16 @@ export default {
 
 
 /* 调整选择框大小 */
-::v-deep .el-checkbox__inner {
+:deep(.el-checkbox__inner) {
     width: 16px !important;
     height: 16px !important;
 }
 
-::v-deep .el-transfer-panel__item:hover {
+:deep(.el-transfer-panel__item:hover) {
     background-color: #f5f7fa;
 }
 
-::v-deep .el-checkbox__inner::after {
+:deep(.el-checkbox__inner::after) {
     left: 5px !important;
     top: 2px !important;
 }
@@ -224,7 +224,7 @@ export default {
 }
 
 /* 按钮样式调整 */
-::v-deep .el-transfer__buttons {
+:deep(.el-transfer__buttons) {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -234,26 +234,26 @@ export default {
 }
 
 /* 移除按钮默认旋转 */
-::v-deep .el-transfer__button .el-icon-arrow-right {
+:deep(.el-transfer__button .el-icon-arrow-right) {
     transform: none;
 }
 
 /* 调整按钮文字间距 */
-::v-deep .el-transfer__button span {
+:deep(.el-transfer__button span) {
     margin-left: 5px;
 }
 
 /* 自定义滚动条 */
-::v-deep .el-transfer-panel__list::-webkit-scrollbar {
+:deep(.el-transfer-panel__list::-webkit-scrollbar) {
     width: 6px;
 }
 
-::v-deep .el-transfer-panel__list::-webkit-scrollbar-thumb {
+:deep(.el-transfer-panel__list::-webkit-scrollbar-thumb) {
     background-color: #c0c4cc;
     border-radius: 3px;
 }
 
-::v-deep .el-transfer-panel__list::-webkit-scrollbar-track {
+:deep(.el-transfer-panel__list::-webkit-scrollbar-track) {
     background-color: #f5f7fa;
 }
 </style>

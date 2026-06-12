@@ -2,8 +2,9 @@ import request from '@/utils/request'
 
 export function GetTestItemList (paramsData) {
     return request({
-        url: '/Test/TestItem/' + paramsData,
-        method: 'get'
+        url: '/Test/TestItem',
+        method: 'get',
+        params: { messageName: paramsData }
       })
   }
 
@@ -134,5 +135,3 @@ export function EditTestItem(data) {
       data: data
     })
   }
-  
-

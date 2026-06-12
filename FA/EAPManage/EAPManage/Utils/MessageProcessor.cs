@@ -356,12 +356,21 @@ namespace EAPManage.Utils
                             var portId = request.PORT;
                             var msg = request.MESSAGE;
                             var msgType = request.TYPE;
+                            var parsedPortId = int.TryParse(portId, out var port) ? port : 0;
+                            var eqpInfo = DataFactory.Current.Equipment.GetList(u => u.EqpId == eqpid).FirstOrDefault();
+                            var portInfo = parsedPortId > 0
+                                ? DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid && u.portId == parsedPortId).FirstOrDefault()
+                                : null;
                             DataFactory.Current.ExceptionRecord.Insert(new ExceptionRecord()
                             {
                                 eqpId = eqpid,
-                                portId = int.Parse(portId),
+                                eqpType = eqpInfo?.EqpType ?? string.Empty,
+                                portId = parsedPortId,
+                                portName = portInfo?.portName ?? string.Empty,
+                                lotId = portInfo?.lotId ?? string.Empty,
                                 content = msg,
-                                errorTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff")
+                                errorTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
+                                state = 0
                             });
                             break;
                         }

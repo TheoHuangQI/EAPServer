@@ -127,7 +127,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.mytree /deep/ {
+.mytree :deep() {
   .el-tree-node.is-current>.el-tree-node__content {
     background-color: #c2d6ea !important;
   }

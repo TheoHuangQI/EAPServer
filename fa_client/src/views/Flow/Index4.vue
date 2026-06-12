@@ -473,7 +473,7 @@ export default {
     //this.autoLayout();
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     window.removeEventListener('click', this.closeContextMenu);
   },
   // 力导向布局算法

@@ -2,7 +2,7 @@
   <!-- 设备选择对话框 -->
   <el-dialog 
   :title="isEdit ? 'Batch修改' : '新增Batch'"
-  :visible.sync="dialogVisible" 
+  :model-value="visible"
   width="960px" 
   :close-on-click-modal="false"
   @close="handleClose">
@@ -12,10 +12,10 @@
         <!-- 左侧表单列 -->
         <el-col :span="12">
           <div class="form-section">
-            <el-form label-position="left">
+            <el-form label-position="left" label-width="100px">
               <!-- 设备选择 -->
               <el-form-item label="设备选择" class="form-item--required">
-                <el-select v-model="formData.eqpId" placeholder="请选择设备" clearable class="full-width">
+                <el-select v-model="formData.eqpId" placeholder="请选择设备" clearable class="full-width" :loading="deviceLoading">
                   <el-option v-for="device in devices" :key="device" :label="device" :value="device" />
                 </el-select>
               </el-form-item>
@@ -79,97 +79,143 @@
   </el-dialog>
 </template>
 
-<script>
-import { GetLotListIdle} from "@/api/lot"
-import { GetIdle} from "@/api/carrier"
+<script setup>
+import { ref, watch, computed } from 'vue'
+import { GetLotListIdle } from "@/api/lot"
+import { GetIdle } from "@/api/carrier"
+import { GetList as GetEquipmentList } from "@/api/equipment"
 
-export default {
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    isEdit: {
-      type: Boolean,
-      default: false
-    },
-    form: {
-      type: Object,
-      default: () => ({})
-    }
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
   },
-  data() {
-    return {
-      dialogVisible: this.visible,
-      formData: { ...this.form },
-      lotSearch: '',
-      devices: ['AHEG07'],
-      carriers: [],
-      lots: []
-    }
+  isEdit: {
+    type: Boolean,
+    default: false
   },
-  computed: {
-    filteredLots() {
-      const searchTerm = this.lotSearch.toLowerCase()
-      return this.lots.filter(lot =>
-        lot.toLowerCase().includes(searchTerm) &&
-        !this.formData.lots.includes(lot)
-      )  // 这里缺少了闭合的括号
-    },
-  },
-  created () {
-     this.getLotList()
-    this.getCarrierList()
-  },
-  methods: {
-    getLotList(){
-      GetLotListIdle('').then(res=>{
-            this.lots = res.data.list
-          })
-    },
-    getCarrierList(){
-      GetIdle('').then(res=>{
-            this.carriers = res.data.list
-          })
-    },
-    handleClose() {
-      this.dialogVisible = false
-    },
-    // 选择 Lot
-    selectLot(lot) {
-      if (!this.formData.lots.includes(lot)) {
-        this.formData.lots = [...this.formData.lots, lot]
-      }
-    },
+  form: {
+    type: Object,
+    default: () => ({})
+  }
+})
 
-    // 移除 Lot
-    removeLot(lot) {
-      this.formData.lots = this.formData.lots.filter(item => item !== lot)
-    },
-   
-    handleConfirm() {
-        this.$emit('submit', { ...this.formData })
-          this.dialogVisible = false
-    },
-    // 表单验证
-    validateForm() {
-      return (
-        true
-      )
-    },
-  },
-  watch: {
-    visible(newVal) {
-      this.dialogVisible = newVal
-      if (newVal) {
-        this.formData = { ...this.form }
-      }
-    },
-    dialogVisible(newVal) {
-      this.$emit('update:visible', newVal)
-    },
+const emit = defineEmits(['update:visible', 'submit'])
+
+const formData = ref({ lots: [] })
+const lotSearch = ref('')
+const devices = ref([])
+const deviceLoading = ref(false)
+const carriers = ref([])
+const lots = ref([])
+
+const filteredLots = computed(() => {
+  const searchTerm = lotSearch.value.toLowerCase()
+  return lots.value.filter(lot =>
+    lot.toLowerCase().includes(searchTerm) &&
+    !formData.value.lots.includes(lot)
+  )
+})
+
+const getLotList = () => {
+  GetLotListIdle('').then(res => {
+    lots.value = res.data.list
+  })
+}
+
+const isConnected = (status) => Number(status) === 1
+
+const getDeviceList = () => {
+  deviceLoading.value = true
+  GetEquipmentList({}).then(res => {
+    const list = res.data.list || []
+    devices.value = list
+      .filter(device => isConnected(device.eqpStatus) && isConnected(device.eapStatus))
+      .map(device => device.eqpId)
+      .filter(Boolean)
+  }).finally(() => {
+    deviceLoading.value = false
+  })
+}
+
+const getCarrierList = (eqpId) => {
+  if (!eqpId) {
+    carriers.value = []
+    return
+  }
+  GetIdle(eqpId).then(res => {
+    carriers.value = res.data.list
+  })
+}
+
+const handleClose = () => {
+  emit('update:visible', false)
+}
+
+const selectLot = (lot) => {
+  if (!formData.value.lots.includes(lot)) {
+    formData.value.lots = [...formData.value.lots, lot]
   }
 }
+
+const removeLot = (lot) => {
+  formData.value.lots = formData.value.lots.filter(item => item !== lot)
+}
+
+const handleConfirm = () => {
+  emit('submit', { ...formData.value })
+  handleClose()
+}
+
+watch(() => props.visible, (newVal) => {
+  if (newVal) {
+    formData.value = { lots: [], ...props.form }
+    getDeviceList()
+    // 自动填充操作员
+    if (!props.isEdit) {
+      try {
+        const userInfo = JSON.parse(localStorage.getItem("UserInfo"))
+        if (userInfo && userInfo.user && userInfo.user.workNo) {
+          formData.value.operator = userInfo.user.workNo
+        }
+      } catch (e) {
+        console.error("Failed to get user info from localStorage for auto-fill", e)
+      }
+      // 如果是新增，确保 lots 是一个空数组
+      if (!formData.value.lots) {
+        formData.value.lots = []
+      }
+    }
+    // 对话框打开时，如果已有设备ID（编辑模式），则加载对应的载具列表
+    if (formData.value.eqpId) {
+      getCarrierList(formData.value.eqpId)
+    }
+    // 如果是编辑模式且有载具，则加载Lot列表
+    if (props.isEdit && formData.value.carrierId) {
+      getLotList()
+    }
+  }
+})
+
+// 监听设备选择的变化
+watch(() => formData.value.eqpId, (newEqpId, oldEqpId) => {
+  // 当设备改变时，清空已选择的载具并重新加载列表
+  if (newEqpId !== oldEqpId) {
+    formData.value.carrierId = ''
+    getCarrierList(newEqpId)
+  }
+})
+
+// 监听载具选择的变化
+watch(() => formData.value.carrierId, (newCarrierId) => {
+  // 当选择了载具后，加载Lot列表
+  if (newCarrierId) {
+    getLotList()
+  } else {
+    // 如果清空了载具，也清空Lot列表
+    lots.value = []
+  }
+})
 </script>
 
 <style lang="scss" scoped>
@@ -184,7 +230,7 @@ export default {
 
   // 表单项样式
   .form-item--required {
-    ::v-deep .el-form-item__label::before {
+    :deep() .el-form-item__label::before {
       content: '*';
       color: #f56c6c;
       margin-right: 4px;
@@ -232,7 +278,7 @@ export default {
         background-color: #f5f7fa;
       }
 
-      ::v-deep .el-checkbox__label {
+      :deep(.el-checkbox__label) {
         width: 100%;
         padding-left: 10px;
       }

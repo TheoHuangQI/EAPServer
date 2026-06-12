@@ -30,7 +30,7 @@
     <!-- 数据表格 -->
     <el-card class="table-card" shadow="never">
       <el-table :data="tableData.slice((pageInfo.pageNo - 1) * pageInfo.pageSize, pageInfo.pageNo * pageInfo.pageSize)" style="width: 100%" stripe
-        @selection-change="handleSelectionChange">
+        @selection-change="handleSelectionChange" row-key="eqpId">
         <el-table-column type="selection" width="55" align="center" reserve-selection/>
         <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
         <el-table-column prop="eqpId" label="设备号" align="center" />
@@ -43,23 +43,23 @@
         </el-table-column>
         <el-table-column prop="eqpStatus" label="设备状态">
           <template #default="scope">
-            <span v-if="scope.row.eqpStatus === 0">DisConnected</span>
-            <span v-else>Connected</span>
+            <span v-if="isConnected(scope.row.eqpStatus)">Connected</span>
+            <span v-else>DisConnected</span>
           </template>
         </el-table-column>
         <el-table-column prop="eapStatus" label="EAP状态">
           <template #default="scope">
-            <span v-if="scope.row.eapStatus === 0">DisConnected</span>
-            <span v-else>Connected</span>
+            <span v-if="isConnected(scope.row.eapStatus)">Connected</span>
+            <span v-else>DisConnected</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope">
+          <template v-slot="scope">
             <el-tooltip content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="handleEdit(scope.row)" />
+              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -72,11 +72,12 @@
     </el-card>
 
     <!-- 编辑对话框 -->
-    <Dialog :visible.sync="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+    <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
   </div>
 </template>
   
 <script>
+import * as signalR from '@microsoft/signalr'
 import { GetList, Add, Edit, Delete,Deletes} from "@/api/equipment"
 
 import Dialog from "./Dialog.vue"
@@ -92,6 +93,7 @@ export default {
       ],
       formData: this.getDefaultForm(),
       total: 0,
+      connection: null,
       pageInfo: {
         eqpId: '',
         eqpType: '',
@@ -104,6 +106,12 @@ export default {
   created() {
     this.fetchData()
   },
+  mounted() {
+    this.initSignalR()
+  },
+  beforeUnmount() {
+    this.stopSignalR()
+  },
   methods: {
     getDefaultForm() {
       return {
@@ -114,6 +122,52 @@ export default {
     },
     indexHandler(index) {
       return (this.pageInfo.pageNo - 1) * this.pageInfo.pageSize + index + 1
+    },
+    isConnected(status) {
+      return Number(status) === 1
+    },
+    initSignalR() {
+      if (this.connection) {
+        return
+      }
+      this.connection = new signalR.HubConnectionBuilder()
+        .withUrl("https://localhost:7255/logHub", {
+          skipNegotiation: true,
+          transport: signalR.HttpTransportType.WebSockets,
+          withCredentials: true
+        })
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build()
+
+      this.connection.on("ReceiveLog", this.handleRealtimeLog)
+      this.connection.onreconnected(() => {
+        this.fetchData()
+      })
+      this.connection.start()
+        .catch(err => console.error("SignalR Connection Error: ", err))
+    },
+    stopSignalR() {
+      if (!this.connection) {
+        return
+      }
+      this.connection.off("ReceiveLog", this.handleRealtimeLog)
+      this.connection.stop().catch(() => {})
+      this.connection = null
+    },
+    handleRealtimeLog(log) {
+      if (!log || (log.type !== "EqpState" && log.type !== "EapState")) {
+        return
+      }
+      const index = this.tableData.findIndex(item => item.eqpId === log.eqpId)
+      if (index < 0) {
+        return
+      }
+      const field = log.type === "EqpState" ? "eqpStatus" : "eapStatus"
+      this.tableData.splice(index, 1, {
+        ...this.tableData[index],
+        [field]: log.message
+      })
     },
     async fetchData() {
       this.loading = true
@@ -179,14 +233,14 @@ export default {
       }).catch(() => { })
     },
     handleSelectionChange(selection) {
-      this.selectedRows = selection.map(item => item.id)
+      this.selectedRows = selection.map(item => item.eqpId)
     },
     handleSizeChange(val) {
-      this.pageSize = val
-      this.currentPage = 1
+      this.pageInfo.pageSize = val
+      this.pageInfo.pageNo = 1
     },
     handlePageChange(val) {
-      this.currentPage = val
+      this.pageInfo.pageNo = val
     },
     handleDialogSubmit(formData) {
       this.loading = true
@@ -246,7 +300,7 @@ export default {
     border-radius: 8px;
     border: 1px solid #ebeef5;
 
-    ::v-deep .el-table {
+    :deep() .el-table {
       th {
         background-color: #f5f7fa;
       }

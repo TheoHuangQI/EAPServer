@@ -11,7 +11,7 @@ namespace EAPManage.Controllers
     public class VIDValueController : ControllerBase
     {
         [HttpGet]
-        public IActionResult Get(string eqpId, string startTime, string endTime)
+        public IActionResult Get(string eqpId, string startTime, string endTime, int maxPointsPerSeries = 400)
         {
             if (string.IsNullOrEmpty(startTime) || string.IsNullOrEmpty(endTime))
             {
@@ -42,17 +42,14 @@ namespace EAPManage.Controllers
                 .ToList();
 
             // 2. 分组并整理为趋势结构
+            var pointLimit = NormalizeMaxPoints(maxPointsPerSeries);
             var result = values
                 .GroupBy(v => new { v.VId, v.name })
                 .Select(g => new
                 {
                     vid = g.Key.VId,
                     name = g.Key.name,
-                    points = g.Select(x => new
-                    {
-                        time = x.time,
-                        value = ParseDecimal(x.value)
-                    }).ToList()
+                    points = DownsamplePoints(g, pointLimit)
                 })
                 .ToList();
 
@@ -65,7 +62,7 @@ namespace EAPManage.Controllers
         }
 
         [HttpGet("withAbnormal")]
-        public IActionResult GetWithAbnormal(string eqpId, string startTime, string endTime, int AbnormalFlag = -1)
+        public IActionResult GetWithAbnormal(string eqpId, string startTime, string endTime, int AbnormalFlag = -1, int maxPointsPerSeries = 400)
         {
             if (string.IsNullOrEmpty(startTime) || string.IsNullOrEmpty(endTime))
             {
@@ -99,17 +96,14 @@ namespace EAPManage.Controllers
                 .OrderBy(v => v.time)
                 .ToList();
 
+            var pointLimit = NormalizeMaxPoints(maxPointsPerSeries);
             var result = values
                 .GroupBy(v => new { v.VId, v.name })
                 .Select(g => new
                 {
                     vid = g.Key.VId,
                     name = g.Key.name,
-                    points = g.Select(x => new
-                    {
-                        time = x.time,
-                        value = ParseDecimal(x.value)
-                    }).ToList()
+                    points = DownsamplePoints(g, pointLimit)
                 })
                 .ToList();
 
@@ -150,6 +144,70 @@ namespace EAPManage.Controllers
                 return result;
             }
             return 0;
+        }
+
+        private static int NormalizeMaxPoints(int maxPointsPerSeries)
+        {
+            if (maxPointsPerSeries < 50)
+            {
+                return 50;
+            }
+
+            if (maxPointsPerSeries > 2000)
+            {
+                return 2000;
+            }
+
+            return maxPointsPerSeries;
+        }
+
+        private static List<TrendPoint> DownsamplePoints(IEnumerable<VIDValue> values, int maxPoints)
+        {
+            var list = values.ToList();
+            if (list.Count <= maxPoints)
+            {
+                return list.Select(ToTrendPoint).ToList();
+            }
+
+            var result = new List<TrendPoint>(maxPoints);
+            var step = (list.Count - 1) / (double)(maxPoints - 1);
+            var lastIndex = -1;
+
+            for (var i = 0; i < maxPoints; i++)
+            {
+                var index = (int)Math.Round(i * step);
+                if (index >= list.Count)
+                {
+                    index = list.Count - 1;
+                }
+
+                if (index == lastIndex)
+                {
+                    continue;
+                }
+
+                result.Add(ToTrendPoint(list[index]));
+                lastIndex = index;
+            }
+
+            return result;
+        }
+
+        private static TrendPoint ToTrendPoint(VIDValue value)
+        {
+            return new TrendPoint
+            {
+                time = value.time,
+                value = ParseDecimal(value.value),
+                abnormalFlag = value.AbnormalFlag
+            };
+        }
+
+        private class TrendPoint
+        {
+            public string time { get; set; }
+            public decimal value { get; set; }
+            public int abnormalFlag { get; set; }
         }
     }
 }

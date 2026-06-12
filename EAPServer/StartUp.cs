@@ -1,4 +1,4 @@
-﻿using Apache.NMS.ActiveMQ;
+using Apache.NMS.ActiveMQ;
 using Apache.NMS;
 using EAP.HC.Core;
 using Microsoft.Extensions.Configuration;
@@ -83,50 +83,67 @@ namespace EAPServer
                 {
                     foreach (var eqpconfig in EAPContext.EqpConfigures)
                     {
+                        var currentConfig = eqpconfig;
                         Task.Run(async () => {
+                            var isActive = currentConfig.ConnectionMode == ConnectionMode.ACTIVE;
 
                             var options = Options.Create(new SecsGemOptions
                             {
-                                IsActive = true,
-                                IpAddress = eqpconfig.RemoteIP,
-                                Port = (int)eqpconfig.RemotePort,
+                                IsActive = isActive,
+                                IpAddress = isActive ? currentConfig.RemoteIP : currentConfig.LocalIP,
+                                Port = isActive ? currentConfig.RemotePort : currentConfig.LocalPort,
                                 SocketReceiveBufferSize = (int)65535,
-                                DeviceId = (ushort)eqpconfig.DeviceID,
+                                DeviceId = (ushort)currentConfig.DeviceID,
+                                T3 = currentConfig.T3 * 1000,
+                                T5 = currentConfig.T5 * 1000,
+                                T6 = currentConfig.T6 * 1000,
+                                T7 = currentConfig.T7 * 1000,
+                                T8 = currentConfig.T8 * 1000,
+                                LinkTestInterval = (currentConfig.HeartbeatInterval ?? 30) * 1000,
                             });
                             CancellationTokenSource _cancellationTokenSource = new();
                             HsmsConnection _connector = new HsmsConnection(options, _logger);
                             SecsGem _secsGem = new SecsGem(options, _connector, _logger);
 
-                            var eqpid = eqpconfig.Name;
-                            var eqpType = eqpconfig.EQPType;
+                            var eqpid = currentConfig.Name;
+                            var eqpType = currentConfig.EQPType;
                             ContextObject context = new ContextObject()
                             {
-                                EquipmentID = eqpconfig.Name,
-                                EqpType = eqpconfig.EQPType,
+                                EquipmentID = currentConfig.Name,
+                                EqpType = currentConfig.EQPType,
                                 SecsGem = _secsGem,
                             };
                             EAPContext.contexts.Add(context);
 
-                            _connector.ConnectionChanged += delegate
+                            var interval = currentConfig.HeartbeatInterval ?? 30;
+                            var maxFailures = currentConfig.HeartbeatMaxFailures ?? 3;
+                            var connectionVersion = 0L;
+                            _ = RunHeartbeatAsync(eqpid, _secsGem, _connector, interval, maxFailures, _cancellationTokenSource.Token);
+
+                            _connector.ConnectionChanged += delegate(object sender, ConnectionState state)
                             {
+                                var currentVersion = Interlocked.Increment(ref connectionVersion);
                                 Arguments args = new Arguments()
                                 {
                                     Header = new Dictionary<string, object>(),
                                 };
                                 args.Header[CItems.EqpId] = context.EquipmentID;
                                 args.Header[CItems.EqpType] = context.EqpType;
-                                args.Header[CItems.ConnectionState] = _connector.State;
+                                args.Header[CItems.ConnectionState] = state;
+                                args.Header[CItems.ConnectionVersion] = currentVersion;
                                 SecsBase.ReciveSecsMessage(context,args, "ConnectionChange"); 
                             };
+                            MESClient.Send_EqpState(eqpid, EQPState.DisConnected);
                             _connector.Start(_cancellationTokenSource.Token);
-                            MESClient.Send_EapState(eqpid, eqpconfig.LoadPort, EAPState.Run);
-                            while (true)
-                            {
-                                if (_connector.State == ConnectionState.Selected)
-                                    break;
-                            }
+                            _connector.LinkTestEnabled = true;
+                            MESClient.Send_EapState(eqpid, currentConfig.LoadPort, EAPState.Run);
                             try
                             {
+                                while (_connector.State != ConnectionState.Selected && !_cancellationTokenSource.Token.IsCancellationRequested)
+                                {
+                                    await Task.Delay(200, _cancellationTokenSource.Token);
+                                }
+
                                 await foreach (var primaryMessage in _secsGem.GetPrimaryMessageAsync(_cancellationTokenSource.Token))
                                 {
                                     Arguments args = new Arguments()
@@ -150,6 +167,77 @@ namespace EAPServer
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
+            }
+        }
+
+        private static async Task RunHeartbeatAsync(
+            string eqpid,
+            SecsGem secsGem,
+            HsmsConnection connector,
+            int intervalSeconds,
+            int maxFailures,
+            CancellationToken cancellationToken)
+        {
+            var consecutiveFailures = 0;
+
+            try
+            {
+                using var heartbeatTimer = new PeriodicTimer(TimeSpan.FromSeconds(intervalSeconds));
+                while (await heartbeatTimer.WaitForNextTickAsync(cancellationToken))
+                {
+                    if (connector.State != ConnectionState.Selected)
+                    {
+                        consecutiveFailures = 0;
+                        continue;
+                    }
+
+                    var heartbeatSessionId = connector.SessionId;
+                    try
+                    {
+                        using var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                        timeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Min(intervalSeconds, 10)));
+
+                        var reply = await secsGem.SendAsync(new SecsMessage(1, 1), timeoutTokenSource.Token);
+                        if (connector.SessionId != heartbeatSessionId)
+                        {
+                            consecutiveFailures = 0;
+                            continue;
+                        }
+
+                        if (reply != null)
+                        {
+                            consecutiveFailures = 0;
+                            continue;
+                        }
+
+                        consecutiveFailures++;
+                        _logger.Warning($"Heartbeat failed for {eqpid}. Attempt: {consecutiveFailures}.");
+                    }
+                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        if (connector.SessionId != heartbeatSessionId)
+                        {
+                            consecutiveFailures = 0;
+                            continue;
+                        }
+                        consecutiveFailures++;
+                        _logger.Warning($"Heartbeat for {eqpid} threw an exception: {ex.Message}. Attempt: {consecutiveFailures}.");
+                    }
+
+                    if (consecutiveFailures >= maxFailures)
+                    {
+                        _logger.Error($"Heartbeat failed {maxFailures} times for {eqpid}. Reconnecting...");
+                        consecutiveFailures = 0;
+                        connector.Reconnect();
+                    }
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
             }
         }
     }

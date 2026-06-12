@@ -16,9 +16,17 @@ namespace EAPManage.Controllers
         #region 单测试项
         [HttpGet]
         [Route("TestItem")]
-        public IActionResult TestItem()
+        public IActionResult TestItem(string messageName)
         {
-            List<TestItem> TestItemList = DataFactory.Current.TestItem.GetAll();
+            List<TestItem> TestItemList = new List<TestItem>();
+            if (string.IsNullOrEmpty(messageName))
+            {
+                TestItemList = DataFactory.Current.TestItem.GetAll();
+            }
+            else
+            {
+                TestItemList = DataFactory.Current.TestItem.GetList(a=>a.MessageName.Contains(messageName));
+            }
             Dictionary<string, object> resdata = new Dictionary<string, object>();
             resdata.Add("total", TestItemList.Count);
             resdata.Add("list", TestItemList);

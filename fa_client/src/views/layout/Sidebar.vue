@@ -40,11 +40,16 @@
 </template>
 <script>
 export default {
+    props: {
+        isCollapsed: {
+            type: Boolean,
+            required: true
+        }
+    },
     data() {
         return {
             activeMenu: "数据概览",
             activeSubmenu: "",
-            isCollapsed: false,
             menuItems: [
                 {
                     title: "首页",
@@ -99,62 +104,73 @@ export default {
             } else {
                 this.activeMenu = item.title;
                 this.activeSubmenu = "";
-                switch (this.activeMenu) {
-                    case '首页':
-                        this.$router.push('/Dashboard');
-                        break;
-                }
+                this.$nextTick(() => {
+                    switch (this.activeMenu) {
+                        case '首页':
+                            this.$router.push('/Dashboard');
+                            break;
+                    }
+                });
             }
         },
         handleSubmenuClick(submenu) {
             this.activeSubmenu = submenu;
-            switch (submenu) {
+            this.$nextTick(() => {
+                switch (submenu) {
 
-                case 'LOT 管理':
-                    this.$router.push('/LOT');
-                    break;
-                case '载具管理':
-                    this.$router.push('/Carrier');
-                    break;
-                case 'Batch 管理':
-                    this.$router.push('/Batch');
-                    break;
-                case '控制列表':
-                    this.$router.push('/Flow');
-                    break;
-                case 'EAP看板':
-                    this.$router.push('/EAP');
-                    break;
-                case '设备列表':
-                    this.$router.push('/EqpList');
-                    break;
-                case '异常记录':
-                    this.$router.push('/Exception');
-                    break;
-                case '作业记录':
-                    this.$router.push('/RunHistory');
-                    break;
-                case '采集规则':
-                    this.$router.push('/DataRule');
-                    break; 
-                case '采集历史':
-                    this.$router.push('/DataHistory');
-                    break; 
-                case '单测试项':
-                    this.$router.push('/TestItem');
-                    break;
-                case '复合测试项':
-                    this.$router.push('/TestItemBatch');
-                    break;
-                case '测试模版':
-                    this.$router.push('/TestTemplate');
-                    break;
-                case '测试用例':
-                    this.$router.push('/TestCase');
-                    break;
+                    case 'LOT 管理':
+                        this.$router.push('/LOT');
+                        break;
+                    case '载具管理':
+                        this.$router.push('/Carrier');
+                        break;
+                    case 'Batch 管理':
+                        this.$router.push('/Batch');
+                        break;
+                    case '控制列表':
+                        this.$router.push('/Flow');
+                        break;
+                    case 'EAP看板':
+                        this.$router.push('/EAP');
+                        break;
+                    case '设备列表':
+                        this.$router.push('/EqpList');
+                        break;
+                    case '异常记录':
+                        this.$router.push('/Exception');
+                        break;
+                    case '作业记录':
+                        this.
+$router.push('/RunHistory');
+                        break;
+                    case '采集规则':
+                        this.$router.push('/DataRule');
+                        break;
+                    case '采集历史':
+                        this.$router.push('/DataHistory');
+                        break;
+                    case '单测试项':
+                        this.$router.push('/TestItem');
+                        break;
+                    case '复合测试项':
+                        this.$router.push('/TestItemBatch');
+                        break;
+                    case '测试模版':
+                        this.$router.push('/TestTemplate');
+                        break;
+                    case '测试用例':
+                        this.$router.push('/TestCase');
+                        break;
+                    case '用户列表':
+                        this.$router.push('/UserList');
+                        break;
+                    case '角色权限':
+                        this.$router.push('/RolePermission');
+                        break;
 
-                    
-            }
+
+                }
+            });
         },
     }
 }

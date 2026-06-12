@@ -29,12 +29,11 @@
 
     <!-- 数据表格 -->
     <el-card class="table-card" shadow="never">
-      <el-table :data="tableData.slice((pageInfo.pageNo - 1) * pageInfo.pageSize, pageInfo.pageNo * pageInfo.pageSize)" style="width: 100%" stripe
-        @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" align="center" reserve-selection/>
+      <el-table :data="paginatedData" style="width: 100%" stripe @selection-change="handleSelectionChange" :row-key="'id'">
+        <el-table-column type="selection" width="55" align="center" reserve-selection />
         <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
         <el-table-column prop="vid" label="VID" align="center" />
-        <el-table-column prop="vidType" label="VID TYPE" align="center" >
+        <el-table-column prop="vidType" label="VID TYPE" align="center">
           <template #default="scope">
             <span v-if="scope.row.vidType === 0">SVID</span>
             <span v-if="scope.row.vidType === 1">DVID</span>
@@ -64,12 +63,12 @@
         <el-table-column prop="allowNumber" label="允许次数" align="center" />
         <el-table-column prop="action" label="执行动作" align="center" />
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope">
+          <template #default="scope">
             <el-tooltip content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="handleEdit(scope.row)" />
+              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -111,6 +110,12 @@ export default {
 
     }
   },
+  computed: {
+    paginatedData() {
+      const { pageNo, pageSize } = this.pageInfo;
+      return this.tableData.slice((pageNo - 1) * pageSize, pageNo * pageSize);
+    }
+  },
   created() {
     this.fetchData()
   },
@@ -139,6 +144,7 @@ export default {
     },
     async fetchData() {
       this.loading = true
+      this.tableData = []
       try {
         const res = await GetList(this.pageInfo)
         this.tableData = res.data.list
@@ -280,7 +286,7 @@ export default {
     border-radius: 8px;
     border: 1px solid #ebeef5;
 
-    ::v-deep .el-table {
+    :deep() .el-table {
       th {
         background-color: #f5f7fa;
       }

@@ -33,7 +33,7 @@
     <el-card class="table-card" shadow="never">
        <el-table 
        :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)"
-       style="width: 100%"  stripe @selection-change="handleSelectionChange">
+       style="width: 100%"  stripe @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" align="center" reserve-selection />
         <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
         <el-table-column prop="carrierId" label="载具编号" align="center" />
@@ -46,12 +46,12 @@
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope">
+          <template v-slot="scope">
             <el-tooltip content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="handleEdit(scope.row)" />
+              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -64,7 +64,7 @@
     </el-card>
 
     <!-- 编辑对话框 -->
-    <Dialog :visible.sync="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+    <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
   </div>
 </template>
 
@@ -115,6 +115,9 @@ export default {
         const res = await Get(this.pageInfo)
         this.tableData = res.data.list
         this.total = res.data.total
+      } catch (error) {
+        console.error('获取载具数据失败:', error)
+        this.$message.error('数据加载失败，请检查后端服务是否运行或网络连接是否正常。')
       } finally {
         this.loading = false
       }
@@ -240,7 +243,7 @@ export default {
     border-radius: 8px;
     border: 1px solid #ebeef5;
 
-    ::v-deep .el-table {
+    :deep() .el-table {
       th {
         background-color: #f5f7fa;
       }

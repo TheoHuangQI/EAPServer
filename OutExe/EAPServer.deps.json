@@ -14,6 +14,7 @@
           "Microsoft.Extensions.Configuration.FileExtensions": "3.0.0",
           "Microsoft.Extensions.Configuration.Json": "3.0.0",
           "Microsoft.Extensions.Options": "8.0.0",
+          "Secs4Net": "1.0.0",
           "Apache.NMS.ActiveMQ": "2.1.0.0",
           "Apache.NMS": "2.0.0.0"
         },

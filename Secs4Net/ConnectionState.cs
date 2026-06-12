@@ -6,4 +6,5 @@ public enum ConnectionState
     Connected,
     Selected,
     Retry,
+    Disconnected
 }

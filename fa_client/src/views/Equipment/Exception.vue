@@ -29,7 +29,7 @@
 
     <!-- 数据表格 -->
     <el-card class="table-card" shadow="never">
-      <el-table v-loading="loading" :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)" style="width: 100%" stripe
+      <el-table v-loading="loading" :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)" style="width: 100%" stripe row-key="id"
         @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" align="center" reserve-selection />
         <el-table-column label="序号" width="50" align="center">
@@ -54,10 +54,10 @@
         <el-table-column label="操作" width="180" align="center">
           <template #default="scope">
             <el-tooltip content="处理" placement="top">
-              <el-button type="success" icon="el-icon-check" circle size="mini" @click="handleProcess(scope.row)" />
+              <el-button type="primary" icon="el-icon-check" circle size="small" @click="handleProcess(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { GetList, Delete, Deletes, Edit, Export } from "@/api/Exception"
+import { GetList, Delete, Deletes, Edit } from "@/api/Exception"
 
 export default {
   data() {
@@ -191,18 +191,21 @@ export default {
     },
 
     // 导出
+    // async handleExport() {
+    //   this.loading = true
+    //   try {
+    //     const res = await Export(this.pageInfo)
+    //     const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+    //     const link = document.createElement('a')
+    //     link.href = URL.createObjectURL(blob)
+    //     link.download = `异常记录_${new Date().toLocaleDateString()}.xlsx`
+    //     link.click()
+    //   } finally {
+    //     this.loading = false
+    //   }
+    // }
     async handleExport() {
-      this.loading = true
-      try {
-        const res = await Export(this.pageInfo)
-        const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        const link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        link.download = `异常记录_${new Date().toLocaleDateString()}.xlsx`
-        link.click()
-      } finally {
-        this.loading = false
-      }
+      this.$message.warning('Export is not implemented yet')
     }
   }
 }
@@ -214,7 +217,7 @@ export default {
   background-color: #f5f7fa;
 
   .filter-card {
-  ::v-deep .el-card__body {
+  :deep() .el-card__body {
     padding: 18px 20px;
   }
 
@@ -271,7 +274,7 @@ export default {
 }
 
   .table-card {
-    ::v-deep .el-table {
+    :deep(.el-table) {
       th.el-table__cell {
         background-color: #fafafa;
       }

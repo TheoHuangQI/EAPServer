@@ -1,15 +1,12 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import user from './modules/user'
 
-Vue.use(Vuex)
-
-const store =new Vuex.Store({
+const store = createStore({
   getters: {
     token: state => state.user.token,
     userInfo: state => state.user.userInfo,
     userId: state => state.user.userInfo.workNo,
-    routers: state => state.permission.routers,
+    routers: state => state.permission?.routers || [],
   },
   modules: {
     user

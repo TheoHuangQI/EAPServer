@@ -10,6 +10,7 @@ public interface ISecsConnection
     /// Connection state
     /// </summary>
     ConnectionState State { get; }
+    long SessionId { get; }
 
     /// <summary>
     /// Is Active or Passive mode
@@ -41,5 +42,5 @@ public interface ISecsConnection
     void Reconnect();
 
     internal Task SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken);
-    internal IAsyncEnumerable<(MessageHeader header, Item? rootItem)> GetDataMessages(CancellationToken cancellation);
+    internal IAsyncEnumerable<(long sessionId, MessageHeader header, Item? rootItem)> GetDataMessages(CancellationToken cancellation);
 }

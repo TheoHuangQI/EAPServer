@@ -34,22 +34,22 @@
         <el-table-column prop="eqpId" label="设备ID" />
         <el-table-column prop="tempName" label="模版" />
         <el-table-column prop="state" label="状态">
-          <template slot-scope="scope">
+          <template v-slot="scope">
             <span v-if="scope.row.state === 0">待测试</span>
             <span v-if="scope.row.state === 1">测试进行中</span>
             <span v-if="scope.row.state === 2">测试完成</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="150" align="center">
-          <template slot-scope="scope">
+          <template v-slot="scope">
             <el-tooltip content="Start" placement="top">
               <el-button type="success" icon="el-icon-video-play" circle size="mini" @click="handleStart(scope.row)" />
             </el-tooltip>
             <el-tooltip content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="handleEdit(scope.row)" />
+              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
             </el-tooltip>
             <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -233,7 +233,7 @@ export default {
     border-radius: 8px;
     border: 1px solid #ebeef5;
 
-    ::v-deep .el-table {
+    :deep() .el-table {
       th {
         background-color: #f5f7fa;
       }
@@ -262,7 +262,7 @@ export default {
   }
 }
 
-::v-deep .message-content-cell {
+:deep(.message-content-cell) {
   .cell {
     white-space: nowrap;
     overflow: hidden;

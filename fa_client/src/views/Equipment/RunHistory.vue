@@ -22,7 +22,7 @@
       </el-card>
       <!-- 数据表格 -->
       <el-card class="table-card" shadow="never">
-        <el-table v-loading="loading" :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)" style="width: 100%" stripe
+        <el-table v-loading="loading" :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)" style="width: 100%" stripe row-key="id"
           @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" reserve-selection />
           <el-table-column label="序号" width="50" align="center">
@@ -47,7 +47,7 @@
           <el-table-column label="操作"  align="center">
             <template #default="scope">
               <el-tooltip content="删除" placement="top">
-                <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
+                <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
               </el-tooltip>
             </template>
           </el-table-column>
@@ -62,7 +62,7 @@
   </template>
   
   <script>
-  import { GetList, Delete} from "@/api/runHistory"
+  import { GetList, Delete } from "@/api/runHistory"
   
   export default {
     data() {
@@ -148,17 +148,7 @@
       },
       // 导出
       async handleExport() {
-        this.loading = true
-        try {
-          const res = await Export(this.pageInfo)
-          const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-          const link = document.createElement('a')
-          link.href = URL.createObjectURL(blob)
-          link.download = `异常记录_${new Date().toLocaleDateString()}.xlsx`
-          link.click()
-        } finally {
-          this.loading = false
-        }
+        this.$message.warning('导出功能暂未实现')
       }
     }
   }
@@ -170,72 +160,71 @@
     background-color: #f5f7fa;
   
     .filter-card {
-    ::v-deep .el-card__body {
-      padding: 18px 20px;
-    }
-  
-    .el-col {
-      margin-bottom: 12px;
-      
-      // 最后一个列取消底部间距
-      &:last-child {
-        margin-bottom: 0;
+      :deep() .el-card__body {
+        padding: 18px 20px;
       }
   
-      // 中等屏幕以上布局
-      @media (min-width: 992px) {
-        margin-bottom: 0;
+      .el-col {
+        margin-bottom: 12px;
+        
+        // 最后一个列取消底部间距
+        &:last-child {
+          margin-bottom: 0;
+        }
+  
+        // 中等屏幕以上布局
+        @media (min-width: 992px) {
+          margin-bottom: 0;
+          display: flex;
+          align-items: center;
+          min-height: 40px;  // 与输入框高度保持一致
+        }
+      }
+  
+      .action-group {
         display: flex;
-        align-items: center;
-        min-height: 40px;  // 与输入框高度保持一致
-      }
-    }
+        flex-wrap: wrap;
+        gap: 8px;
+        
+        // 中等屏幕以上布局
+        @media (min-width: 992px) {
+          justify-content: flex-end;
+        }
   
-    .action-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      
-      // 中等屏幕以上布局
-      @media (min-width: 992px) {
-        justify-content: flex-end;
-      }
+        // 小屏幕布局
+        @media (max-width: 991px) {
+          .el-button {
+            flex: 1 1 48%; // 两列布局
+            min-width: 120px;
+          }
+        }
   
-      // 小屏幕布局
-      @media (max-width: 991px) {
-        .el-button {
-          flex: 1 1 48%; // 两列布局
-          min-width: 120px;
+        // 超小屏幕布局
+        @media (max-width: 480px) {
+          .el-button {
+            flex: 1 1 100%; // 单列布局
+          }
         }
       }
   
-      // 超小屏幕布局
-      @media (max-width: 480px) {
-        .el-button {
-          flex: 1 1 100%; // 单列布局
+      // 统一输入组件高度
+      .el-input, .el-select {
+        :deep(.el-input__inner) {
+          height: 40px;
+          line-height: 40px;
         }
       }
     }
   
-    // 统一输入组件高度
-    .el-input, .el-select {
-      :deep(.el-input__inner) {
-        height: 40px;
-        line-height: 40px;
-      }
-    }
-  }
     .table-card {
-      ::v-deep .el-table {
-        th.el-table__cell {
-          background-color: #fafafa;
-        }
+      :deep(.el-table) {
+        background-color: #fafafa;
+      }
   
-        .el-tag {
-          padding: 0 8px;
-          height: 24px;
-          line-height: 24px;
-        }
+      .el-tag {
+        padding: 0 8px;
+        height: 24px;
+        line-height: 24px;
       }
   
       .pagination-wrapper {

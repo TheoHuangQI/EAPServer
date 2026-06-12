@@ -15,8 +15,9 @@ export function GetLotListIdle () {
 }
 
 export function GetPPIDList (paramsData) {
+  const url = paramsData ? `/LotInfo/GetPPIDList/${paramsData}` : '/LotInfo/GetPPIDList';
   return request({
-      url: '/LotInfo/GetPPIDList/'+paramsData,
+      url: url,
       method: 'get'
     })
 }

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="dialogVisible" :title="isEdit ? '编辑测试项' : '新增测试项'" width="600px"
+  <el-dialog v-model="dialogVisible" :title="isEdit ? '编辑测试项' : '新增测试项'" width="600px"
     custom-class="Test-Item-dialog" @close="handleClose">
     <el-form ref="messageForm" :model="formData">
       <!-- Message Name -->
@@ -73,10 +73,12 @@
           @input="validateXML" :class="{ 'invalid-xml': !isValidXML && formData.replyDataItemContent }"></el-input>
       </el-form-item>
     </el-form>
-    <div slot="footer" class="dialog-footer">
-      <el-button @click="handleClose">取消</el-button>
-      <el-button type="primary" @click="handleConfirm">确定</el-button>
-    </div>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="handleClose">取消</el-button>
+        <el-button type="primary" @click="handleConfirm">确定</el-button>
+      </div>
+    </template>
   </el-dialog>
 </template>
 

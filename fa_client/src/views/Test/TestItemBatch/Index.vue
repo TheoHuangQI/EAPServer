@@ -51,8 +51,13 @@ export default {
     handleNodeClick(data) {
       this.TestBatchName = data.label
       this.TestBatchId = data.id
-      this.TransferVisible=true
-      this.selectedItems=this.TestBatchList.find(a=>a.testBatchId==data.id).testItems;
+      this.TransferVisible = true
+      const selectedBatch = this.TestBatchList.find(a => a.testBatchId == data.id)
+      if (selectedBatch) {
+        this.selectedItems = selectedBatch.testItems || []
+      } else {
+        this.selectedItems = []
+      }
     },
     addNode(data){
       const formdata = {
@@ -71,20 +76,56 @@ export default {
     },
     // 新增保存方法
     handleSave() {
-      const formdata = {
-        TestBatchId: this.TestBatchId,
-        TestBatchName: this.TestBatchName,
-        TestItems: this.selectedItems1,
+      // 在发送请求前，增加防御性检查
+      if (!this.TestBatchId || typeof this.TestBatchId !== 'number' || this.TestBatchId <= 0) {
+        this.$message.error('请先从左侧树中选择一个有效的复合测试项');
+        return;
       }
-      saveTestBatch(formdata).then(res => {
-        if (res.return == "OK") {
-          this.$message.success('保存成功')
-          this.GetAllTestBatch()
+
+      try {
+        const itemsToSend = this.selectedItems1.map(item => {
+          if (!item) {
+            console.warn('selectedItems1 中发现一个空的 item');
+            return null;
+          }
+          // 根据后端代码，循环中只使用了 testItem.Id 和 testItem.MessageName
+          // 因此只发送这两个转换后的字段
+          return {
+            Id: item.id,
+            MessageName: item.messageName,
+          };
+        }).filter(item => item !== null);
+
+        const formdata = {
+          TestBatchId: this.TestBatchId,
+          TestBatchName: this.TestBatchName,
+          TestItems: itemsToSend,
         }
-        else {
-          this.$message.error(res.message)
-        }
-      })
+
+        console.log('即将发送到后端的数据:', JSON.stringify(formdata, null, 2));
+
+        saveTestBatch(formdata).then(res => {
+          if (res.return == "OK") {
+            this.$message.success('保存成功')
+            this.GetAllTestBatch()
+          }
+          else {
+            this.$message.error(`保存失败: ${res.message}`)
+            this.GetAllTestBatch()
+          }
+        }).catch(error => {
+          console.error('请求失败，错误详情:', error);
+          if (error.response) {
+            console.error('后端返回的错误数据:', error.response.data);
+            this.$message.error(`请求错误: ${error.response.data.title || error.message}`);
+          } else {
+            this.$message.error(`请求错误: ${error.message}`);
+          }
+        });
+      } catch (e) {
+        console.error('handleSave 内部发生同步错误:', e);
+        this.$message.error('客户端代码发生错误，请查看控制台。');
+      }
     },
     GetAllTestBatch() {
       this.loading = true
@@ -156,7 +197,7 @@ export default {
   }
 }
 
-.mytree /deep/ {
+.mytree :deep() {
   .el-tree-node.is-current>.el-tree-node__content {
     background-color: #c2d6ea !important;
   }

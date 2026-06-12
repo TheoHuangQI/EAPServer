@@ -40,6 +40,7 @@ namespace EAP.HC.Core
                 contexts = new List<ContextObject>();
                 foreach(var eqpconfig in EqpConfigures)
                 {
+                    eqpconfig.Validate();
                     if (!AppCache.Current.EqpInfos.ContainsKey(eqpconfig.Name))
                     {
                         AppCache.Current.EqpInfos.Add(eqpconfig.Name, new EqpInfo()

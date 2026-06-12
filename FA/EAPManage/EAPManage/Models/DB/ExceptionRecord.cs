@@ -21,6 +21,9 @@ namespace EAPManage.Models.DB
         [SugarColumn(ColumnName = "PORTID", ColumnDataType = "INTEGER")]
         public int portId { get; set; }
 
+        [SugarColumn(ColumnName = "PORT_NAME", ColumnDataType = "TEXT")]
+        public string portName { get; set; }
+
         [SugarColumn(ColumnName = "ERROR_TIME", ColumnDataType = "TEXT")]
         public string errorTime { get; set; }
 

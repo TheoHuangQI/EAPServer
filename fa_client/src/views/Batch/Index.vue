@@ -28,7 +28,7 @@
       <el-card class="table-card" shadow="never">
          <el-table 
          :data="tableData.slice((currentPage-1)*pageSize,currentPage*pageSize)"
-         style="width: 100%" stripe @selection-change="handleSelectionChange">
+         style="width: 100%" stripe @selection-change="handleSelectionChange" row-key="batchId">
           <el-table-column type="selection" width="55" align="center" reserve-selection/>
           <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
           <el-table-column prop="batchId" label="Batch ID" align="center" />
@@ -38,13 +38,13 @@
           <el-table-column prop="operator" label="操作员"/>
           <el-table-column prop="batchSize" label="Batch Size"/>
           <el-table-column label="操作" width="150" align="center">
-            <template slot-scope="scope">
+            <template v-slot="scope">
               <el-tooltip content="编辑" placement="top">
-                <el-button type="primary" icon="el-icon-edit" circle size="mini" @click="handleEdit(scope.row)" />
-              </el-tooltip>
-              <el-tooltip content="删除" placement="top">
-                <el-button type="danger" icon="el-icon-delete" circle size="mini" @click="handleDelete(scope.row)" />
-              </el-tooltip>
+              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
+            </el-tooltip>
+            <el-tooltip content="删除" placement="top">
+              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
+            </el-tooltip>
             </template>
           </el-table-column>
         </el-table>
@@ -56,7 +56,7 @@
       </el-card>
   
       <!-- 编辑对话框 -->
-      <Dialog :visible.sync="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+      <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
     </div>
   </template>
   
@@ -164,7 +164,7 @@
         }).catch(() => { })
       },
       handleSelectionChange(selection) {
-        this.selectedRows = selection.map(item => item.id)
+        this.selectedRows = selection.map(item => item.batchId)
       },
       handleSizeChange(val) {
         this.pageSize = val
@@ -231,7 +231,7 @@
       border-radius: 8px;
       border: 1px solid #ebeef5;
   
-      ::v-deep .el-table {
+      :deep() .el-table {
         th {
           background-color: #f5f7fa;
         }

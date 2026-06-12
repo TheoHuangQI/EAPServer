@@ -252,7 +252,7 @@
       });
     },
   
-    beforeDestroy() {
+    beforeUnmount() {
       window.removeEventListener("resize", this.handleResize);
       if (this.chart) {
         this.chart.dispose();

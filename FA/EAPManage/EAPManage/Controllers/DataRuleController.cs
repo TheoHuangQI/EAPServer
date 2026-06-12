@@ -21,18 +21,37 @@ namespace EAPManage.Controllers
             {
                 dataRules = dataRules.Where(a => a.vid == vid).ToList();
             }
-            
-            foreach (var rule in dataRules)
-            {
-                rule.actions = new List<int>();
+
+            var result = dataRules.Select(rule => {
+                var actions = new List<int>();
                 if (rule.action.Contains("StopEqp"))
-                    rule.actions.Add(0);
-                if(rule.action.Contains("HoldLot"))
-                    rule.actions.Add(1);
-            }
+                    actions.Add(0);
+                if (rule.action.Contains("HoldLot"))
+                    actions.Add(1);
+
+                return new {
+                    id = rule.Id,
+                    vid = rule.vid,
+                    vidType = rule.vidType,
+                    eqpId = rule.eqpId,
+                    interval = rule.interval,
+                    count = rule.count,
+                    triggerType = rule.triggerType,
+                    startEvent = rule.startEvent,
+                    endEvent = rule.endEvent,
+                    compareType = rule.compareType,
+                    compareValue = rule.compareValue,
+                    compareMax = rule.compareMax,
+                    compareMin = rule.compareMin,
+                    allowNumber = rule.limitTimes,
+                    action = rule.action,
+                    actions = actions
+                };
+            }).ToList();
+
             Dictionary<string, object> resdata = new Dictionary<string, object>();
-            resdata.Add("total", dataRules.Count);
-            resdata.Add("list", dataRules);
+            resdata.Add("total", result.Count);
+            resdata.Add("list", result);
             return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = resdata });
         }
 

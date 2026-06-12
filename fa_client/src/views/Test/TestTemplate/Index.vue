@@ -65,9 +65,16 @@ export default {
     handleNodeClick(data) {
       this.TestTempName = data.label
       this.TestTempId = data.id
-      this.TransferVisible=true
-      this.selectedItems=this.TestTempList.find(a=>a.testTemplateId==data.id).testItems;
-      this.selectedBatchs=this.TestTempList.find(a=>a.testTemplateId==data.id).testBatchs;
+      this.TransferVisible = true
+      const selectedTemplate = this.TestTempList.find(a => a.testTemplateId == data.id)
+      if (selectedTemplate) {
+        this.selectedItems = selectedTemplate.testItems || []
+        this.selectedBatchs = selectedTemplate.testBatchs || []
+      } else {
+        // 如果是新节点或者找不到，则设置为空数组
+        this.selectedItems = []
+        this.selectedBatchs = []
+      }
     },
     addNode(data){
       const formdata = {
@@ -183,7 +190,7 @@ export default {
   }
 }
 
-.mytree /deep/ {
+.mytree :deep() {
   .el-tree-node.is-current>.el-tree-node__content {
     background-color: #c2d6ea !important;
   }

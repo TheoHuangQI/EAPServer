@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Message } from 'element-ui'
+import { ElMessage } from 'element-plus'
 
 // 创建 axios 实例
 const service = axios.create({
@@ -28,7 +28,7 @@ service.interceptors.response.use(
   },
   error => {
     // 处理响应错误
-    Message({
+    ElMessage({
       message: error.message,
       type: 'error',
       duration: 5 * 1000

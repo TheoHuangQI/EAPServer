@@ -37,14 +37,14 @@
                 </el-select>
               </el-form-item>
               <el-form-item v-show="selectedModel.text==='normal'" :label="审批人类型">
-                <el-select v-model="selectedModel.auditRules" size="mini" @change="selectedModel.approver = []">
+                <el-select v-model="selectedModel.auditRules" size="small" @change="selectedModel.approver = []">
                   <el-option :label="审批人" value="user"/>
                   <el-option :label="审批人1" value="group"/>
                 </el-select>
               </el-form-item>
 
               <el-form-item v-show="selectedModel.text==='normal'" :label="审批人">
-                <el-select v-model="selectedModel.approver" collapse-tags multiple size="mini" filterable>
+                <el-select v-model="selectedModel.approver" collapse-tags multiple size="small" filterable>
                   <el-option v-for="(item,index) in approverList" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>

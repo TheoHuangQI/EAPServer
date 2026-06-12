@@ -25,6 +25,7 @@ namespace EAPManage.DataBase
                 {
                     Console.WriteLine(sql);
                 };
+                EnsureSchema();
                 User = new SqliteHelper<User>(_db);
                 Carrier = new SqliteHelper<Carrier>(_db);
                 Lot = new SqliteHelper<LotInfo>(_db);
@@ -47,6 +48,23 @@ namespace EAPManage.DataBase
             }
         }
         private SqlSugarScope _db;
+
+        private void EnsureSchema()
+        {
+            try
+            {
+                if (_db.DbMaintenance.IsAnyTable("EXCEPTION_RECORD", false)
+                    && !_db.DbMaintenance.IsAnyColumn("EXCEPTION_RECORD", "PORT_NAME", false))
+                {
+                    _db.Ado.ExecuteCommand("ALTER TABLE EXCEPTION_RECORD ADD COLUMN PORT_NAME TEXT");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
         public SqliteHelper<User> User;
         public SqliteHelper<Carrier> Carrier;
         public SqliteHelper<LotInfo> Lot;

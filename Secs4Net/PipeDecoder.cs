@@ -12,16 +12,16 @@ public sealed class PipeDecoder
     private readonly PipeReader _reader;
     public PipeWriter Input { get; }
 
-    private readonly Channel<MessageHeader> _controlMessageChannel = Channel
-        .CreateUnbounded<MessageHeader>(new UnboundedChannelOptions
+    private readonly Channel<(long sessionId, MessageHeader header)> _controlMessageChannel = Channel
+        .CreateUnbounded<(long sessionId, MessageHeader header)>(new UnboundedChannelOptions
         {
             SingleReader = true,
             SingleWriter = true,
             AllowSynchronousContinuations = true,
         });
 
-    private readonly Channel<(MessageHeader header, Item? rootItem)> _dataMessageChannel = Channel
-        .CreateUnbounded<(MessageHeader header, Item? rootItem)>(new UnboundedChannelOptions
+    private readonly Channel<(long sessionId, MessageHeader header, Item? rootItem)> _dataMessageChannel = Channel
+        .CreateUnbounded<(long sessionId, MessageHeader header, Item? rootItem)>(new UnboundedChannelOptions
         {
             SingleReader = true,
             SingleWriter = true,
@@ -34,18 +34,19 @@ public sealed class PipeDecoder
         Input = input;
     }
 
-    internal IAsyncEnumerable<MessageHeader> GetControlMessages(CancellationToken cancellation)
+    internal IAsyncEnumerable<(long sessionId, MessageHeader header)> GetControlMessages(CancellationToken cancellation)
         => _controlMessageChannel.Reader.ReadAllAsync(cancellation);
 
-    public IAsyncEnumerable<(MessageHeader header, Item? rootItem)> GetDataMessages(CancellationToken cancellation)
+    public IAsyncEnumerable<(long sessionId, MessageHeader header, Item? rootItem)> GetDataMessages(CancellationToken cancellation)
         => _dataMessageChannel.Reader.ReadAllAsync(cancellation);
 
-    public Task StartAsync(CancellationToken cancellation)
-        => DecodeLoopAsync(_controlMessageChannel.Writer, _dataMessageChannel.Writer, _reader, cancellation);
+    public Task StartAsync(long sessionId, CancellationToken cancellation)
+        => DecodeLoopAsync(sessionId, _controlMessageChannel.Writer, _dataMessageChannel.Writer, _reader, cancellation);
 
     private static async Task DecodeLoopAsync(
-        ChannelWriter<MessageHeader> controlMessageWriter,
-        ChannelWriter<(MessageHeader header, Item? rootItem)> dataMessageWriter,
+        long sessionId,
+        ChannelWriter<(long sessionId, MessageHeader header)> controlMessageWriter,
+        ChannelWriter<(long sessionId, MessageHeader header, Item? rootItem)> dataMessageWriter,
         PipeReader reader,
         CancellationToken cancellation)
     {
@@ -86,11 +87,11 @@ public sealed class PipeDecoder
             {
                 if (header.MessageType == MessageType.DataMessage)
                 {
-                    await dataMessageWriter.WriteAsync((header, rootItem: null), cancellation).ConfigureAwait(false);
+                    await dataMessageWriter.WriteAsync((sessionId, header, rootItem: null), cancellation).ConfigureAwait(false);
                 }
                 else
                 {
-                    await controlMessageWriter.WriteAsync(header, cancellation).ConfigureAwait(false);
+                    await controlMessageWriter.WriteAsync((sessionId, header), cancellation).ConfigureAwait(false);
                 }
                 continue;
             }
@@ -101,7 +102,7 @@ public sealed class PipeDecoder
 
                 Debug.WriteLine($"Get data message(id:{header.Id:X8}) with total bytes: {messageLength} and decoded directly");
 
-                await dataMessageWriter.WriteAsync((header, rootItem), cancellation).ConfigureAwait(false);
+                await dataMessageWriter.WriteAsync((sessionId, header, rootItem), cancellation).ConfigureAwait(false);
                 continue;
             }
 
@@ -169,7 +170,7 @@ public sealed class PipeDecoder
                     else
                     {
                         Debug.WriteLine($"Get data message(id:{header.Id:X8}) decoded by data chunked");
-                        await dataMessageWriter.WriteAsync((header, item), cancellation).ConfigureAwait(false);
+                        await dataMessageWriter.WriteAsync((sessionId, header, item), cancellation).ConfigureAwait(false);
                         goto Start;
                     }
                 }
@@ -178,7 +179,7 @@ public sealed class PipeDecoder
             else
             {
                 Debug.WriteLine($"Get data message(id:{header.Id:X8}) decoded by data chunked");
-                await dataMessageWriter.WriteAsync((header, item), cancellation).ConfigureAwait(false);
+                await dataMessageWriter.WriteAsync((sessionId, header, item), cancellation).ConfigureAwait(false);
             }
         }
     }

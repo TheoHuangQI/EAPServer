@@ -1,6 +1,7 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,40 +10,114 @@ namespace EAP.HC.Core.Entities
 {
     public class ConnectionConfigure
     {
-        private string name;
-        private int deviceId;
-        private ConnectionType connectionType;
-        private ConnectionMode connectionMode;
-        private string localIp;
-        private int localPort;
-        private string remoteIp;
-        private int remotePort;
-        private string eqpType;
-        private int t3;
-        private int t5;
-        private int t6;
-        private int t7;
-        private int t8;
-        private string chamber;
-        private int loadport;
+        public string Name { get; set; } = string.Empty;
 
+        public int DeviceID { get; set; }
 
-        public string Name { get { return name;  } set{ name = value;} }
+        public ConnectionType ConnectionType { get; set; }
 
-        public int DeviceID { get { return deviceId; } set { deviceId = value; } }
-        public ConnectionType ConnectionType { get { return connectionType; } set { connectionType = value; } }
-        public ConnectionMode ConnectionMode { get { return connectionMode; } set { connectionMode = value; } }
-        public string LocalIP { get { return localIp; } set { localIp = value; } }
-        public int LocalPort { get { return localPort; } set { localPort = value; } }
-        public string RemoteIP { get { return remoteIp; } set { remoteIp = value; } }
-        public int RemotePort { get { return remotePort; } set { remotePort = value; } }
-        public string EQPType { get { return eqpType; } set { eqpType = value; } }
-        public int T3 { get { return t3; } set { t3 = value; } }
-        public int T5 { get { return t5; } set { t5 = value; } }
-        public int T6 { get { return t6; } set { t6 = value; } }
-        public int T7 { get { return t7; } set { t7 = value; } }
-        public int T8 { get { return t8; } set { t8 = value; } }
-        public string Chamber { get { return chamber; } set { chamber = value; } }
-        public int LoadPort { get { return loadport; } set { loadport = value; } }
+        public ConnectionMode ConnectionMode { get; set; }
+
+        public string LocalIP { get; set; } = string.Empty;
+
+        public int LocalPort { get; set; }
+
+        public string RemoteIP { get; set; } = string.Empty;
+
+        public int RemotePort { get; set; }
+
+        public string EQPType { get; set; } = string.Empty;
+
+        /// <summary>
+        /// SECS/GEM T3 Timeout（秒）
+        /// </summary>
+        public int T3 { get; set; } = 45;
+
+        /// <summary>
+        /// SECS/GEM T5 Timeout（秒）
+        /// </summary>
+        public int T5 { get; set; } = 10;
+
+        /// <summary>
+        /// SECS/GEM T6 Timeout（秒）
+        /// </summary>
+        public int T6 { get; set; } = 5;
+
+        /// <summary>
+        /// SECS/GEM T7 Timeout（秒）
+        /// </summary>
+        public int T7 { get; set; } = 10;
+
+        /// <summary>
+        /// SECS/GEM T8 Timeout（秒）
+        /// </summary>
+        public int T8 { get; set; } = 5;
+
+        public string Chamber { get; set; } = string.Empty;
+
+        public int LoadPort { get; set; }
+
+        /// <summary>
+        /// 心跳检测周期（秒）
+        /// </summary>
+        public int? HeartbeatInterval { get; set; } = 30;
+
+        /// <summary>
+        /// 心跳连续失败最大次数
+        /// </summary>
+        public int? HeartbeatMaxFailures { get; set; } = 3;
+
+        /// <summary>
+        /// 配置合法性检查
+        /// </summary>
+        /// <exception cref="ArgumentException"></exception>
+        public void Validate()
+        {
+            if (string.IsNullOrWhiteSpace(Name))
+                throw new ArgumentException("Name不能为空");
+
+            if (DeviceID < 0)
+                throw new ArgumentException("DeviceID必须大于或等于0");
+
+            if (string.IsNullOrWhiteSpace(LocalIP))
+                throw new ArgumentException("LocalIP不能为空");
+
+            if (!IPAddress.TryParse(LocalIP, out _))
+                throw new ArgumentException($"LocalIP格式错误: {LocalIP}");
+
+            if (LocalPort < 1 || LocalPort > 65535)
+                throw new ArgumentException($"LocalPort无效: {LocalPort}");
+
+            if (!string.IsNullOrWhiteSpace(RemoteIP) &&
+                !IPAddress.TryParse(RemoteIP, out _))
+                throw new ArgumentException($"RemoteIP格式错误: {RemoteIP}");
+
+            if (RemotePort != 0 &&
+                (RemotePort < 1 || RemotePort > 65535))
+                throw new ArgumentException($"RemotePort无效: {RemotePort}");
+
+            if (T3 <= 0)
+                throw new ArgumentException("T3必须大于0");
+
+            if (T5 <= 0)
+                throw new ArgumentException("T5必须大于0");
+
+            if (T6 <= 0)
+                throw new ArgumentException("T6必须大于0");
+
+            if (T7 <= 0)
+                throw new ArgumentException("T7必须大于0");
+
+            if (T8 <= 0)
+                throw new ArgumentException("T8必须大于0");
+
+            if (HeartbeatInterval.HasValue &&
+                HeartbeatInterval.Value <= 0)
+                throw new ArgumentException("HeartbeatInterval必须大于0");
+
+            if (HeartbeatMaxFailures.HasValue &&
+                HeartbeatMaxFailures.Value <= 0)
+                throw new ArgumentException("HeartbeatMaxFailures必须大于0");
+        }
     }
 }

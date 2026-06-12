@@ -47,7 +47,7 @@
         align="center" />
       <el-table-column :label="t('column.productid')" min-width="150" prop="productId" align="center" sortable="custom"/>
       <el-table-column :label="t('column.isdefault')" width="150" prop="defaultFlow" sortable="custom" align="center">
-        <template slot-scope="curr">
+        <template v-slot="curr">
           <span v-if="curr.row.defaultFlow===1" style="font-size:20px;color:green;">
             <svg-icon :icon-class="'ok'" />
           </span>
@@ -59,10 +59,10 @@
       <el-table-column :label="t('column.createtime')" width="160" sortable="custom" prop="createTime" align="center" />
       <el-table-column :label="t('column.lastOperator')" width="160" prop="username" align="center" />
       <el-table-column :label="t('column.actions')" align="center" width="350" fixed="right">
-        <template slot-scope="curr">
-          <el-button v-authorize="'chakanliuchengtu'" type="success" size="mini" icon="el-icon-search" @click="lookHandler(curr.row)">{{ t('btn.flowchart') }}</el-button>
-          <el-button v-authorize="'xiugai'" type="primary" size="mini" icon="el-icon-edit" @click="editHandler(curr.row)" >{{ t('btn.edit') }}</el-button>
-          <el-button v-authorize="'shanchu'" type="danger" size="mini" icon="el-icon-delete" @click="removeHandler(curr.row,'deleted')">{{ t('btn.remove') }}</el-button>
+        <template v-slot="curr">
+          <el-button v-authorize="'chakanliuchengtu'" type="success" size="small" icon="el-icon-search" @click="lookHandler(curr.row)">{{ t('btn.flowchart') }}</el-button>
+          <el-button v-authorize="'xiugai'" type="primary" size="small" icon="el-icon-edit" @click="editHandler(curr.row)" >{{ t('btn.edit') }}</el-button>
+          <el-button v-authorize="'shanchu'" type="danger" size="small" icon="el-icon-delete" @click="removeHandler(curr.row,'deleted')">{{ t('btn.remove') }}</el-button>
         </template>
       </el-table-column>
     </el-table>

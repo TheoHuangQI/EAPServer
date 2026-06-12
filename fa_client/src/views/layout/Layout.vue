@@ -2,13 +2,14 @@
 <template>
   <div class="app">
     <!-- 顶部导航栏 -->
-    <Header></Header>
+    <Header :is-collapsed="isCollapsed" @toggle-collapse="handleToggleCollapse"></Header>
     <!-- 侧边栏 -->
-    <Sidebar></Sidebar>
+    <Sidebar :is-collapsed="isCollapsed" @toggle-collapse="handleToggleCollapse"></Sidebar>
 
     <!-- 主内容区 -->
     <main :class="['appMain', { 'main--expanded': isCollapsed }]">
-      <router-view>
+            <router-view v-slot="{ Component }">
+        <component :is="Component" :key="key" />
       </router-view>
     </main>
     <!-- 底部 -->
@@ -21,6 +22,21 @@ import Sidebar from "@/views/layout/Sidebar.vue";
 import Footer from "@/views/layout/Footer.vue";
 export default {
   components: {Header,Sidebar,Footer},
+  data() {
+    return {
+      isCollapsed: false
+    }
+  },
+  computed: {
+    key() {
+      return this.$route.path
+    }
+  },
+  methods: {
+    handleToggleCollapse() {
+      this.isCollapsed = !this.isCollapsed;
+    }
+  }
 };
 </script>
 <style scoped>
@@ -44,4 +60,3 @@ export default {
   margin-left: 80px;    /* 侧边栏折叠后的宽度 */
 }
 </style>
-    

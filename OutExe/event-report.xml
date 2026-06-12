@@ -99,6 +99,7 @@
 		<DV id="215" />
 		<DV id="206" />
 		<DV id="211" />
+		<DV id="205" />
 	</REPORT>
 	<REPORT id="400">
 		<DV id="28" />
@@ -740,8 +741,6 @@
 	<EVENT id="10" enabled="1">
 		<RPT id="1" />
 	</EVENT>
-	<EVENT id="1005" enabled="1" />
-	<EVENT id="1006" enabled="1" />
 	<EVENT id="1010" enabled="1">
 		<RPT id="400" />
 	</EVENT>
@@ -1868,8 +1867,6 @@
 	<EVENT id="10" enabled="1">
 		<RPT id="1" />
 	</EVENT>
-	<EVENT id="1005" enabled="1" />
-	<EVENT id="1006" enabled="1" />
 	<EVENT id="1010" enabled="1">
 		<RPT id="400" />
 	</EVENT>

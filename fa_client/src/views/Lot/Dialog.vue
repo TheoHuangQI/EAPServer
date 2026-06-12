@@ -1,13 +1,13 @@
 <template>
   <el-dialog
     :title="isEdit ? '编辑Lot信息' : 'LOT信息录入'"
-    :visible.sync="dialogVisible"
+    :model-value="visible"
     width="800px"
     :close-on-click-modal="false"
     @close="handleClose"
   >
     <el-form 
-      ref="form"
+      ref="formRef"
       :model="formData" 
       :rules="rules"
       label-width="100px"
@@ -15,7 +15,7 @@
       <!-- 批次号 -->
       <el-form-item label="批次号：" prop="lotId">
         <el-input 
-        :disabled="this.isEdit"
+        :disabled="isEdit"
           v-model="formData.lotId"
           placeholder="请输入批次号"
           clearable
@@ -76,7 +76,7 @@
             <el-checkbox
               v-for="slot in slotOptions"
               :key="slot.value"
-              :label="slot.value"
+              :value="slot.value"
               class="slot-item"
             >
               <span class="slot-label">{{ slot.label }}</span>
@@ -94,103 +94,102 @@
   </el-dialog>
 </template>
 
-<script>
-import { Alert } from 'element-ui'
-import { GetPPIDList} from "@/api/lot"
-export default {
-  props: {
-    visible: {
-      type: Boolean,
-      default: false
-    },
-    isEdit: {
-      type: Boolean,
-      default: false
-    },
-    form: {
-      type: Object,
-      default: () => ({})
-    }
+<script setup>
+import { ref, watch, computed } from 'vue'
+import { GetPPIDList } from "@/api/lot"
+
+const props = defineProps({
+  visible: {
+    type: Boolean,
+    default: false
   },
-  data() {
-    const validateQty = (rule, value, callback) => {
-      if (value === '') return callback(new Error('请输入数量'))
-      if (typeof value !== 'number') return callback(new Error('必须为数字'))
-      if (value < 0 || value > 25) {
-        callback(new Error('数量必须在0-25之间'))
-      } else {
-        callback()
-      }
-    }
-    return {
-      dialogVisible: this.visible,
-      formData: { ...this.form },
-      ppidOptions: [],
-      rules: {
-        lotId: [
-          { required: true, message: '请输入批次号', trigger: 'blur' }
-        ],
-        qty: [
-          { validator: validateQty, trigger: 'blur', required: true }
-        ],
-        ppid: [
-          { required: false, message: '请选择PPID', trigger: 'change' }
-        ]
-      }
-    }
+  isEdit: {
+    type: Boolean,
+    default: false
   },
-  computed: {
-    slotOptions() {
-      return Array.from({ length: 25 }, (_, i) => ({
-        value: `${this.formData.lotId || ''}.${String(i + 1).padStart(2, '0')}`,
-        label: `${this.formData.lotId || ''}.${String(i + 1).padStart(2, '0')}`
-      }))
-    },
-    isAllSelected() {
-      return this.formData.slots.length === 25
-    },
-    selectedCount() {
-      return this.formData.slots.length
-    },
-  },
-  methods: {
-    getppList(){
-      GetPPIDList(this.formData.lotId).then(res=>{
-            this.ppidOptions = res.data.list
-          })
-    },
-    handleClose() {
-      this.dialogVisible = false
-    },
-    toggleSelectAll() {
-      if (this.isAllSelected) {
-        this.formData.slots = []
-      } else {
-        this.formData.slots = this.slotOptions.map(slot => slot.value)
-      }
-    },
-    handleConfirm() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.$emit('submit', { ...this.formData })
-          this.dialogVisible = false
-        }
-      })
-    }
-  },
-  watch: {
-    visible(newVal) {
-      this.dialogVisible = newVal
-      if (newVal) {
-        this.formData = { ...this.form }
-        this.getppList()
-      }
-    },
-    dialogVisible(newVal) {
-      this.$emit('update:visible', newVal)
-    },
+  form: {
+    type: Object,
+    default: () => ({})
+  }
+})
+
+const emit = defineEmits(['update:visible', 'submit'])
+
+const formRef = ref(null)
+const formData = ref({ ...props.form })
+const ppidOptions = ref([])
+
+const validateQty = (rule, value, callback) => {
+  if (value === '') return callback(new Error('请输入数量'))
+  if (typeof value !== 'number') return callback(new Error('必须为数字'))
+  if (value < 0 || value > 25) {
+    callback(new Error('数量必须在0-25之间'))
+  } else {
+    callback()
   }
 }
+
+const rules = {
+  lotId: [
+    { required: true, message: '请输入批次号', trigger: 'blur' }
+  ],
+  qty: [
+    { validator: validateQty, trigger: 'blur', required: true }
+  ],
+  ppid: [
+    { required: false, message: '请选择PPID', trigger: 'change' }
+  ]
+}
+
+const slotOptions = computed(() => {
+  return Array.from({ length: 25 }, (_, i) => ({
+    value: `${formData.value.lotId || ''}.${String(i + 1).padStart(2, '0')}`,
+    label: `${formData.value.lotId || ''}.${String(i + 1).padStart(2, '0')}`
+  }))
+})
+
+const isAllSelected = computed(() => formData.value.slots.length === 25)
+const selectedCount = computed(() => formData.value.slots.length)
+
+const getppList = () => {
+  GetPPIDList(formData.value.lotId).then(res => {
+    ppidOptions.value = res.data.list
+  })
+}
+
+const handleClose = () => {
+  emit('update:visible', false)
+}
+
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    formData.value.slots = []
+  } else {
+    formData.value.slots = slotOptions.value.map(slot => slot.value)
+  }
+}
+
+const handleConfirm = () => {
+  formRef.value.validate(valid => {
+    if (valid) {
+      emit('submit', { ...formData.value })
+      handleClose()
+    }
+  })
+}
+
+watch(() => props.visible, (newVal) => {
+  if (newVal) {
+    formData.value = { ...props.form }
+    // 仅在“编辑”模式下才加载PPID列表
+    if (props.isEdit) {
+      getppList()
+    } else {
+      // 在“新增”模式下，清空旧的选项以防数据显示错乱
+      ppidOptions.value = []
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -222,7 +221,7 @@ export default {
   align-items: center;
 }
 
-.slot-item >>> .el-checkbox__label {
+.slot-item :deep(.el-checkbox__label) {
   padding-left: 5px;
 }
 

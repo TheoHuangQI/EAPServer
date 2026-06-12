@@ -68,6 +68,8 @@ namespace EAP.EC.KS_CM300
         private System.Object obj = new System.Object();
         private readonly object _alarmLock = new object();
         private readonly Dictionary<uint, EnabledAlarm> _enabledAlarmMap = new Dictionary<uint, EnabledAlarm>();
+        private readonly object _connectionStateLock = new object();
+        private readonly Dictionary<string, long> _connectionVersions = new Dictionary<string, long>();
         Dictionary<int, ChannelContext> _channelMap;
         Dictionary<string, Dictionary<int, VIDItem>> _channelSvidDictMap;
 
@@ -294,9 +296,23 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public void ConnectionChange(Arguments args)
+        public async void ConnectionChange(Arguments args)
         {
+            var eqpId = args.Header[CItems.EqpId].ToString();
             var state = (ConnectionState)args.Header[CItems.ConnectionState];
+            var version = args.Header.ContainsKey(CItems.ConnectionVersion)
+                ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
+                : 0;
+
+            lock (_connectionStateLock)
+            {
+                if (_connectionVersions.TryGetValue(eqpId, out var latestVersion) && version < latestVersion)
+                {
+                    return;
+                }
+                _connectionVersions[eqpId] = version;
+            }
+
             switch (state)
             {
                 case ConnectionState.Connecting:
@@ -304,9 +320,12 @@ namespace EAP.EC.KS_CM300
                 case ConnectionState.Connected:
                     break;
                 case ConnectionState.Selected:
-                    HsmsConnectAsync(args);
+                    await HsmsConnectAsync(args);
                     break;
                 case ConnectionState.Retry:
+                    HsmsDisConnect(args);
+                    break;
+                case ConnectionState.Disconnected:
                     HsmsDisConnect(args);
                     break;
             }
@@ -571,24 +590,24 @@ namespace EAP.EC.KS_CM300
                         case 9:
                             {
                                 //await Send_S2F41(args, "go_remote");
-                                LoadSVIDDef();
-                                while (true)
-                                {
-                                    Stopwatch sw = Stopwatch.StartNew();
-                                    Send_S1F3_Get_AllDifferenceSVIDValue(args);
-
-                                    Thread.Sleep(150);
-                                    sw.Stop();
-                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
-                                }
-
-                                //eqp.Value.ControlStatus = ControlState.LOCAL;
-                                //var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                //MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                //if (controlState != 4)
+                                //LoadSVIDDef();
+                                //while (true)
                                 //{
-                                //    MESClient.Send_Exception(eqpId, "0", $"EQP Report LOCAL Event,CEID={ceid},But SVID ControlState ={controlState}  ");
+                                //    Stopwatch sw = Stopwatch.StartNew();
+                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
+
+                                //    Thread.Sleep(150);
+                                //    sw.Stop();
+                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 //}
+
+                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
+                                eqp.Value.ControlStatus = (ControlState)controlState;
+                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                                if (controlState != 4)
+                                {
+                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report LOCAL Event,CEID={ceid},But SVID ControlState ={controlState}  ");
+                                }
                                 //args.Header[CItems.Check] = false;
                                 //Send_S1F3_Get_AccessMode(args);
                                 ////Send_S1F3_Get_AllDifferenceSVID(args);
@@ -600,7 +619,7 @@ namespace EAP.EC.KS_CM300
                             {
                                 //await Send_S2F41(args, "go_local");
 
-                                LoadSVIDDef();
+                                //LoadSVIDDef();
 
                                 //_ = Task.Run(async () =>
                                 //{
@@ -609,36 +628,32 @@ namespace EAP.EC.KS_CM300
                                 //});
 
                                 //Send_S1F3_Get_AllDifferenceSVIDValue(args);
-                                while (true)
-                                {
-                                    Stopwatch sw = Stopwatch.StartNew();
-                                    Send_S1F3_Get_AllDifferenceSVIDValue(args);
-                                    await Task.Delay(990);
-                                    sw.Stop();
-                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
-                                }
-
-                                //eqp.Value.ControlStatus = ControlState.REMOTE;
-                                //if (!eqp.Value.IsInitial)
-                                //{
-                                //    await HsmsInitial(args);
-                                //    eqp.Value.IsInitial = true;
-                                //}
-                                //var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                //MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                //if (controlState != 5)
-                                //{
-                                //    MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
-                                //}
-                                //args.Header[CItems.Check] = false;
-                                //Send_S1F3_Get_TransferStatus(args);
-                                //Send_S1F3_Get_AllDifferenceSVID(args);
                                 //while (true)
                                 //{
+                                //    Stopwatch sw = Stopwatch.StartNew();
                                 //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
-
-                                //    Thread.Sleep(1000);
+                                //    await Task.Delay(990);
+                                //    sw.Stop();
+                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 //}
+
+                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
+                                eqp.Value.ControlStatus = (ControlState)controlState;
+                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
+                                if (controlState != 5)
+                                {
+                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
+                                }
+                                else if (!eqp.Value.IsInitial)
+                                {
+                                    await HsmsInitial(args);
+                                    if (args.GetResultCode() == "OK")
+                                    {
+                                        eqp.Value.IsInitial = true;
+                                    }
+                                }
+                                //args.Header[CItems.Check] = false;
+                                //Send_S1F3_Get_TransferStatus(args);
                                 //var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
                                 //if (context.transactions != null)
                                 //{
@@ -689,7 +704,7 @@ namespace EAP.EC.KS_CM300
                                 var accessMode = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
                                 if (accessMode != 1)
                                 {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report Auto Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
+                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report Auto Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
                                 }
                                 break;
                             }
@@ -700,7 +715,7 @@ namespace EAP.EC.KS_CM300
                                 var accessMode = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
                                 if (accessMode != 0)
                                 {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report Manual Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
+                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report Manual Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
                                 }
                                 break;
                             }
@@ -743,7 +758,7 @@ namespace EAP.EC.KS_CM300
                                 var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
                                 if (transferStatus != 1)
                                 {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report TransferBlocked Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report TransferBlocked Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
                                 break;
                             }
@@ -768,7 +783,7 @@ namespace EAP.EC.KS_CM300
                                 var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 2)
                                 {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
                                 Random random = new Random();
                                 Thread.Sleep(random.Next(1000, 4000));
@@ -786,7 +801,7 @@ namespace EAP.EC.KS_CM300
                                 var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 3)
                                 {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report ReadyToUnload Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report ReadyToUnload Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
                                 SecsMessage msg = new SecsMessage(2, 41);
                                 Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
@@ -1053,7 +1068,7 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0][0]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
             MESClient.MES_LotStart(eqpId, carrierId);
         }
 
@@ -1066,7 +1081,7 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0][0]).ToString().Trim();
+            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
             MESClient.MES_LotEnd(eqpId, carrierId);
             MESClient.MES_TrackOut(eqpId, carrierId);
         }
@@ -2244,28 +2259,66 @@ namespace EAP.EC.KS_CM300
         {
             //建立逻辑连接
             var eqpId = args.Header[CItems.EqpId].ToString();
-            var context = EAPContext.contexts.First(a => a.EquipmentID == args.Header[CItems.EqpId].ToString());
+            var version = args.Header.ContainsKey(CItems.ConnectionVersion)
+                ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
+                : 0;
+            var context = EAPContext.contexts?.FirstOrDefault(a => a.EquipmentID == eqpId);
+            if (context == null)
+            {
+                args.SetResultNG($"No EAP context found for {eqpId}.");
+                return;
+            }
             SecsMessage msg = new SecsMessage(1, 13);
             msg.SecsItem = Item.L();
             var reply = await context.SecsGem.SendAsync(msg);
+            if (!IsLatestConnectionVersion(eqpId, version))
+            {
+                return;
+            }
+            if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
+            {
+                args.SetResultNG("Send S1F13, Equipment Reply Empty.");
+                return;
+            }
             byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
-            if (retCode == null || retCode != 0)
+            if (retCode != 0)
             {
                 args.SetResultNG("Send S1F13, Equipment Reply Fail.");
                 return;
             }
             MESClient.Send_EqpState(eqpId, EQPState.Connected);
 
-            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.CONNECTED;
+            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+            {
+                eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+            }
             args.SetResultOK();
         }
 
         public void HsmsDisConnect(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
+            var version = args.Header.ContainsKey(CItems.ConnectionVersion)
+                ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
+                : 0;
+            if (!IsLatestConnectionVersion(eqpId, version))
+            {
+                return;
+            }
             MESClient.Send_EqpState(eqpId, EQPState.DisConnected);
             //建立逻辑连接
-            AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId).Value.ConnectStatus = ConnectStatus.DISCONNECTED;
+            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+            {
+                eqpInfo.ConnectStatus = ConnectStatus.DISCONNECTED;
+            }
+        }
+
+        private bool IsLatestConnectionVersion(string eqpId, long version)
+        {
+            lock (_connectionStateLock)
+            {
+                return !_connectionVersions.TryGetValue(eqpId, out var latestVersion) || version >= latestVersion;
+            }
         }
 
         public async Task HsmsInitial(Arguments args)

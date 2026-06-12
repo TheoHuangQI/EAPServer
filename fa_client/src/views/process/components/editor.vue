@@ -17,7 +17,7 @@ export default {
       this.initEditor()
     })
   },
-  destroyed() {
+  unmounted() {
     if (this.editor) {
       this.editor = null
     }
@@ -56,13 +56,13 @@ export default {
       page.on('afteritemselected', (ev, a, b) => {
         this.selectedModel = ev.item.getModel()
         if (!this.selectedModel.hasOwnProperty('auditRules')) {
-          this.$set(this.selectedModel, 'auditRules', this.selectedModel.text === 'normal' ? 'user' : '')
+          this.selectedModel.auditRules = this.selectedModel.text === 'normal' ? 'user' : ''
         }
         if (!this.selectedModel.hasOwnProperty('approver')) {
-          this.$set(this.selectedModel, 'approver', [])
+          this.selectedModel.approver = []
         }
         if (!this.selectedModel.hasOwnProperty('signType')) {
-          this.$set(this.selectedModel, 'signType', 'exclusive')
+          this.selectedModel.signType = 'exclusive'
         }
       })
       page.on('afterzoom', ev => {

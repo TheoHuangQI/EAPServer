@@ -25,7 +25,7 @@
       <el-radio-button label="flow-polyline-round">折线</el-radio-button>
     </el-radio-group>
     <span class="separator" /> -->
-    <el-button :loading="loading" type="primary" size="mini" style="vertical-align:top;" @click="saveHandler">保存流程图</el-button>
+    <el-button :loading="loading" type="primary" size="small" style="vertical-align:top;" @click="saveHandler">保存流程图</el-button>
   </div>
 </template>
 <script>
@@ -43,7 +43,7 @@ export default {
       this.$emit('change-eage', value)
     }
   },
-  destroyed() {
+  unmounted() {
     if (this.setTimer) {
       clearTimeout(this.setTimer)
     }

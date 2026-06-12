@@ -3,13 +3,29 @@
     <div style="display: flex; margin-bottom: 10px;">
       <el-input v-model="filterText" placeholder="请输入搜索内容" clearable @input="filterData"
         style="flex: 1; margin-right: 10px;" />
-      <el-button type="primary" icon="el-icon-plus" @click="handleAddNode"></el-button>
+      <el-button type="primary" icon="el-icon-plus" @click="handleAddNode">新增</el-button>
     </div>
     <div class="mytree">
-      <el-tree ref="tree" :indent="0" :data="treeData" :props="defaultProps" :render-content="renderTreeContent"
-        node-key="id" class="filter-tree" default-expand-all highlight-current @node-click="treeNodeClick" />
+      <el-tree ref="tree" :indent="0" :data="treeData" :props="defaultProps"
+        node-key="id" class="filter-tree" default-expand-all highlight-current @node-click="treeNodeClick">
+        <template #default="{ node, data }">
+          <span class="custom-tree-node">
+            <template v-if="data.isEditing">
+              <el-input
+                :model-value="data.label"
+                @update:model-value="value => data.label = value"
+                @keyup.enter="handleSaveNode(data)"
+                style="width: 120px; margin-right: 8px;"
+              />
+            </template>
+            <template v-else>
+              <i class="el-icon-set-up"></i>
+              <span style="margin-left: 5px; margin-right: 8px;">{{ node.label }}</span>
+            </template>
+          </span>
+        </template>
+      </el-tree>
     </div>
-
   </div>
 </template>
 <script>
@@ -20,7 +36,7 @@ export default {
     //源数据
     SourceData: {
       type: Array,
-      default: () => { }
+      default: () => []
     },
     // 数据源类型
     sourceType: {
@@ -112,43 +128,6 @@ export default {
         return res
       }, [])
     },
-    // 自定义渲染树节点内容
-    // 修改后的节点渲染方法
-    renderTreeContent(h, { node, data }) {
-      if (data.isEditing) {
-        return (
-      <span class="custom-tree-node">
-        <el-input
-          value={data.label}
-          onInput={value => data.label = value}
-          nativeOnKeyup={e => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              this.handleSaveNode(data)
-            }
-          }}
-          style="width: 120px; margin-right: 8px;"
-        />
-        {/* <el-button
-          size="mini"
-          type="danger"
-          onClick={() => this.handleDeleteNode(data)}
-        >删除</el-button> */}
-      </span>
-    )
-      }
-      return (
-        <span class="custom-tree-node">
-          <i class="el-icon-set-up"></i>
-          <span style="margin-left: 5px; margin-right: 8px;">{node.label}</span>
-          {/* <el-button
-            size="mini"
-            type="danger"
-            on-click={() => this.handleDeleteNode(data)}
-          >删除</el-button> */}
-        </span>
-      )
-    },
     // 树节点点击
     treeNodeClick(data) {
       this.$emit('tree-click', data)
@@ -186,11 +165,12 @@ export default {
 
     filterData(val) {
       const reg = new RegExp(val, 'i')
-      let combinedData = [...this.localNodes,...this.SourceData]
+      const sourceData = Array.isArray(this.SourceData) ? this.SourceData : []
+      let combinedData = [...this.localNodes, ...sourceData]
       if (val) {
-        combinedData = combinedData.filter(item => 
-          this.sourceType === 1 
-            ? reg.test(item.name) 
+        combinedData = combinedData.filter(item =>
+          this.sourceType === 1
+            ? reg.test(item.name)
             : reg.test(item.testBatchName)
         )
       }
@@ -204,7 +184,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.mytree /deep/ {
+.mytree :deep() {
   .el-tree-node__content {
     height: 32px;
     .custom-tree-node {

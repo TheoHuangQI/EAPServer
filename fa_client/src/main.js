@@ -1,24 +1,23 @@
-import Vue from 'vue'
+import { createApp } from 'vue'
 import App from './App.vue'
-import ElementUI from 'element-ui'; // 引入 Element UI
-import 'element-ui/lib/theme-chalk/index.css'; // 引入 Element UI 的样式
+import ElementPlus from 'element-plus'; // 引入 Element Plus
+import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import 'element-plus/dist/index.css'; // 引入 Element Plus 的样式
 import router from './router'; // 引入路由配置
 import '@fortawesome/fontawesome-free/css/all.css';
-import store from './store'  
-import * as echarts from 'echarts';
-import * as mermaid from 'mermaid';
-
-
+import store from './store'
 import Tree from '@/components'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
-Vue.config.productionTip = false
-// 使用 Element UI
-Vue.use(ElementUI);
-Vue.use(Tree)
+const app = createApp(App);
 
-new Vue({
-  router,// 注入路由
-  store,
-  echarts,
-  render: h => h(App),
-}).$mount('#app')
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}
+// 使用 Element Plus
+app.use(ElementPlus, { locale: zhCn });
+app.use(router);
+app.use(store);
+app.use(Tree);
+
+app.mount('#app');

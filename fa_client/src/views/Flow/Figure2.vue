@@ -73,7 +73,7 @@ export default {
             return Math.max(600, this.nodes.length * 50);
         }
     },
-    beforeDestroy() {
+    beforeUnmount() {
         if (this.simulation) {
             this.simulation.stop();
         }

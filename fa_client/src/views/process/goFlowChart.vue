@@ -14,7 +14,7 @@
         <el-table-column :label="名称" prop="nickname" width="80" align="center" />
         <el-table-column :label="邮箱" prop="mail" align="center"/>
         <el-table-column :label="分组" prop="roleIds" min-width="90" align="center">
-          <template slot-scope="curr">
+          <template v-slot="curr">
             <div style="white-space:pre-wrap;">
               <el-tag v-for="(item,index) in curr.row.roleIds" :key="index" type="primary" size="mini" style="margin:5px;">{{ groupList.find(p=>p.roleId===item).roleName }}</el-tag>
             </div>
@@ -22,11 +22,11 @@
         </el-table-column>
         <el-table-column
           align="right">
-          <template slot="header" slot-scope="scope">
+          <template #header="scope">
             <el-input
               v-model="search"
               :placeholder="请输入用户名"
-              size="mini"/>
+              size="small"/>
           </template>
         </el-table-column>
       </el-table>

@@ -46,6 +46,7 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     private bool _linkTestEnable;
 
     public ConnectionState State { get; private set; }
+    public long SessionId => Interlocked.Read(ref _sessionId);
     public bool IsActive { get; }
     public IPAddress IpAddress { get; }
     public int Port { get; }
@@ -56,6 +57,9 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         : ((IPEndPoint?)_socket?.RemoteEndPoint)?.Address?.ToString() ?? "NA";
 
     private Socket? _socket;
+    private long _sessionId;
+    private long _t7SessionId;
+    private long _t8SessionId;
     private const int DisposalNotStarted = 0;
     private const int DisposalComplete = 1;
     private int _disposeStage;
@@ -63,7 +67,7 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     public bool IsDisposed
         => Interlocked.CompareExchange(ref _disposeStage, DisposalComplete, DisposalComplete) == DisposalComplete;
 
-    private readonly Func<CancellationToken, Task> _startImpl;
+    private readonly Func<long, CancellationToken, Task> _startImpl;
     private readonly Action _stopImpl;
     private readonly Timer _timer7;
     private readonly Timer _timer8;
@@ -107,13 +111,13 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         _timer7 = new Timer(delegate
         {
             _logger.Error($"T7 Timeout: {T7 / 1000} sec.");
-            CommunicationStateChanging(ConnectionState.Retry);
+            ReconnectIfCurrentSession(Volatile.Read(ref _t7SessionId));
         }, null, Timeout.Infinite, Timeout.Infinite);
 
         _timer8 = new Timer(delegate
         {
             _logger.Error($"T8 Timeout: {T8 / 1000} sec.");
-            CommunicationStateChanging(ConnectionState.Retry);
+            ReconnectIfCurrentSession(Volatile.Read(ref _t8SessionId));
         }, null, Timeout.Infinite, Timeout.Infinite);
 
         _timerLinkTest = new Timer(delegate
@@ -121,26 +125,27 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
 #if !DISABLE_TIMER
             if (State == ConnectionState.Selected)
             {
-                _ = SendLinkTestAsync();
+                var sessionId = SessionId;
+                _ = SendLinkTestAsync(sessionId);
             }
 
-            async FireAndForget SendLinkTestAsync() => await SendControlMessage(MessageType.LinkTestRequest, MessageIdGenerator.NewId()).ConfigureAwait(false);
+            async FireAndForget SendLinkTestAsync(long sessionId) => await SendControlMessage(MessageType.LinkTestRequest, MessageIdGenerator.NewId(), sessionId: sessionId).ConfigureAwait(false);
 #endif
         }, null, Timeout.Infinite, Timeout.Infinite);
 
         if (IsActive)
         {
-            _startImpl = async cancellation =>
+            _startImpl = async (sessionId, cancellation) =>
             {
                 var connected = false;
                 do
                 {
-                    if (IsDisposed)
+                    if (IsDisposed || !IsCurrentSession(sessionId))
                     {
                         return;
                     }
 
-                    CommunicationStateChanging(ConnectionState.Connecting);
+                    CommunicationStateChanging(ConnectionState.Connecting, sessionId);
                     try
                     {
                         var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
@@ -154,19 +159,31 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                         await socket.ConnectAsync(IpAddress, Port).WithCancellation(cancellation).ConfigureAwait(false);
 #endif
 
+                        if (!IsCurrentSession(sessionId))
+                        {
+                            socket.Dispose();
+                            return;
+                        }
                         _socket = socket;
-                        CommunicationStateChanging(ConnectionState.Connected);
+                        CommunicationStateChanging(ConnectionState.Connected, sessionId);
                         connected = true;
                     }
                     catch (Exception ex) when (!IsDisposed)
                     {
+                        if (!IsCurrentSession(sessionId))
+                        {
+                            return;
+                        }
                         _logger.Error(ex.Message);
                         _logger.Info($"Start T5 Timer: {T5 / 1000} sec.");
                         await Task.Delay(T5, cancellation).ConfigureAwait(false);
                     }
                 } while (!connected);
 
-                await SendControlMessage(MessageType.SelectRequest, MessageIdGenerator.NewId(), cancellation).ConfigureAwait(false);
+                if (IsCurrentSession(sessionId))
+                {
+                    await SendControlMessage(MessageType.SelectRequest, MessageIdGenerator.NewId(), cancellation, sessionId).ConfigureAwait(false);
+                }
             };
 
             _stopImpl = delegate { };
@@ -180,17 +197,17 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
             server.Bind(new IPEndPoint(IpAddress, Port));
             server.Listen(0);
 
-            _startImpl = async cancellation =>
+            _startImpl = async (sessionId, cancellation) =>
             {
                 var connected = false;
                 do
                 {
-                    if (IsDisposed)
+                    if (IsDisposed || !IsCurrentSession(sessionId))
                     {
                         return;
                     }
 
-                    CommunicationStateChanging(ConnectionState.Connecting);
+                    CommunicationStateChanging(ConnectionState.Connecting, sessionId);
                     try
                     {
 #if NET
@@ -198,13 +215,23 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
 #else
                         _socket = await server.AcceptAsync().WithCancellation(cancellation).ConfigureAwait(false);
 #endif
+                        if (!IsCurrentSession(sessionId))
+                        {
+                            _socket.Dispose();
+                            _socket = null;
+                            return;
+                        }
                         _socket.Blocking = false;
                         _socket.ReceiveBufferSize = _socketReceiveBufferSize;
-                        CommunicationStateChanging(ConnectionState.Connected);
+                        CommunicationStateChanging(ConnectionState.Connected, sessionId);
                         connected = true;
                     }
                     catch (Exception ex) when (!IsDisposed)
                     {
+                        if (!IsCurrentSession(sessionId))
+                        {
+                            return;
+                        }
                         _logger.Error(ex.Message);
                         await Task.Delay(2000, cancellation).ConfigureAwait(false);
                     }
@@ -245,14 +272,15 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     public void Start(CancellationToken cancellation)
     {
         _stoppingToken = cancellation;
-        Task.Run(() => _startImpl(cancellation), cancellation);
+        var sessionId = Interlocked.Increment(ref _sessionId);
+        Task.Run(() => _startImpl(sessionId, cancellation), cancellation);
     }
 
-    private async Task StartPipeDecoderConsumerAsync(CancellationToken cancellation)
+    private async Task StartPipeDecoderConsumerAsync(long sessionId, CancellationToken cancellation)
     {
         try
         {
-            await _pipeDecoder.StartAsync(cancellation).ConfigureAwait(false);
+            await _pipeDecoder.StartAsync(sessionId, cancellation).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -261,18 +289,22 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                 return;
             }
             _logger.Error("Unexpected exception on StartAsyncStreamDecoderAsync", ex);
-            Reconnect();
+            ReconnectIfCurrentSession(sessionId);
         }
     }
 
 
-    private async Task StartPipeDecoderProducerAsync(CancellationToken cancellation)
+    private async Task StartPipeDecoderProducerAsync(long sessionId, CancellationToken cancellation)
     {
         var decoderInput = _pipeDecoder.Input;
         try
         {
             while (true)
             {
+                if (!IsCurrentSession(sessionId))
+                {
+                    return;
+                }
                 Debug.Assert(_socket != null);
 #if NET
                 var memory = decoderInput.GetMemory(_socketReceiveBufferSize);
@@ -295,7 +327,7 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                 return;
             }
             _logger.Error("Unhandled exception occurred on PipeDecoder producer", ex);
-            Reconnect();
+            ReconnectIfCurrentSession(sessionId);
         }
     }
 
@@ -315,8 +347,24 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     public void Reconnect()
         => CommunicationStateChanging(ConnectionState.Retry);
 
-    private void CommunicationStateChanging(ConnectionState newState)
+    private bool IsCurrentSession(long sessionId)
+        => sessionId == 0 || SessionId == sessionId;
+
+    private void ReconnectIfCurrentSession(long sessionId)
     {
+        if (IsCurrentSession(sessionId))
+        {
+            CommunicationStateChanging(ConnectionState.Retry, sessionId);
+        }
+    }
+
+    private void CommunicationStateChanging(ConnectionState newState, long sessionId = 0)
+    {
+        if (!IsCurrentSession(sessionId))
+        {
+            return;
+        }
+
         State = newState;
         ConnectionChanged?.Invoke(this, State);
 
@@ -330,10 +378,14 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                 break;
             case ConnectionState.Connected:
 #if !DISABLE_TIMER
-                _cancellationTokenSourceForPipeDecoder = new CancellationTokenSource();
-                Task.Run(() => StartPipeDecoderConsumerAsync(_cancellationTokenSourceForPipeDecoder.Token));
-                Task.Run(() => StartPipeDecoderProducerAsync(_cancellationTokenSourceForPipeDecoder.Token));
+                var pipeDecoderTokenSource = new CancellationTokenSource();
+                _cancellationTokenSourceForPipeDecoder = pipeDecoderTokenSource;
+                var pipeDecoderToken = pipeDecoderTokenSource.Token;
+                Task.Run(() => StartPipeDecoderConsumerAsync(sessionId, pipeDecoderToken), pipeDecoderToken);
+                Task.Run(() => StartPipeDecoderProducerAsync(sessionId, pipeDecoderToken), pipeDecoderToken);
                 _logger.Info($"Start T7 Timer: {T7 / 1000} sec.");
+                Volatile.Write(ref _t7SessionId, sessionId);
+                Volatile.Write(ref _t8SessionId, sessionId);
                 _timer7.Change(T7, Timeout.Infinite);
 #endif
                 break;
@@ -343,6 +395,7 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                     return;
                 }
 
+                Interlocked.Increment(ref _sessionId);
                 Disconnect();
                 Start(_stoppingToken);
                 break;
@@ -355,14 +408,19 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         {
             await foreach (var item in _pipeDecoder.GetControlMessages(cancellation).WithCancellation(cancellation).ConfigureAwait(false))
             {
-                await ProcessControlMessageAsync(item, cancellation).ConfigureAwait(continueOnCapturedContext: false);
+                await ProcessControlMessageAsync(item.sessionId, item.header, cancellation).ConfigureAwait(continueOnCapturedContext: false);
             }
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested) { }
     }
 
-    private async Task ProcessControlMessageAsync(MessageHeader header, CancellationToken cancellation)
+    private async Task ProcessControlMessageAsync(long sessionId, MessageHeader header, CancellationToken cancellation)
     {
+        if (!IsCurrentSession(sessionId))
+        {
+            return;
+        }
+
         try
         {
             if ((byte)header.MessageType % 2 == 0)
@@ -382,14 +440,14 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
             switch (header.MessageType)
             {
                 case MessageType.SelectRequest:
-                    await SendControlMessage(MessageType.SelectResponse, header.Id, cancellation).ConfigureAwait(false);
-                    CommunicationStateChanging(ConnectionState.Selected);
+                    await SendControlMessage(MessageType.SelectResponse, header.Id, cancellation, sessionId).ConfigureAwait(false);
+                    CommunicationStateChanging(ConnectionState.Selected, sessionId);
                     break;
                 case MessageType.SelectResponse:
                     switch (header.F)
                     {
                         case 0:
-                            CommunicationStateChanging(ConnectionState.Selected);
+                            CommunicationStateChanging(ConnectionState.Selected, sessionId);
                             break;
                         case 1:
                             _logger.Error("Communication Already Active.");
@@ -406,10 +464,10 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                     }
                     break;
                 case MessageType.LinkTestRequest:
-                    await SendControlMessage(MessageType.LinkTestResponse, header.Id, cancellation).ConfigureAwait(false);
+                    await SendControlMessage(MessageType.LinkTestResponse, header.Id, cancellation, sessionId).ConfigureAwait(false);
                     break;
                 case MessageType.SeparateRequest:
-                    CommunicationStateChanging(ConnectionState.Retry);
+                    ReconnectIfCurrentSession(sessionId);
                     break;
             }
         }
@@ -420,8 +478,13 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     }
 
     private static readonly ReadOnlyMemory<byte> ControlMessageLengthBytes = new byte[] { 0, 0, 0, 10 };
-    private async Task SendControlMessage(MessageType msgType, int id, CancellationToken cancellation = default)
+    private async Task SendControlMessage(MessageType msgType, int id, CancellationToken cancellation = default, long sessionId = 0)
     {
+        if (sessionId == 0)
+        {
+            sessionId = SessionId;
+        }
+
         var token = ValueTaskCompletionSource<MessageType>.Create();
         if ((byte)msgType % 2 == 1 && msgType != MessageType.SeparateRequest)
         {
@@ -430,6 +493,11 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
 
         try
         {
+            if (!IsCurrentSession(sessionId))
+            {
+                return;
+            }
+
             var buffer = EncodeControlMessage(msgType, id);
             await Unsafe.As<ISecsConnection>(this).SendAsync(buffer, cancellation).ConfigureAwait(false);
 
@@ -442,7 +510,7 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
                 if (await Task.WhenAny(token.Task, Task.Delay(T6, cancellation)).ConfigureAwait(false) != token.Task)
                 {
                     _logger.Error($"T6 Timeout[id=0x{id:X8}]: {T6 / 1000} sec.");
-                    CommunicationStateChanging(ConnectionState.Retry);
+                    ReconnectIfCurrentSession(sessionId);
                 }
 #endif
             }
@@ -451,13 +519,13 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         catch (TimeoutException)
         {
             _logger.Error($"T6 Timeout[id=0x{id:X8}]: {T6 / 1000} sec.");
-            CommunicationStateChanging(ConnectionState.Retry);
+            ReconnectIfCurrentSession(sessionId);
         }
 #endif
         catch (Exception ex)
         {
             _logger.Error($"Unknown exception occurred when send control messages", ex);
-            CommunicationStateChanging(ConnectionState.Retry);
+            ReconnectIfCurrentSession(sessionId);
         }
         finally
         {
@@ -522,8 +590,12 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         {
             do
             {
-                Debug.Assert(_socket != null);
-                var length = await _socket.SendAsync(buffer, SocketFlags.None, cancellation).ConfigureAwait(false);
+                var socket = _socket;
+                if (socket is null)
+                {
+                    throw new SocketException((int)SocketError.NotConnected);
+                }
+                var length = await socket.SendAsync(buffer, SocketFlags.None, cancellation).ConfigureAwait(false);
                 Debug.WriteLine($"Socket sent {length} bytes.");
                 buffer = buffer[length..];
             } while (!buffer.IsEmpty);
@@ -545,8 +617,12 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
         {
             do
             {
-                Debug.Assert(_socket != null);
-                var length = await _socket.SendAsync(arr, SocketFlags.None).WithCancellation(cancellation).ConfigureAwait(false);
+                var socket = _socket;
+                if (socket is null)
+                {
+                    throw new SocketException((int)SocketError.NotConnected);
+                }
+                var length = await socket.SendAsync(arr, SocketFlags.None).WithCancellation(cancellation).ConfigureAwait(false);
                 arr = new ArraySegment<byte>(arr.Array, arr.Offset + length, arr.Count - length);
                 Debug.WriteLine($"Socket sent {length} bytes.");
             } while (arr.Count > 0);
@@ -558,6 +634,6 @@ public sealed class HsmsConnection : ISecsConnection, IAsyncDisposable
     }
 #endif
 
-    IAsyncEnumerable<(MessageHeader header, Item? rootItem)> ISecsConnection.GetDataMessages(CancellationToken cancellation)
+    IAsyncEnumerable<(long sessionId, MessageHeader header, Item? rootItem)> ISecsConnection.GetDataMessages(CancellationToken cancellation)
         => _pipeDecoder.GetDataMessages(cancellation);
 }
