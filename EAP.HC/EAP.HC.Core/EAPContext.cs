@@ -1,4 +1,4 @@
-﻿using Apache.NMS.ActiveMQ.Commands;
+using Apache.NMS.ActiveMQ.Commands;
 using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using Newtonsoft.Json;
@@ -28,7 +28,7 @@ namespace EAP.HC.Core
         public static string ServerName { get; set; }
         public static List<ConnectionConfigure> EqpConfigures { get; set; }
 
-        public static List<ContextObject> contexts { get; set; }
+        public static System.Collections.Concurrent.ConcurrentBag<ContextObject> contexts { get; set; }
         public static bool Initialization()
         {
             //LoadLibrary();
@@ -37,7 +37,7 @@ namespace EAP.HC.Core
             {
                 string text = File.ReadAllText(path);
                 EqpConfigures = JsonConvert.DeserializeObject<List<ConnectionConfigure>>(text);
-                contexts = new List<ContextObject>();
+                contexts = new System.Collections.Concurrent.ConcurrentBag<ContextObject>();
                 foreach(var eqpconfig in EqpConfigures)
                 {
                     eqpconfig.Validate();

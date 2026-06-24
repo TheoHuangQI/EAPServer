@@ -109,8 +109,8 @@ namespace EAPServer
                             var eqpType = currentConfig.EQPType;
                             ContextObject context = new ContextObject()
                             {
-                                EquipmentID = currentConfig.Name,
-                                EqpType = currentConfig.EQPType,
+                                EquipmentID = eqpid,
+                                EqpType = eqpType,
                                 SecsGem = _secsGem,
                             };
                             EAPContext.contexts.Add(context);

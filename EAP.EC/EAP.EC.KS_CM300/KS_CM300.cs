@@ -260,6 +260,9 @@ namespace EAP.EC.KS_CM300
                                 case 1:
                                     ReciveMsgS1F1(args);
                                     break;
+                                case 13:  // 新增 S1F13 处理
+                                    ReciveMsgS1F13(args);
+                                    break;
                             }
                             break;
                         case 5:
@@ -443,6 +446,37 @@ namespace EAP.EC.KS_CM300
                 SecsMessage replyMsg = new SecsMessage(1, 2);
                 replyMsg.SecsItem = replyItem;
                 await args.SecsData.TryReplyAsync(replyMsg);
+                args.SetResultOK();
+            }
+            catch (Exception ex)
+            {
+                args.SetResultNG(ex.Message);
+            }
+        }
+
+        public async void ReciveMsgS1F13(Arguments args)
+        {
+            try
+            {
+                // 创建内层 List (MDLN + SOFTREV)
+                Item innerList = Item.L(
+                    Item.A("EAPServer"),  // MDLN
+                    Item.A("v1.1")         // SOFTREV
+                );
+
+                // 创建外层 List (COMMACK + 内层List)
+                Item replyItem = Item.L(
+                    Item.B(0x00),  // COMMACK = 0 (OK)
+                    innerList
+                );
+
+                // 创建 S1F14 回复消息
+                SecsMessage replyMsg = new SecsMessage(1, 14);
+                replyMsg.SecsItem = replyItem;
+
+                // 发送回复
+                await args.SecsData.TryReplyAsync(replyMsg);
+
                 args.SetResultOK();
             }
             catch (Exception ex)
