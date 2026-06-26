@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,11 +6,18 @@ using System.Threading.Tasks;
 
 namespace EAP.HC.Core.Entities
 {
+    public enum AutoRunMode
+    {
+        Running = 0,
+        Paused = 1,
+        Stopped = 2
+    }
+
     public class PortInfo
     {
         public PortInfo()
         {
-
+            AutoRunMode = AutoRunMode.Running; // 默认启动循环跑片
         }
         /// <summary>
         /// PORT编号
@@ -22,6 +29,11 @@ namespace EAP.HC.Core.Entities
         /// PORT 状态
         /// </summary>
         public PortStatus PortStatus { get; set; }
+
+        /// <summary>
+        /// 循环跑片状态
+        /// </summary>
+        public AutoRunMode AutoRunMode { get; set; }
 
         /// <summary>
         /// 当前Port作业的BatchId(同时只能有一个)

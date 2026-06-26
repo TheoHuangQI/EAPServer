@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus'
 
 // 创建 axios 实例
 const service = axios.create({
-  baseURL: 'https://localhost:7255/api/', // 从环境变量读取 API 地址
+  baseURL: 'https://192.168.233.151:7255/api/', // 从环境变量读取 API 地址
   timeout: 600000 // 请求超时时间
 })
 

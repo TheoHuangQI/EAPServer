@@ -114,26 +114,34 @@ public sealed class SecsGem : ISecsGem, IDisposable
 #else
             if (await Task.WhenAny(token.Task, Task.Delay(T3, cancellation)).ConfigureAwait(false) != token.Task)
             {
-                throw new SecsException(message, Resources.T3Timeout);
+                _logger.Error($"T3 Timeout[id=0x{id:X8}]");
+                return null;
             }
             return token.Task.Result;
 #endif
         }
         catch (SocketException)
         {
+            _logger.Error($"SocketException[id=0x{id:X8}]");
             if (_hsmsConnector.SessionId == connectionSessionId)
             {
                 _hsmsConnector.Reconnect();
             }
-            throw;
+            return null;
         }
 #if NET
-        catch (TimeoutException)
+        catch (TimeoutException ex)
         {
-            _logger.Error($"T3 Timeout[id=0x{id:X8}]: {T3 / 1000} sec.");
-            throw new SecsException(message, Resources.T3Timeout);
+            _logger.Error($"T3 Timeout[id=0x{id:X8}]: {T3 / 1000} sec.", ex);
+
+            return null;
         }
 #endif
+        catch (Exception ex)
+        {
+            _logger.Error($"SendDataMessageAsync Error[id=0x{id:X8}]", ex);
+            return null;
+        }
         finally
         {
             _replyExpectedMessages.TryRemove(id, out _);

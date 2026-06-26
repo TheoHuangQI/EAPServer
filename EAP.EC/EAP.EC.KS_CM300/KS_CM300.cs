@@ -1,4 +1,4 @@
-﻿using EAP.HC.Core;
+using EAP.HC.Core;
 using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using EAP.RC.MES;
@@ -885,7 +885,7 @@ namespace EAP.EC.KS_CM300
             }
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
             MESClient.Send_MaterialRecived(eqpId, portId, carrierId);
-            var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId);
+            var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId, portId.ToString());
             if (mesbatchInfo == null)
             {
                 args.SetResultNG();
@@ -2200,7 +2200,7 @@ namespace EAP.EC.KS_CM300
             }
             catch (Exception ex)
             {
-                
+
             }
         }
 
@@ -2302,30 +2302,44 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG($"No EAP context found for {eqpId}.");
                 return;
             }
-            SecsMessage msg = new SecsMessage(1, 13);
-            msg.SecsItem = Item.L();
-            var reply = await context.SecsGem.SendAsync(msg);
             if (!IsLatestConnectionVersion(eqpId, version))
             {
                 return;
             }
-            if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
-            {
-                args.SetResultNG("Send S1F13, Equipment Reply Empty.");
-                return;
-            }
-            byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
-            if (retCode != 0)
-            {
-                args.SetResultNG("Send S1F13, Equipment Reply Fail.");
-                return;
-            }
-            MESClient.Send_EqpState(eqpId, EQPState.Connected);
 
-            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+            // 检查是否已经连接，如果是则不需要发送 S1F13
+            bool isAlreadyConnected = false;
+            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfoObj))
             {
-                eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+                isAlreadyConnected = eqpInfoObj.ConnectStatus == ConnectStatus.CONNECTED;
             }
+
+            if (!isAlreadyConnected)
+            {
+                SecsMessage msg = new SecsMessage(1, 13);
+                msg.SecsItem = Item.L();
+                var reply = await context.SecsGem.SendAsync(msg);
+
+                if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
+                {
+                    args.SetResultNG("Send S1F13, Equipment Reply Empty.");
+                    return;
+                }
+                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
+                if (retCode != 0)
+                {
+                    args.SetResultNG("Send S1F13, Equipment Reply Fail.");
+                    return;
+                }
+
+                MESClient.Send_EqpState(eqpId, EQPState.Connected);
+
+                if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+                {
+                    eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+                }
+            }
+
             args.SetResultOK();
         }
 

@@ -17,6 +17,9 @@ namespace EAPManage.Models.DB
         [SugarColumn(ColumnName = "CARRIER_ID", ColumnDataType = "TEXT")]
         public string CarrierId { get; set; }
 
+        [SugarColumn(ColumnName = "PORT_ID", ColumnDataType = "TEXT")]
+        public string PortId { get; set; }
+
         [SugarColumn(ColumnName = "OPERATOR", ColumnDataType = "TEXT")]
         public string OPERATOR { get; set; }
 

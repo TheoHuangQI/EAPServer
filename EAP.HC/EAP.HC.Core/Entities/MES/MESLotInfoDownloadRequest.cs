@@ -12,5 +12,6 @@ namespace EAP.HC.Core.Entities.MES
     public class MESLotInfoDownloadRequest : MQBody
     {
         public string CARRIERID { get; set; }
+        public string PORTID { get; set; }
     }
 }

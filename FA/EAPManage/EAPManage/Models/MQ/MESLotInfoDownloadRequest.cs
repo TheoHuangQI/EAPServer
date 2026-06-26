@@ -12,5 +12,6 @@ namespace EAPManage.Models.MQ
     public class MESLotInfoDownloadRequest : MQBody
     {
         public string CARRIERID { get; set; }
+        public string PORTID { get; set; }
     }
 }

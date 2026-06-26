@@ -24,7 +24,7 @@ namespace EAP.RC.MES
                 var requestMessage = new MQData();
                 requestMessage.mQHeader = header;
 
-                vID.EQUIPMENTID= eqpId;
+                vID.EQUIPMENTID = eqpId;
 
                 var xmlBody = XmlSerialization.SerializeOnlyBody(vID);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
@@ -40,7 +40,7 @@ namespace EAP.RC.MES
         /// <summary>
         /// Lot信息请求
         /// </summary>
-        public async static Task<MESLotInfoDownloadReply> MES_LotInfoDownloadRequest(string eqpId, string carrierId)
+        public async static Task<MESLotInfoDownloadReply> MES_LotInfoDownloadRequest(string eqpId, string carrierId, string portID)
         {
             try
             {
@@ -53,6 +53,7 @@ namespace EAP.RC.MES
                 MESLotInfoDownloadRequest lotRequest = new MESLotInfoDownloadRequest();
                 lotRequest.EQUIPMENTID = eqpId;
                 lotRequest.CARRIERID = carrierId;
+                lotRequest.PORTID= portID;
                 var xmlBody = XmlSerialization.SerializeOnlyBody(lotRequest);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
                 var replyData = await ActiveMQClient.Current.SendRequestAsync<MESLotInfoDownloadReply>(xmlMessage);

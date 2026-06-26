@@ -50,7 +50,16 @@ namespace EAPManage.Utils
                             MESLotInfoDownloadRequest request = XmlSerialization.DeserializeNodeObj<MESLotInfoDownloadRequest>(message, "Request", "Body");
                             var eqpid = request.EQUIPMENTID;
                             var carrierId = request.CARRIERID;
+                            var portId = request.PORTID;
                             var batch = DataFactory.Current.Batch.GetList(u => u.EqpId == eqpid && u.CarrierId == carrierId);
+                            if(batch == null || batch.Count == 0)
+                            {
+                                batch = DataFactory.Current.Batch.GetList(u => u.EqpId == eqpid && u.PortId == portId);
+                                if (batch.Count > 1)
+                                {
+                                    batch.RemoveRange(1, batch.Count - 1);
+                                }
+                            }
                             if (batch != null && batch.Count == 1)
                             {
                                 MESLotInfoDownloadReply reply = new MESLotInfoDownloadReply();

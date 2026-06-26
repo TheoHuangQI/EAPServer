@@ -35,6 +35,7 @@
           <el-table-column prop="tid" label="TID"/>
           <el-table-column prop="eqpId" label="设备号" />
           <el-table-column prop="carrierId" label="料盒号"/>
+          <el-table-column prop="portId" label="Port ID"/>
           <el-table-column prop="operator" label="操作员"/>
           <el-table-column prop="batchSize" label="Batch Size"/>
           <el-table-column label="操作" width="150" align="center">
@@ -91,6 +92,7 @@
           tid: '',
           eqpId:'',
           carrierId:'',
+          portId:'',
           operator:'',
           batchSize:0,
           lots:[]
@@ -120,7 +122,11 @@
       handleEdit(row) {
         this.isEdit = true
         this.showModal = true
-        this.formData = { ...row }
+        // 确保 lots 被正确初始化为一个数组
+        this.formData = { 
+          ...row,
+          lots: row.lots || [] 
+        }
       },
       handleDelete(row) {
         this.$confirm('确定删除Batch吗？', '警告', {

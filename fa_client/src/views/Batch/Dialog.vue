@@ -28,6 +28,11 @@
                 </el-select>
               </el-form-item>
 
+              <!-- Port选择 -->
+              <el-form-item label="Port" class="form-item--required">
+                <el-input v-model="formData.portId" placeholder="请输入Port ID" />
+              </el-form-item>
+
               <!-- 操作员输入 -->
               <el-form-item label="操作员" class="form-item--required">
                 <el-input v-model="formData.operator" placeholder="请输入操作员工号" prefix-icon="el-icon-user" />
@@ -169,7 +174,12 @@ const handleConfirm = () => {
 
 watch(() => props.visible, (newVal) => {
   if (newVal) {
-    formData.value = { lots: [], ...props.form }
+    formData.value = { ...props.form }
+    // 确保 lots 是一个数组，即使后端没返回
+    if (!formData.value.lots) {
+      formData.value.lots = []
+    }
+    
     getDeviceList()
     // 自动填充操作员
     if (!props.isEdit) {
@@ -212,7 +222,7 @@ watch(() => formData.value.carrierId, (newCarrierId) => {
   if (newCarrierId) {
     getLotList()
   } else {
-    // 如果清空了载具，也清空Lot列表
+    // 如果清空了载具，不应清空已选的Lot，只清空待选列表
     lots.value = []
   }
 })
