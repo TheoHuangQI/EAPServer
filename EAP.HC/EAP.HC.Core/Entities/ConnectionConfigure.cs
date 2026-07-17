@@ -58,6 +58,12 @@ namespace EAP.HC.Core.Entities
         public int LoadPort { get; set; }
 
         /// <summary>
+        /// Event report XML file used when initializing report definitions.
+        /// Relative paths are resolved from the EAPServer runtime directory.
+        /// </summary>
+        public string EventReportFile { get; set; } = "event-report.xml";
+
+        /// <summary>
         /// 心跳检测周期（秒）
         /// </summary>
         public int? HeartbeatInterval { get; set; } = 30;

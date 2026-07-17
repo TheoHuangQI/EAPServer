@@ -75,6 +75,7 @@ namespace EAP.EC.KS_CM300
 
         static readonly Regex ChannelRegex = new Regex(@"^(L|R)\dCH\d+_Vlv\d+FlwPV$", RegexOptions.Compiled);
         static readonly Regex ChannelKeyRegex = new Regex(@"^(L|R)\dCH\d+", RegexOptions.Compiled);
+        static readonly Regex ChannelKey2Regex = new Regex(@"^(L|R)\dSDS\d+", RegexOptions.Compiled);
 
         public static bool check = false;
         public static bool error = false;
@@ -116,6 +117,18 @@ namespace EAP.EC.KS_CM300
                 { 22200, new ChannelContext { SvidDict = R3CH2FlwSvidDict, PollAction = args => PollChannel(args, R3CH2FlwSvidDict) } },
                 { 22300, new ChannelContext { SvidDict = R3CH3FlwSvidDict, PollAction = args => PollChannel(args, R3CH3FlwSvidDict) } },
                 { 22400, new ChannelContext { SvidDict = R3CH4FlwSvidDict, PollAction = args => PollChannel(args, R3CH4FlwSvidDict) } },
+
+                // ===== SDSL3 =====
+                { 23100, new ChannelContext { SvidDict = L3SDS1FlwSvidDict, PollAction = args => PollChannel(args, L3SDS1FlwSvidDict) } },
+                { 23200, new ChannelContext { SvidDict = L3SDS2FlwSvidDict, PollAction = args => PollChannel(args, L3SDS2FlwSvidDict) } },
+                { 23300, new ChannelContext { SvidDict = L3SDS3FlwSvidDict, PollAction = args => PollChannel(args, L3SDS3FlwSvidDict) } },
+                { 23400, new ChannelContext { SvidDict = L3SDS4FlwSvidDict, PollAction = args => PollChannel(args, L3SDS4FlwSvidDict) } },
+
+                // ===== SDSR3 =====
+                { 23500, new ChannelContext { SvidDict = R3SDS1FlwSvidDict, PollAction = args => PollChannel(args, R3SDS1FlwSvidDict) } },
+                { 23600, new ChannelContext { SvidDict = R3SDS2FlwSvidDict, PollAction = args => PollChannel(args, R3SDS2FlwSvidDict) } },
+                { 23700, new ChannelContext { SvidDict = R3SDS3FlwSvidDict, PollAction = args => PollChannel(args, R3SDS3FlwSvidDict) } },
+                { 23800, new ChannelContext { SvidDict = R3SDS4FlwSvidDict, PollAction = args => PollChannel(args, R3SDS4FlwSvidDict) } },
             };
 
             _channelSvidDictMap = new Dictionary<string, Dictionary<int, VIDItem>>
@@ -139,6 +152,16 @@ namespace EAP.EC.KS_CM300
                 { "R3CH2", R3CH2FlwSvidDict },
                 { "R3CH3", R3CH3FlwSvidDict },
                 { "R3CH4", R3CH4FlwSvidDict },
+
+                { "L3SDS1", L3SDS1FlwSvidDict },
+                { "L3SDS2", L3SDS2FlwSvidDict },
+                { "L3SDS3", L3SDS3FlwSvidDict },
+                { "L3SDS4", L3SDS4FlwSvidDict },
+
+                { "R3SDS1", R3SDS1FlwSvidDict },
+                { "R3SDS2", R3SDS2FlwSvidDict },
+                { "R3SDS3", R3SDS3FlwSvidDict },
+                { "R3SDS4", R3SDS4FlwSvidDict },
             };
         }
 
@@ -149,7 +172,7 @@ namespace EAP.EC.KS_CM300
             var eqpId = args.Header[CItems.EqpId].ToString();
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
 
-            var item1 = new Item[L2CH1FlwSvidDict.Count];
+            var item1 = new Item[svidDict.Count];
             int i = 0;
             foreach (var (svid, vidItem) in svidDict)
             {
@@ -386,7 +409,7 @@ namespace EAP.EC.KS_CM300
                         Receive_S6F11_ProcessEnd(args);
                         break;
                     default:
-                        //await HandleChannelCEIDAsync(ceid, args);
+                        await HandleChannelCEIDAsync(ceid, args);
                         break;
                 }
                 args.SetResultOK();
@@ -671,6 +694,15 @@ namespace EAP.EC.KS_CM300
                                 //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 //}
 
+                                while (true)
+                                {
+                                    Stopwatch sw = Stopwatch.StartNew();
+                                    Send_S7F25_GetRecipeBody(args);
+                                    await Task.Delay(990);
+                                    sw.Stop();
+                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                }
+
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
                                 eqp.Value.ControlStatus = (ControlState)controlState;
                                 MESClient.Send_ControlState(eqpId, (ControlState)controlState);
@@ -678,14 +710,14 @@ namespace EAP.EC.KS_CM300
                                 {
                                     MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
                                 }
-                                else if (!eqp.Value.IsInitial)
-                                {
-                                    await HsmsInitial(args);
-                                    if (args.GetResultCode() == "OK")
-                                    {
-                                        eqp.Value.IsInitial = true;
-                                    }
-                                }
+                                //else if (!eqp.Value.IsInitial)
+                                //{
+                                //    await HsmsInitial(args);
+                                //    if (args.GetResultCode() == "OK")
+                                //    {
+                                //        eqp.Value.IsInitial = true;
+                                //    }
+                                //}
                                 //args.Header[CItems.Check] = false;
                                 //Send_S1F3_Get_TransferStatus(args);
                                 //var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
@@ -819,6 +851,13 @@ namespace EAP.EC.KS_CM300
                                 {
                                     MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
                                 }
+
+                                if (!IsLoopProcessEnabled(eqpId, portId))
+                                {
+                                    MESClient.Send_Message(eqpId, portId.ToString(), "Loop process stopped, skip TEST_ToLoad.", LogType.INFO);
+                                    break;
+                                }
+
                                 Random random = new Random();
                                 Thread.Sleep(random.Next(1000, 4000));
                                 SecsMessage msg = new SecsMessage(2, 41);
@@ -885,9 +924,31 @@ namespace EAP.EC.KS_CM300
             }
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
             MESClient.Send_MaterialRecived(eqpId, portId, carrierId);
+
+            // 检查循环跑片状态（按LP），如果已停止或暂停，则释放Carrier
+            if (!IsLoopProcessEnabled(eqpId, portId))
+            {
+                var loopState = 0;
+                if (AppCache.Current.LoopProcessState.ContainsKey(eqpId) && AppCache.Current.LoopProcessState[eqpId].ContainsKey(portId))
+                {
+                    loopState = AppCache.Current.LoopProcessState[eqpId][portId];
+                }
+                var stateText = loopState == 2 ? "PAUSED" : "STOPPED";
+                MESClient.Send_Message(eqpId, portId.ToString(), $"Loop process {stateText}, rejecting new lot. eqpId={eqpId}, carrierId={carrierId}", LogType.WARNING);
+                args.Header[CItems.PortId] = portId;
+                args.Header[CItems.CarrierId] = carrierId;
+                Send_S3F17_CarrierRelease(args);
+                args.SetResultNG();
+                return;
+            }
+
             var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId, portId.ToString());
             if (mesbatchInfo == null)
             {
+                MESClient.Send_Message(eqpId, portId.ToString(), $"MES_LotInfoDownloadRequest returned null, releasing carrier. eqpId={eqpId}, carrierId={carrierId}", LogType.ERROR);
+                args.Header[CItems.PortId] = portId;
+                args.Header[CItems.CarrierId] = carrierId;
+                Send_S3F17_CarrierRelease(args);
                 args.SetResultNG();
                 return;
             }
@@ -907,6 +968,18 @@ namespace EAP.EC.KS_CM300
             args.Header[CItems.PortId] = portId;
             args.Header[CItems.CarrierId] = carrierId;
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
+
+            // 再次检查暂停状态（防止在下载期间状态发生改变）
+            if (AppCache.Current.LoopProcessState.ContainsKey(eqpId) &&
+                AppCache.Current.LoopProcessState[eqpId].ContainsKey(portId) &&
+                AppCache.Current.LoopProcessState[eqpId][portId] == 2)
+            {
+                MESClient.Send_Message(eqpId, portId.ToString(), $"Loop process PAUSED after download, releasing carrier.", LogType.WARNING);
+                Send_S3F17_CarrierRelease(args);
+                args.SetResultNG();
+                return;
+            }
+
             await Send_S3F17_FirstProcessWithCarrier(args);
             if (args.GetResultCode() != "OK")
             {
@@ -1266,6 +1339,24 @@ namespace EAP.EC.KS_CM300
             {
                 return null;
             }
+        }
+
+        public void Send_S7F25_GetRecipeBody(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var ppid = "TEST\\PROCESS\\lotrun";
+
+            SecsMessage msg = new SecsMessage(7, 25);
+
+            msg.SecsItem = Item.A(ppid);
+
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+            var reply = context.SecsGem.SendAsync(msg).Result;
+
+            if (reply == null)
+                return;
+
+            // S7F26 解析...
         }
 
         public void Send_S1F3_Get_AllDifferenceSVID(Arguments args)
@@ -1640,7 +1731,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        string path = @"D:\projects\S25021\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
+        string path = @"E:\Project\Y26004\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
         Dictionary<int, string> dict = new Dictionary<int, string>();
         Dictionary<int, VIDItem> allSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> L2CH1FlwSvidDict = new Dictionary<int, VIDItem>();
@@ -1659,6 +1750,14 @@ namespace EAP.EC.KS_CM300
         Dictionary<int, VIDItem> R3CH2FlwSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> R3CH3FlwSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> R3CH4FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> L3SDS1FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> L3SDS2FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> L3SDS3FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> L3SDS4FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> R3SDS1FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> R3SDS2FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> R3SDS3FlwSvidDict = new Dictionary<int, VIDItem>();
+        Dictionary<int, VIDItem> R3SDS4FlwSvidDict = new Dictionary<int, VIDItem>();
         List<VIDItem> currentVIDList = new List<VIDItem>();
         List<VIDItem> nextVIDList = new List<VIDItem>();
 
@@ -1710,14 +1809,18 @@ namespace EAP.EC.KS_CM300
             }
             foreach (var svid in allSvidDict.Values)
             {
-                // 快速失败：不符合基本 FlwPV 规则直接跳过
-                if (!ChannelRegex.IsMatch(svid.name))
+                // 快速失败：不符合基本 FlwPV 规则直接跳过，还需要添加SDS的SVID
+                if (!ChannelRegex.IsMatch(svid.name) && !svid.name.Contains("SDS"))
                     continue;
 
                 // 提取 ChannelKey（如：L2CH1）
                 var channelKeyMatch = ChannelKeyRegex.Match(svid.name);
                 if (!channelKeyMatch.Success)
-                    continue;
+                {
+                    channelKeyMatch = ChannelKey2Regex.Match(svid.name);
+                    if (!channelKeyMatch.Success)
+                        continue;
+                }
 
                 string channelKey = channelKeyMatch.Value;
 
@@ -1736,7 +1839,7 @@ namespace EAP.EC.KS_CM300
 
             //return Regex.IsMatch(input, @"^R3CH1_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Vlv\d+FlwPV$");
             //return Regex.IsMatch(input, @"^R3CH1_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Ana\d+FlwPV$");
-            return Regex.IsMatch(input, @"FlwPV");
+            return Regex.IsMatch(input, @"FlwPV")|| Regex.IsMatch(input, @"ComAss") || Regex.IsMatch(input, @"LifeAct") || Regex.IsMatch(input, @"Door_Open_Sns");
         }
 
         public static bool IsMatchCHVlvFlwPV(string input, string matchRule)
@@ -2075,7 +2178,7 @@ namespace EAP.EC.KS_CM300
             var reply = await context.SecsGem.SendAsync(msg);
             if (reply != null)
             {
-                int retCode = (int)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
+                int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
                 {
                     args.SetResultNG($"Send_S3F17_CarrierRelease, Equipment Reject,Return Code:{retCode}.");
@@ -2289,6 +2392,24 @@ namespace EAP.EC.KS_CM300
             return recipeList;
         }
 
+        /// <summary>
+        /// 检查LP是否允许进行循环跑片
+        /// </summary>
+        private bool IsLoopProcessEnabled(string eqpId, int portId = 0)
+        {
+            if (!AppCache.Current.LoopProcessState.ContainsKey(eqpId))
+            {
+                return true;
+            }
+            var portStates = AppCache.Current.LoopProcessState[eqpId];
+            if (portStates == null || !portStates.ContainsKey(portId))
+            {
+                return true;
+            }
+            var state = portStates[portId];
+            return state == 0;
+        }
+
         public async Task HsmsConnectAsync(Arguments args)
         {
             //建立逻辑连接
@@ -2415,10 +2536,11 @@ namespace EAP.EC.KS_CM300
                 var ChamberList = AppCache.Current.EqpInfos[eqpId].Chamber.Split(',').ToList();
                 Dictionary<uint, List<uint>> dataReportDic = new Dictionary<uint, List<uint>>();
                 Dictionary<uint, List<uint>> eventLinkRptDic = new Dictionary<uint, List<uint>>();
-                string path = Path.Combine(EAPContext.RootPath, $"event-report.xml");
+                string path = ResolveEventReportPath(eqpId);
 
                 if (!File.Exists(path))
                 {
+                    args.SetResultNG($"Event report XML not found. eqpId={eqpId}, path={path}");
                     return;
                 }
                 XmlDocument xmlDocument = new XmlDocument();
@@ -2535,6 +2657,22 @@ namespace EAP.EC.KS_CM300
             {
                 args.SetResultNG(ex.Message);
             }
+        }
+
+        private string ResolveEventReportPath(string eqpId)
+        {
+            var fileName = EAPContext.EqpConfigures?
+                .FirstOrDefault(config => config.Name == eqpId)?
+                .EventReportFile;
+
+            if (string.IsNullOrWhiteSpace(fileName))
+            {
+                fileName = "event-report.xml";
+            }
+
+            return Path.IsPathRooted(fileName)
+                ? fileName
+                : Path.Combine(EAPContext.RootPath, fileName);
         }
 
         public bool Heart(Arguments args)

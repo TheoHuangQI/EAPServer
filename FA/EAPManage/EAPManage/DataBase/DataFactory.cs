@@ -49,7 +49,7 @@ namespace EAPManage.DataBase
         }
         private SqlSugarScope _db;
 
-        private void EnsureSchema()
+                private void EnsureSchema()
         {
             try
             {
@@ -57,6 +57,20 @@ namespace EAPManage.DataBase
                     && !_db.DbMaintenance.IsAnyColumn("EXCEPTION_RECORD", "PORT_NAME", false))
                 {
                     _db.Ado.ExecuteCommand("ALTER TABLE EXCEPTION_RECORD ADD COLUMN PORT_NAME TEXT");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            // 自动添加循环跑片状态列（兼容旧数据库）
+            try
+            {
+                if (_db.DbMaintenance.IsAnyTable("PORTINFO", false)
+                    && !_db.DbMaintenance.IsAnyColumn("PORTINFO", "LOOP_PROCESS_STATE", false))
+                {
+                    _db.Ado.ExecuteCommand("ALTER TABLE PORTINFO ADD COLUMN LOOP_PROCESS_STATE INTEGER DEFAULT 0");
                 }
             }
             catch (Exception ex)

@@ -1,4 +1,4 @@
-﻿using EAP.HC.Core.Entities;
+using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using System;
 using System.Collections.Generic;
@@ -26,6 +26,7 @@ namespace EAP.HC.Core
                 Current.EqpInfos = new Dictionary<string, EqpInfo>();
                 Current.MesBatchInfos = new Dictionary<string, MESLotInfoDownloadReply>();
                 Current.CJQuendList = new Dictionary<string, Dictionary<string,int>>();
+                Current.LoopProcessState = new Dictionary<string, Dictionary<int, int>>();
                 //读配置文件
             }
             catch (Exception)
@@ -45,5 +46,12 @@ namespace EAP.HC.Core
         /// </summary>
         public Dictionary<string, MESLotInfoDownloadReply> MesBatchInfos { get; set; }
         public Dictionary<string,Dictionary<string,int>> CJQuendList { get; set; }
+
+                /// <summary>
+        /// 循环跑片控制状态（按设备ID+PortID）
+        /// 外层key=eqpId, 内层key=portId
+        /// value: 0 = 正常运行, 1 = 停止, 2 = 暂停
+        /// </summary>
+        public Dictionary<string, Dictionary<int, int>> LoopProcessState { get; set; }
     }
 }

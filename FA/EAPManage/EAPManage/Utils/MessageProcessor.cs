@@ -1,4 +1,4 @@
-﻿using Apache.NMS;
+using Apache.NMS;
 using EAPManage.DataBase;
 using EAPManage.Models;
 using EAPManage.Models.DB;
@@ -51,6 +51,26 @@ namespace EAPManage.Utils
                             var eqpid = request.EQUIPMENTID;
                             var carrierId = request.CARRIERID;
                             var portId = request.PORTID;
+
+                                                        // 检查循环跑片状态：如果已停止(1)或暂停(2)，则拒绝下载新批次
+                            // 按设备ID+PortID分别检查
+                            if (AppCache.Current.LoopProcessState != null &&
+                                AppCache.Current.LoopProcessState.ContainsKey(eqpid))
+                            {
+                                var portStates = AppCache.Current.LoopProcessState[eqpid];
+                                var parsedPortId = int.TryParse(portId, out var pId) ? pId : 0;
+                                if (portStates != null && portStates.ContainsKey(parsedPortId) && portStates[parsedPortId] != 0)
+                                {
+                                    var lpState = portStates[parsedPortId];
+                                    var stateText = lpState == 2 ? "PAUSED" : "STOPPED";
+                                    Console.WriteLine($"[LOTINFODOWNLOAD] eqp={eqpid} port={portId} LoopProcessState={lpState}, rejecting");
+                                    res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                                    var xmlMessage = XmlSerialization.SerializeOnlyBody(res);
+                                    mrea.Reply(xmlMessage);
+                                    break;
+                                }
+                            }
+
                             var batch = DataFactory.Current.Batch.GetList(u => u.EqpId == eqpid && u.CarrierId == carrierId);
                             if(batch == null || batch.Count == 0)
                             {
@@ -274,16 +294,25 @@ namespace EAPManage.Utils
                                     EapStatus = (int)eapState
                                 });
                                 _logService.SendMessage(eqpid, "0", "EapState", ((int)eapState).ToString(), "info");
+                                // 删除前先读取旧的 loopProcessState
+                                var oldPorts = DataFactory.Current.PortInfo.GetAll().Where(u => u.eqpId == eqpid).ToList();
+                                var oldStates = new Dictionary<int, int>();
+                                foreach (var op in oldPorts)
+                                {
+                                    oldStates[op.portId] = op.loopProcessState;
+                                }
                                 DataFactory.Current.PortInfo.Delete(u => u.eqpId == eqpid);
                                 for (int i = 1; i <= loadPort; i++)
                                 {
+                                    var savedState = oldStates.ContainsKey(i) ? oldStates[i] : 0;
                                     DataFactory.Current.PortInfo.Insert(new PortInfo()
                                     {
                                         eqpId = eqpid,
                                         portId = i,
                                         portName = "LP" + i.ToString(),
                                         accessMode = (int)AccessMode.Manual,
-                                        transferState = (int)TransferStatus.OutOfService
+                                        transferState = (int)TransferStatus.OutOfService,
+                                        loopProcessState = savedState
                                     });
                                 }
                             });

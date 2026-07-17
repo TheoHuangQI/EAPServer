@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Reflection.PortableExecutable;
 using System.Threading;
@@ -185,6 +185,20 @@ namespace EAPManage.Utils
                 _pendingRequests.TryRemove(correlationId, out _);
             }
         }
+        public void SendAsync(string messageBody)
+        {
+            try
+            {
+                if (_session == null || _producer == null) return;
+                var message = _session.CreateTextMessage(messageBody);
+                _producer.Send(message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ActiveMQ SendAsync Error] {ex.Message}");
+            }
+        }
+
         private void OnMessageReceived(IMessage receivedMessage)
         {
             // 处理回复的消息

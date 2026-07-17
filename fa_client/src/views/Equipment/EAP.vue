@@ -6,8 +6,10 @@
         <div class="left-panel">
           <div class="search-container">
             <el-input v-model="searchQuery" placeholder="筛选" clearable class="device-search">
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
-            </el-input>
+                <template #prefix>
+                  <el-icon><Search /></el-icon>
+                </template>
+              </el-input>
           </div>
           <div class="list-container">
             <button v-for="(item, index) in filteredList" :key="index" type="button" class="device-card"
@@ -33,7 +35,7 @@
           </div>
         </div>
       </el-col>
-      <!-- 右侧内容 -->
+            <!-- 右侧内容 -->
       <el-col :span="21">
         <div class="right-panel">
           <!-- LP 信息卡片区域 -->
@@ -43,9 +45,19 @@
                 <el-card class="lp-card">
                   <div class="lp-header">
                     <span class="lp-name">{{ lp.portName }}</span>
+                    <el-tag :type="getLoopStateTagType(lp.loopState)" size="small">
+                      {{ getLoopStateText(lp.loopState) }}
+                    </el-tag>
                     <el-tag :type="'success'">
                       {{ getCarrierId(lp.carrierId) }}
                     </el-tag>
+                  </div>
+                  <div class="lp-loop-control">
+                    <el-button-group size="small">
+                      <el-button type="primary" :disabled="lp.loopState === 0" @click="handleSetLpLoopState(lp, 0)">▶ 开始</el-button>
+                      <el-button type="warning" :disabled="lp.loopState === 2" @click="handleSetLpLoopState(lp, 2)">⏸ 暂停</el-button>
+                      <el-button type="danger" :disabled="lp.loopState === 1" @click="handleSetLpLoopState(lp, 1)">⏹ 停止</el-button>
+                    </el-button-group>
                   </div>
                   <div class="lp-content">
                     <!-- 25 槽垂直排列 -->
@@ -97,272 +109,320 @@
   </div>
 </template>
   
-<script>
-import * as signalR from '@microsoft/signalr';
-import { GetEqpInfo } from "@/api/equipment"
-export default {
-  data() {
-    return {
-      loading: false,
-      searchQuery: '',
-      eqpInfos: [],
-      selectedItem: null
-    };
-  },
-  methods: {
-    getLotId(lotId){
-      if(lotId==null)
-      if(lotId==null || toString(lotId).trim().length==0){
-        return "UnKnow"
-      }
-      else{
-        return lotId
-      }
-    },
-    getCarrierId(carrierId){
-      if(carrierId==null || toString(carrierId).trim().length==0){
-        return "UnKnow"
-      }
-      return carrierId
-    },
-    getAceessMode(accessMode){
-      const accessMap = {
-        0: 'Manual',
-        1: 'Auto',
-      };
-      return accessMap[accessMode] || 'Manual'
-    },
-    getTransferState(transferState){
-      const transferMap = {
-        0: 'OutOfService',
-        1: 'Blocked',
-        2: 'ReadyToLoad',
-        3: 'ReadyToUnload',
-        4: 'InService',
-        5: 'TransferReady'
-      };
-      return transferMap[transferState] || 'OutOfService'
-    },
-    getEqpStatusText(eqpStatus) {
-      return Number(eqpStatus) === 1 ? 'Connected' : 'Disconnected'
-    },
-    getEqpStatusClass(eqpStatus) {
-      return Number(eqpStatus) === 1 ? 'status-pill--online' : 'status-pill--offline'
-    },
-    getControlStateClass(controlState) {
-      const state = this.getControlState(controlState)
-      if (state === 'Remote') {
-        return 'control-pill--remote'
-      }
-      if (state === 'Local') {
-        return 'control-pill--local'
-      }
-      if (state === 'EqpOffline' || state === 'HostOffline') {
-        return 'control-pill--offline'
-      }
-      return 'control-pill--neutral'
-    },
-    getControlState(controlState){
-      const normalizedState = typeof controlState === 'string'
-        ? controlState.trim().toUpperCase()
-        : controlState
-      const namedControlMap = {
-        UNKNOWN: 'UnKnow',
-        EQPOFFLINE: 'EqpOffline',
-        OFFLINEATTEMPTINGTOONLINE: 'Attempt',
-        HOSTOFFLINE: 'HostOffline',
-        LOCAL: 'Local',
-        ONLOCAL: 'Local',
-        REMOTE: 'Remote',
-        ONREMOTE: 'Remote'
-      }
-      if (namedControlMap[normalizedState]) {
-        return namedControlMap[normalizedState]
-      }
-      const controlMap = {
-        0: 'UnKnow',
-        1: 'EqpOffline',
-        2: 'Attempt',
-        3: 'HostOffline',
-        4: 'Local',
-        5: 'Remote'
-      };
-      return controlMap[Number(controlState)] || 'UnKnow'
-    },
-    getSlotColor(filled) {
-      const colorMap = {
-        0: '#dcdfe9',
-        1: '#dcdfe9',
-        3: '#4F94CD',
-        4: '#68228B',
-        5: '#67c23a'
-      };
-      return colorMap[filled] || '#dcdfe9'; // 默认透明
-    },
-    selectItem(item) {
-      this.selectedItem = item;
-    },
-    initSignalR() {
-      // 创建 SignalR 连接
-      this.connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7255/logHub", {
-          skipNegotiation: true, // 跳过协商（如果使用 WebSocket）
-          transport: signalR.HttpTransportType.WebSockets, // 强制使用 WebSocket
-          withCredentials: true // 允许凭据
-        })
-        .configureLogging(signalR.LogLevel.Information)
-        .build();
-      this.connection.start()
-        .then(() => console.log("SignalR Connected"))
-        .catch(err => console.error("SignalR Connection Error: ", err));
+<script setup>
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Search } from '@element-plus/icons-vue'
+import * as signalR from '@microsoft/signalr'
+import { GetEqpInfo, GetLoopProcessState, SetLoopProcessState } from "@/api/equipment"
 
-      // 监听后端推送的日志消息
-      this.connection.on("ReceiveLog", (log) => {
-        var eqpId = log.eqpId;
-        var eqpInfo = this.eqpInfos.find(a => a.eqpId == eqpId);
-        if (eqpInfo != null) {
-          if (log.type == "Log") {
-            eqpInfo.logs.push({
-              time: log.time,
-              type: log.msgType,
-              message: log.message
-            });
-            // 保持最多 200 条日志
-            if (eqpInfo.logs.length > 200) {
-              eqpInfo.logs.shift();
-            }
-            if (this.selectedItem && this.selectedItem.eqpId == eqpId) {
-              // 自动滚动到底部
-              this.$nextTick(() => {
-                const container = this.$refs.logContainer;
-                if (container) {
-                  container.scrollTop = container.scrollHeight;
-                }
-              });
-            }
-          }
-          else if (log.type == "Map") {
-            var maps = log.message.split(";")
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            if (lpinfo != null) {
-              if (maps.length == lpinfo.slots.length) {
-                lpinfo.slots.forEach((slot, index) => {
-                  slot.filled = maps[index]; // 或者任何其他的赋值逻辑
-                });
-              }
-              else {
-                maps.forEach((slot) => {
-                  lpinfo.slots[Number(slot) - 1].filled = 4;
-                });
-              }
-            }
-          }
-          else if (log.type == "SubStrate") {
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            lpinfo.slots[Number(log.message) - 1].filled = 5;
-          }
-          else if(log.type=="ControlState"){
-            eqpInfo.controlState=log.message;
-          }
-          else if(log.type=="AccessMode"){
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            lpinfo.accessMode=log.message;
-          }
-          else if(log.type=="TransferState"){
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            lpinfo.transferState=log.message;
-          }
-          else if(log.type=="EapState"){
-            eqpInfo.eapStatus=log.message;
-          }
-          else if(log.type=="EqpState"){
-            eqpInfo.eqpStatus=log.message;
-          }
-          else if(log.type=="lot"){
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            lpinfo.lotId=log.message;
-          }
-          else if(log.type=="Carrier"){
-            var lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
-            lpinfo.carrierId=log.message;
-          }
-        }
-      });
-    },
-    // 生成 25 个垂直排列的槽
-    generateSlots(filledCount) {
-      return Array.from({ length: 25 }, (_, i) => ({
-        filled: 0,
-        number: i + 1
-      }));
-    },
-    async getAllEqpList() {
-      this.loading = true
-      try {
-        const res = await GetEqpInfo(this.pageInfo)
-        this.eqpInfos = []
-        const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
-        list.forEach(element => {
-          const portInfos = Array.isArray(element.portInfos) ? element.portInfos : []
-          portInfos.forEach(a=>{
-              a.slots=this.generateSlots(0)
-            })
-            this.eqpInfos.push({
-              eqpId: element.eqpId,
-              eqpType: element.eqpType,
-              enable: element.enable,
-              eqpStatus: element.eqpStatus,
-              eapStatus: element.eapStatus,
-              controlState:element.controlState,
-              logs: [],
-              lpList: portInfos
-            })
-          })
-        this.selectedItem = this.eqpInfos[0] || null
-      } catch (error) {
-        this.eqpInfos = []
-        this.selectedItem = null
-        console.error("Failed to get EAP equipment info", error)
-      } finally {
-        this.loading = false
+const loading = ref(false)
+const searchQuery = ref('')
+const eqpInfos = ref([])
+const selectedItem = ref(null)
+const logContainer = ref(null)
+let connection = null
+
+const filteredList = computed(() => {
+  return eqpInfos.value.filter(item =>
+    item.eqpId.toLowerCase().includes(searchQuery.value.toLowerCase())
+  )
+})
+
+const selectedLpList = computed(() => {
+  return selectedItem.value && Array.isArray(selectedItem.value.lpList)
+    ? selectedItem.value.lpList
+    : []
+})
+
+const selectedLogs = computed(() => {
+  return selectedItem.value && Array.isArray(selectedItem.value.logs)
+    ? selectedItem.value.logs
+    : []
+})
+
+function getLoopStateText(state) {
+  const map = { 0: '运行中', 1: '已停止', 2: '已暂停' }
+  return map[state] || '未知'
+}
+
+function getLoopStateTagType(state) {
+  const map = { 0: 'success', 1: 'danger', 2: 'warning' }
+  return map[state] || 'info'
+}
+
+async function fetchLoopProcessStates() {
+  try {
+    const res = await GetLoopProcessState()
+    // 响应拦截器已提取 response.data，所以 res 直接是 { Return, MESSAGE, data }
+    const list = res && res.data && Array.isArray(res.data) ? res.data : []
+    const stateMap = {}
+    list.forEach(item => {
+      const key = item.eqpId + '_' + Number(item.portId)
+      stateMap[key] = item.loopProcessState
+    })
+    eqpInfos.value.forEach(eqp => {
+      if (Array.isArray(eqp.lpList)) {
+        eqp.lpList.forEach(lp => {
+          const key = eqp.eqpId + '_' + Number(lp.portId)
+          lp.loopState = stateMap[key] ?? 0
+        })
       }
-    }
-  },
-  computed: {
-    filteredList() {
-      return this.eqpInfos.filter(item =>
-        item.eqpId.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-    selectedLpList() {
-      return this.selectedItem && Array.isArray(this.selectedItem.lpList)
-        ? this.selectedItem.lpList
-        : []
-    },
-    selectedLogs() {
-      return this.selectedItem && Array.isArray(this.selectedItem.logs)
-        ? this.selectedItem.logs
-        : []
-    },
-  },
-  mounted() {
-    this.initSignalR()
-    this.getAllEqpList()
-  },
-  beforeUnmount() {
-    if (this.logInterval) {
-      clearInterval(this.logInterval);
-      this.logInterval = null;
-    }
-    if (this.connection) {
-      this.connection.stop().catch(() => {});
-      this.connection = null;
-    }
+    })
+  } catch (error) {
+    console.error('获取循环跑片状态失败', error)
   }
-};
+}
+
+async function handleSetLpLoopState(lp, state) {
+  if (!selectedItem.value) return
+  try {
+    const targetState = Number(state)
+    console.log('[LP Control] eqpId:', selectedItem.value.eqpId, 'portId:', lp.portId, 'portName:', lp.portName, 'targetState:', targetState, 'lp full:', JSON.stringify(lp))
+    const res = await SetLoopProcessState(selectedItem.value.eqpId, lp.portId, targetState)
+    console.log('[LP Control] response:', res)
+    // 响应拦截器已提取 response.data，所以 res 直接是 { Return, MESSAGE, loopProcessState }
+    if (res && res.Return === 'NG') {
+      throw new Error(res.MESSAGE || '设置失败')
+    }
+    const newState = res && res.loopProcessState !== undefined ? res.loopProcessState : targetState
+    lp.loopState = newState
+    ElMessage.success(`LP ${lp.portName} 循环跑片已${getLoopStateText(newState)}`)
+  } catch (error) {
+    console.error('设置循环跑片状态失败', error)
+    await fetchLoopProcessStates()
+    ElMessage.error('设置循环跑片状态失败')
+  }
+}
+
+function getLotId(lotId) {
+  if (lotId == null || String(lotId).trim().length === 0) {
+    return "UnKnow"
+  }
+  return lotId
+}
+
+function getCarrierId(carrierId) {
+  if (carrierId == null || String(carrierId).trim().length === 0) {
+    return "UnKnow"
+  }
+  return carrierId
+}
+
+function getAceessMode(accessMode) {
+  const accessMap = { 0: 'Manual', 1: 'Auto' }
+  return accessMap[accessMode] || 'Manual'
+}
+
+function getTransferState(transferState) {
+  const transferMap = {
+    0: 'OutOfService',
+    1: 'Blocked',
+    2: 'ReadyToLoad',
+    3: 'ReadyToUnload',
+    4: 'InService',
+    5: 'TransferReady'
+  }
+  return transferMap[transferState] || 'OutOfService'
+}
+
+function getEqpStatusText(eqpStatus) {
+  return Number(eqpStatus) === 1 ? 'Connected' : 'Disconnected'
+}
+
+function getEqpStatusClass(eqpStatus) {
+  return Number(eqpStatus) === 1 ? 'status-pill--online' : 'status-pill--offline'
+}
+
+function getControlStateClass(controlState) {
+  const state = getControlState(controlState)
+  if (state === 'Remote') return 'control-pill--remote'
+  if (state === 'Local') return 'control-pill--local'
+  if (state === 'EqpOffline' || state === 'HostOffline') return 'control-pill--offline'
+  return 'control-pill--neutral'
+}
+
+function getControlState(controlState) {
+  const normalizedState = typeof controlState === 'string'
+    ? controlState.trim().toUpperCase()
+    : controlState
+  const namedControlMap = {
+    UNKNOWN: 'UnKnow',
+    EQPOFFLINE: 'EqpOffline',
+    OFFLINEATTEMPTINGTOONLINE: 'Attempt',
+    HOSTOFFLINE: 'HostOffline',
+    LOCAL: 'Local',
+    ONLOCAL: 'Local',
+    REMOTE: 'Remote',
+    ONREMOTE: 'Remote'
+  }
+  if (namedControlMap[normalizedState]) {
+    return namedControlMap[normalizedState]
+  }
+  const controlMap = {
+    0: 'UnKnow', 1: 'EqpOffline', 2: 'Attempt', 3: 'HostOffline', 4: 'Local', 5: 'Remote'
+  }
+  return controlMap[Number(controlState)] || 'UnKnow'
+}
+
+function getSlotColor(filled) {
+  const colorMap = {
+    0: '#dcdfe9', 1: '#dcdfe9', 3: '#4F94CD', 4: '#68228B', 5: '#67c23a'
+  }
+  return colorMap[filled] || '#dcdfe9'
+}
+
+function selectItem(item) {
+  selectedItem.value = item
+}
+
+function generateSlots() {
+  return Array.from({ length: 25 }, (_, i) => ({
+    filled: 0,
+    number: i + 1
+  }))
+}
+
+function initSignalR() {
+  connection = new signalR.HubConnectionBuilder()
+    .withUrl("https://localhost:7255/logHub", {
+      skipNegotiation: true,
+      transport: signalR.HttpTransportType.WebSockets,
+      withCredentials: true
+    })
+    .configureLogging(signalR.LogLevel.Information)
+    .build()
+
+  connection.start()
+    .then(() => console.log("SignalR Connected"))
+    .catch(err => console.error("SignalR Connection Error: ", err))
+
+  connection.on("ReceiveLog", (log) => {
+    const eqpId = log.eqpId
+    const eqpInfo = eqpInfos.value.find(a => a.eqpId == eqpId)
+    if (!eqpInfo) return
+
+    if (log.type == "Log") {
+      eqpInfo.logs.push({
+        time: log.time,
+        type: log.msgType,
+        message: log.message
+      })
+      if (eqpInfo.logs.length > 200) {
+        eqpInfo.logs.shift()
+      }
+      if (selectedItem.value && selectedItem.value.eqpId == eqpId) {
+        nextTick(() => {
+          if (logContainer.value) {
+            logContainer.value.scrollTop = logContainer.value.scrollHeight
+          }
+        })
+      }
+    } else if (log.type == "Map") {
+      const maps = log.message.split(";")
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) {
+        if (maps.length == lpinfo.slots.length) {
+          lpinfo.slots.forEach((slot, index) => {
+            slot.filled = Number(maps[index])
+          })
+        } else {
+          maps.forEach((slotIndex) => {
+            const idx = Number(slotIndex) - 1
+            if (idx >= 0 && idx < lpinfo.slots.length) {
+              lpinfo.slots[idx].filled = 4
+            }
+          })
+        }
+      }
+    } else if (log.type == "SubStrate") {
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) {
+        const idx = Number(log.message) - 1
+        if (idx >= 0 && idx < lpinfo.slots.length) {
+          lpinfo.slots[idx].filled = 5
+        }
+      }
+    } else if (log.type == "ControlState") {
+      eqpInfo.controlState = log.message
+    } else if (log.type == "AccessMode") {
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) lpinfo.accessMode = log.message
+    } else if (log.type == "TransferState") {
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) lpinfo.transferState = log.message
+    } else if (log.type == "EapState") {
+      eqpInfo.eapStatus = log.message
+    } else if (log.type == "EqpState") {
+      eqpInfo.eqpStatus = log.message
+    } else if (log.type == "lot") {
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) lpinfo.lotId = log.message
+    } else if (log.type == "Carrier") {
+      const lpinfo = eqpInfo.lpList.find(m => m.portId == log.portId)
+      if (lpinfo) lpinfo.carrierId = log.message
+    }
+  })
+}
+
+async function getAllEqpList() {
+  loading.value = true
+  try {
+    const res = await GetEqpInfo()
+    eqpInfos.value = []
+    const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
+    list.forEach(element => {
+      const portInfos = Array.isArray(element.portInfos) ? element.portInfos : []
+      portInfos.forEach(a => {
+        a.slots = generateSlots()
+        a.loopState = 0
+      })
+      eqpInfos.value.push({
+        eqpId: element.eqpId,
+        eqpType: element.eqpType,
+        enable: element.enable,
+        eqpStatus: element.eqpStatus,
+        eapStatus: element.eapStatus,
+        controlState: element.controlState,
+        logs: [],
+        lpList: portInfos
+      })
+    })
+    selectedItem.value = eqpInfos.value[0] || null
+    await fetchLoopProcessStates()
+  } catch (error) {
+    eqpInfos.value = []
+    selectedItem.value = null
+    console.error("Failed to get EAP equipment info", error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  initSignalR()
+  getAllEqpList()
+})
+
+onBeforeUnmount(() => {
+  if (connection) {
+    connection.stop().catch(() => {})
+    connection = null
+  }
+})
 </script>
   
-<style scoped>
+<style lang="scss" scoped>
+/* 每个LP单独的循环跑片控制行 */
+.lp-loop-control {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 4px 0;
+  margin-bottom: 8px;
+  gap: 4px;
+}
+
 /* 外层容器布局 */
 .slot-container {
   display: flex;

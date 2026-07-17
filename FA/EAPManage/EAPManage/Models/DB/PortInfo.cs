@@ -35,7 +35,10 @@ namespace EAPManage.Models.DB
         [SugarColumn(ColumnName = "ACESS_MODE", ColumnDataType = "INTEGER")]
         public int accessMode { get; set; }
 
-        [SugarColumn(ColumnName = "TRANSFER_STATE", ColumnDataType = "INTEGER")]
+                [SugarColumn(ColumnName = "TRANSFER_STATE", ColumnDataType = "INTEGER")]
         public int transferState { get; set; }
+
+        [SugarColumn(ColumnName = "LOOP_PROCESS_STATE", ColumnDataType = "INTEGER", DefaultValue = "0")]
+        public int loopProcessState { get; set; } = 0;
     }
 }

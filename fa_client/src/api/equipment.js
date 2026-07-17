@@ -47,3 +47,39 @@ export function Deletes(data) {
     data: data
   })
 }
+
+/**
+ * 获取所有设备的循环跑片控制状态
+ */
+export function GetLoopProcessState() {
+  return request({
+    url: '/Equipment/GetLoopProcessState',
+    method: 'get'
+  })
+}
+
+/**
+ * 设置单个LP的循环跑片状态
+ * @param {string} eqpId - 设备ID
+ * @param {number} portId - LP的PortID
+ * @param {number} state - 0=正常运行, 1=停止, 2=暂停
+ */
+export function SetLoopProcessState(eqpId, portId, state) {
+  return request({
+    url: '/Equipment/SetLoopProcessState',
+    method: 'post',
+    data: { eqpId, portId, state }
+  })
+}
+
+/**
+ * 批量设置所有设备的循环跑片状态
+ * @param {number} state - 0=正常运行, 1=停止, 2=暂停
+ */
+export function SetAllLoopProcessState(state) {
+  return request({
+    url: '/Equipment/SetAllLoopProcessState',
+    method: 'post',
+    data: { state }
+  })
+}

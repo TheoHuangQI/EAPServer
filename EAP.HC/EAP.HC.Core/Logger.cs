@@ -7,7 +7,7 @@ namespace EAPManage.Utils
     {
         NOTUSE,
         ERROR,
-        WARRING,
+        WARNING,
         DEBUG,
         INFO
     }

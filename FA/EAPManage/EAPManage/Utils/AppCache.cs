@@ -1,4 +1,4 @@
-﻿
+
 using EAPManage.Models.DB;
 using System;
 using System.Collections.Generic;
@@ -36,6 +36,13 @@ namespace EAPManage.Utils
 
         public Dictionary<string, Dictionary<string,DataRule>> EqpDataRule;
 
-        public Dictionary<string, Dictionary<string,DataRule>> EventDataRule;
+                public Dictionary<string, Dictionary<string,DataRule>> EventDataRule;
+
+                                /// <summary>
+                /// 设备LP循环跑片控制状态（按设备ID+PortID）
+                /// 外层key=eqpId, 内层key=portId
+                /// value: 0 = 正常运行, 1 = 停止, 2 = 暂停
+                /// </summary>
+                public Dictionary<string, Dictionary<int, int>> LoopProcessState { get; set; }
     }
 }

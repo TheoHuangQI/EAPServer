@@ -1,4 +1,4 @@
-﻿using Apache.NMS;
+using Apache.NMS;
 using Apache.NMS.ActiveMQ.Commands;
 using EAP.HC.Core.Entities.MES;
 using Secs4Net;
@@ -184,11 +184,11 @@ namespace EAP.HC.Core
                         }
                     case "TestItemStart":
                         {
-                            EAPTestItemStart eapTestItem= XmlSerialization.DeserializeNodeObj<EAPTestItemStart>(message, "Request", "Body");
+                            EAPTestItemStart eapTestItem = XmlSerialization.DeserializeNodeObj<EAPTestItemStart>(message, "Request", "Body");
                             var eqpId = eapTestItem.EQUIPMENTID;
                             var testItem = eapTestItem.EAPTestItem;
                             var context = EAPContext.contexts.FirstOrDefault(u => u.EquipmentID == eqpId);
-                            var resCode= SecsBase.StartTest(context, testItem);
+                            var resCode = SecsBase.StartTest(context, testItem);
                             if (resCode)
                             {
                                 res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
@@ -225,6 +225,40 @@ namespace EAP.HC.Core
                             //mrea.Reply(xmlMessage);
                             break;
 
+                        }
+                    case "LOOPPROCESSSTATE":
+                        {
+                            LoopProcessStateMsg stateMsg = XmlSerialization.DeserializeNodeObj<LoopProcessStateMsg>(message, "Request", "Body");
+                            var eqpId = stateMsg.EQUIPMENTID;
+                            var portId = stateMsg.PORTID;
+                            var state = stateMsg.STATE;
+
+                            if (AppCache.Current.LoopProcessState == null)
+                                AppCache.Current.LoopProcessState = new Dictionary<string, Dictionary<int, int>>();
+
+                            if (eqpId == "*")
+                            {
+                                foreach (var eqp in AppCache.Current.EqpInfos.Keys.ToList())
+                                {
+                                    if (!AppCache.Current.LoopProcessState.ContainsKey(eqp))
+                                        AppCache.Current.LoopProcessState[eqp] = new Dictionary<int, int>();
+
+                                    for (int i = 1; i <= AppCache.Current.EqpInfos[eqp].LoadPort; i++)
+                                    {
+                                        AppCache.Current.LoopProcessState[eqp][i] = state;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (!AppCache.Current.LoopProcessState.ContainsKey(eqpId))
+                                    AppCache.Current.LoopProcessState[eqpId] = new Dictionary<int, int>();
+
+                                AppCache.Current.LoopProcessState[eqpId][portId] = state;
+                            }
+
+                            var stateText = state == 0 ? "RUNNING" : state == 1 ? "STOPPED" : "PAUSED";
+                            Console.WriteLine($"[LoopProcess MQ] eqp={eqpId} port={portId} state={stateText}");
                             break;
                         }
                 }

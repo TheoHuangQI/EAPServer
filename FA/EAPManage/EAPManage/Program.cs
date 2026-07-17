@@ -34,7 +34,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// ÅäÖÃ CORS£¨ÔÊĞíÇ°¶Ë·ÃÎÊ£©
+// ï¿½ï¿½ï¿½ï¿½ CORSï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½Ë·ï¿½ï¿½Ê£ï¿½
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -49,7 +49,7 @@ builder.Services.AddCors(options =>
 
 
 
-// Ìí¼Ó SignalR ·şÎñ
+// ï¿½ï¿½ï¿½ï¿½ SignalR ï¿½ï¿½ï¿½ï¿½
 builder.Services.AddSignalR();
 builder.Services.AddScoped<LogService>();
 var app = builder.Build();
@@ -60,19 +60,19 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
-// ÅäÖÃ SignalR ÖÕ½áµã
+// ï¿½ï¿½ï¿½ï¿½ SignalR ï¿½Õ½ï¿½ï¿½
 app.MapHub<LogHub>("/logHub");
 app.UseAuthorization();
 
 app.MapControllers();
 
-#region MQ³õÊ¼»¯
+#region MQï¿½ï¿½Ê¼ï¿½ï¿½
 ActiveMQClient activeMQClient = ActiveMQClient.Current;
-// ×¢²áÊÂ¼ş
+// ×¢ï¿½ï¿½ï¿½Â¼ï¿½
 activeMQClient.ConnectionInterrupted += () => Console.WriteLine("Connection lost");
 activeMQClient.ConnectionRestored += () => Console.WriteLine("Connection restored");
 activeMQClient.PermanentFailure += () => Console.WriteLine("Permanent failure");
-// Ê¹ÓÃÏûÏ¢ÀàĞÍ¹ıÂËÆ÷
+// Ê¹ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½ï¿½ï¿½
 var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
 MessageProcessor messageProcessor = new MessageProcessor(scopeFactory);
 activeMQClient.MessageReceived += (s, e) =>
@@ -91,10 +91,10 @@ activeMQClient.MessageReceived += (s, e) =>
     }
 };
 await activeMQClient.InitializeAsync();
-//_ = activeMQClient.InitializeAsync();//MQÃ»×°µÄ»°£¬¾ÍÓÃÕâĞĞ´úÂë£¬°ÑÉÏÃæµÄ×¢ÊÍµô
-#endregion MQ³õÊ¼»¯
+//_ = activeMQClient.InitializeAsync();//MQÃ»×°ï¿½Ä»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ´ï¿½ï¿½ë£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×¢ï¿½Íµï¿½
+#endregion MQï¿½ï¿½Ê¼ï¿½ï¿½
 
-#region ¿ªÆôMonitor
+#region ï¿½ï¿½ï¿½ï¿½Monitor
 //var registry = new Registry();
 //var accessModeMonitor = new AccessModeMonitor();
 //var controlStateMonitor = new ControlStateMonitor();
