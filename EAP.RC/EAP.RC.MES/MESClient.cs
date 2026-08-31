@@ -237,6 +237,63 @@ namespace EAP.RC.MES
         }
         #endregion Send_Message 消息推送
 
+        #region Send_Event 推送设备事件
+        public static void Send_Event(string eqpId, string portId, int ceid, string eventName, string message, LogType logType)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDEVENT";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                MessageBody msg = new MessageBody();
+                msg.EQUIPMENTID = eqpId;
+                msg.PORT = portId;
+                msg.CEID = ceid;
+                msg.EVENTNAME = eventName;
+                msg.MESSAGE = message;
+                msg.TYPE = logType.ToString();
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                ActiveMQClient.Current.SendRequestAsync<MessageBody>(xmlMessage);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_Event 推送设备事件
+
+        #region Send_Alarm 推送设备报警
+        public static void Send_Alarm(string eqpId, string portId, byte alcd, uint alid, string altx, bool isSet)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "SENDALARM";
+
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                MessageBody msg = new MessageBody();
+                msg.EQUIPMENTID = eqpId;
+                msg.PORT = portId;
+                msg.MESSAGE = isSet ? "Alarm Set" : "Alarm Clear";
+                msg.TYPE = isSet ? LogType.ERROR.ToString() : LogType.INFO.ToString();
+                msg.ALCD = alcd.ToString();
+                msg.ALID = alid.ToString();
+                msg.ALTX = altx;
+                var xmlBody = XmlSerialization.SerializeOnlyBody(msg);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                ActiveMQClient.Current.SendRequestAsync<MessageBody>(xmlMessage);
+            }
+            catch (Exception ex)
+            {
+            }
+        }
+        #endregion Send_Alarm 推送设备报警
+
         #region Send_MapResult 推送Map结果
         /// <summary>
         /// 批次开始

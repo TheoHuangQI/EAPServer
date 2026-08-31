@@ -78,19 +78,21 @@
     </div>
     <el-dialog
       v-el-drag-dialog
-      :visible.sync="showDetailForm"
+      v-model:visible="showDetailForm"
       :fullscreen="true"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       top="5vh"
       width="1000px">
-      <div slot="title">
+      <template v-slot:title>
+<div >
         <svg-icon :icon-class="'proce'" />&nbsp;{{ t('dialog.addSigningProcess') }}
       </div>
+</template>
       <flow-detail v-if="showDetailForm" :detail-data="flowDetail" @successEvent="successHandler" @cancelEvent="cancelHandler" />
     </el-dialog>
     <el-drawer
-      :visible.sync="drawer"
+      v-model:visible="drawer"
       :modal="false"
       :close-on-press-escape="true"
       :modal-append-to-body="true"

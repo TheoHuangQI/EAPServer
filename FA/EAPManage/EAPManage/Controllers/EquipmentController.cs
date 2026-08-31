@@ -52,6 +52,66 @@ namespace EAPManage.Controllers
             return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = resdata });
         }
 
+        [HttpGet]
+        [Route("GetDashboardSnapshot")]
+        public IActionResult GetDashboardSnapshot(string eqpId, string eqpType)
+        {
+            try
+            {
+                List<Equipment> equipments = DataFactory.Current.Equipment.GetAll();
+                if (!string.IsNullOrEmpty(eqpId))
+                {
+                    equipments = equipments.Where(a => a.EqpId == eqpId).ToList();
+                }
+                if (!string.IsNullOrEmpty(eqpType))
+                {
+                    equipments = equipments.Where(a => a.EqpType == eqpType).ToList();
+                }
+
+                foreach (var eqp in equipments)
+                {
+                    eqp.portInfos = DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqp.EqpId);
+                }
+
+                var activeAlarms = DataFactory.Current.ExceptionRecord.GetList(u => u.state == 0);
+                if (!string.IsNullOrEmpty(eqpId))
+                {
+                    activeAlarms = activeAlarms.Where(a => a.eqpId == eqpId).ToList();
+                }
+                if (!string.IsNullOrEmpty(eqpType))
+                {
+                    activeAlarms = activeAlarms.Where(a => a.eqpType == eqpType).ToList();
+                }
+
+                var loopProcessStates = equipments
+                    .Where(e => e.portInfos != null)
+                    .SelectMany(e => e.portInfos.Select(p => new
+                    {
+                        eqpId = p.eqpId,
+                        portId = p.portId,
+                        loopProcessState = p.loopProcessState
+                    }))
+                    .ToList();
+
+                return Ok(new
+                {
+                    Return = "OK",
+                    MESSAGE = "SUCCESS",
+                    data = new
+                    {
+                        equipments = new { total = equipments.Count, list = equipments },
+                        activeAlarms = new { total = activeAlarms.Count, list = activeAlarms },
+                        loopProcessStates,
+                        serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Return = "NG", MESSAGE = ex.Message });
+            }
+        }
+
         [HttpPost]
         public IActionResult Post([FromBody] Equipment equipment)
         {

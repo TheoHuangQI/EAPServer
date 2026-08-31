@@ -24,6 +24,9 @@
     <Content Include="Configuration\AHEG07.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\EAP.HC\EAP.HC.Core\EAP.HC.Core.csproj" />
     <ProjectReference Include="..\EAP.RC\EAP.RC.MES\EAP.RC.MES.csproj" />
-    <ProjectReference Include="..\Secs4Net\Secs4Net.csproj" />
+    <ProjectReference Include="..\FA_Base\SecsLiteNet\SecsLiteNet.csproj" />
   </ItemGroup>
 
   <ItemGroup>

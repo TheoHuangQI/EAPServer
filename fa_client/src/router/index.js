@@ -20,6 +20,15 @@ const TestCase = () => import('@/views/Test/TestCase/Index.vue');
 const UserList = () => import('@/views/UserManagement/UserList.vue');
 const RolePermission = () => import('@/views/UserManagement/RolePermission.vue');
 
+const routeScrollPositions = {};
+
+function getWindowScrollPosition() {
+  return {
+    left: window.pageXOffset || document.documentElement.scrollLeft || document.body.scrollLeft || 0,
+    top: window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0
+  };
+}
+
 const routes = [
   {
     path: '/',
@@ -138,6 +147,27 @@ const routes = [
 const router = createRouter({
   history: createWebHashHistory(),
   routes,
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+
+    if (to.hash) {
+      return {
+        el: to.hash
+      };
+    }
+
+    return routeScrollPositions[to.fullPath] || { left: 0, top: 0 };
+  }
+});
+
+router.beforeEach((to, from, next) => {
+  if (from.fullPath) {
+    routeScrollPositions[from.fullPath] = getWindowScrollPosition();
+  }
+
+  next();
 });
 
 // router.beforeEach((to, from, next) => {

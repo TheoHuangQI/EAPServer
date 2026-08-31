@@ -5,7 +5,9 @@
       <el-row :gutter="20">
         <el-col :xs="24" :sm="16" :md="12" :lg="8">
           <el-input v-model="messageName" placeholder="名称" clearable @keyup.enter.native="handleSearch">
-            <i slot="prefix" class="el-icon-search el-input__icon" />
+            <template v-slot:prefix>
+<i  class="el-icon-search el-input__icon" />
+</template>
           </el-input>
         </el-col>
         <el-col :xs="24" :sm="8" :md="12" :lg="16" class="operation-col">

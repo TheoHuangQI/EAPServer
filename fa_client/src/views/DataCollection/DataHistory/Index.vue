@@ -308,6 +308,10 @@ export default {
     this.destroyChart()
   },
 
+  activated() {
+    this.rebuildChart()
+  },
+
   methods: {
     showAllSeries() {
       this.disableBrushZoom()

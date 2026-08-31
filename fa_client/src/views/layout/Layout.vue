@@ -8,8 +8,10 @@
 
     <!-- 主内容区 -->
     <main :class="['appMain', { 'main--expanded': isCollapsed }]">
-            <router-view v-slot="{ Component }">
-        <component :is="Component" :key="key" />
+      <router-view v-slot="{ Component }">
+        <keep-alive>
+          <component :is="Component" :key="routeCacheKey" />
+        </keep-alive>
       </router-view>
     </main>
     <!-- 底部 -->
@@ -20,21 +22,45 @@
 import Header from "@/views/layout/Header.vue";
 import Sidebar from "@/views/layout/Sidebar.vue";
 import Footer from "@/views/layout/Footer.vue";
+
+const LAYOUT_STATE_KEY = 'fa-layout-state';
+
+function readLayoutState() {
+  try {
+    return JSON.parse(localStorage.getItem(LAYOUT_STATE_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveLayoutState(state) {
+  try {
+    localStorage.setItem(LAYOUT_STATE_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage errors so layout interactions still work normally.
+  }
+}
+
 export default {
   components: {Header,Sidebar,Footer},
   data() {
+    const layoutState = readLayoutState();
+
     return {
-      isCollapsed: false
+      isCollapsed: Boolean(layoutState.isCollapsed)
     }
   },
   computed: {
-    key() {
+    routeCacheKey() {
       return this.$route.path
     }
   },
   methods: {
     handleToggleCollapse() {
       this.isCollapsed = !this.isCollapsed;
+      saveLayoutState({
+        isCollapsed: this.isCollapsed
+      });
     }
   }
 };

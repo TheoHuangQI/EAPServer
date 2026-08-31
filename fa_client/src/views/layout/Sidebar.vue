@@ -39,6 +39,44 @@
     </div>
 </template>
 <script>
+const SIDEBAR_STATE_KEY = 'fa-sidebar-state';
+
+const ROUTE_MENU_MAP = {
+    '/Dashboard': { menuIndex: 0 },
+    '/UserList': { menuIndex: 1, childIndex: 0 },
+    '/RolePermission': { menuIndex: 1, childIndex: 1 },
+    '/Carrier': { menuIndex: 2, childIndex: 0 },
+    '/LOT': { menuIndex: 2, childIndex: 1 },
+    '/Batch': { menuIndex: 2, childIndex: 2 },
+    '/EqpList': { menuIndex: 3, childIndex: 0 },
+    '/EAP': { menuIndex: 3, childIndex: 1 },
+    '/RunHistory': { menuIndex: 3, childIndex: 2 },
+    '/Exception': { menuIndex: 3, childIndex: 3 },
+    '/DataRule': { menuIndex: 4, childIndex: 0 },
+    '/DataHistory': { menuIndex: 4, childIndex: 1 },
+    '/TestItem': { menuIndex: 5, childIndex: 0 },
+    '/TestItemBatch': { menuIndex: 5, childIndex: 1 },
+    '/TestTemplate': { menuIndex: 5, childIndex: 2 },
+    '/TestCase': { menuIndex: 5, childIndex: 3 },
+    '/Flow': { menuIndex: 6, childIndex: 0 }
+};
+
+function readSidebarState() {
+    try {
+        return JSON.parse(localStorage.getItem(SIDEBAR_STATE_KEY)) || {};
+    } catch {
+        return {};
+    }
+}
+
+function saveSidebarState(state) {
+    try {
+        localStorage.setItem(SIDEBAR_STATE_KEY, JSON.stringify(state));
+    } catch {
+        // Ignore storage errors so navigation still works normally.
+    }
+}
+
 export default {
     props: {
         isCollapsed: {
@@ -97,13 +135,70 @@ export default {
             ]
         }
     },
+    created() {
+        this.restoreSidebarState();
+        this.applyRouteState(this.$route.path);
+    },
+    watch: {
+        '$route.path'(path) {
+            this.applyRouteState(path);
+        }
+    },
     methods: {
-        handleMenuClick(item) {
+        persistSidebarState() {
+            saveSidebarState({
+                activeMenu: this.activeMenu,
+                activeSubmenu: this.activeSubmenu,
+                openMenus: this.menuItems
+                    .map((item, index) => item.isOpen ? index : -1)
+                    .filter(index => index >= 0)
+            });
+        },
+        restoreSidebarState() {
+            const state = readSidebarState();
+
+            if (state.activeMenu) {
+                this.activeMenu = state.activeMenu;
+            }
+            if (state.activeSubmenu) {
+                this.activeSubmenu = state.activeSubmenu;
+            }
+            if (Array.isArray(state.openMenus)) {
+                this.menuItems.forEach((item, index) => {
+                    item.isOpen = state.openMenus.includes(index);
+                });
+            }
+        },
+        applyRouteState(path) {
+            const routeState = ROUTE_MENU_MAP[path];
+            if (!routeState) {
+                return;
+            }
+
+            const item = this.menuItems[routeState.menuIndex];
+            if (!item) {
+                return;
+            }
+
             if (item.children) {
-                item.isOpen = !item.isOpen;
+                item.isOpen = true;
+                this.activeMenu = "";
+                this.activeSubmenu = item.children[routeState.childIndex] || "";
             } else {
                 this.activeMenu = item.title;
                 this.activeSubmenu = "";
+            }
+
+            this.persistSidebarState();
+        },
+        handleMenuClick(item) {
+            if (item.children) {
+                item.isOpen = !item.isOpen;
+                this.persistSidebarState();
+            } else {
+                this.activeMenu = item.title;
+                this.activeSubmenu = "";
+                this.persistSidebarState();
                 this.$nextTick(() => {
                     switch (this.activeMenu) {
                         case '首页':
@@ -115,6 +210,8 @@ export default {
         },
         handleSubmenuClick(submenu) {
             this.activeSubmenu = submenu;
+            this.activeMenu = "";
+            this.persistSidebarState();
             this.$nextTick(() => {
                 switch (submenu) {
 

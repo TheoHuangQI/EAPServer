@@ -6,7 +6,9 @@
         <div class="left-panel">
           <div class="search-container">
             <el-input v-model="searchQuery" placeholder="搜索" clearable>
-              <i slot="prefix" class="el-input__icon el-icon-search"></i>
+              <template v-slot:prefix>
+<i  class="el-input__icon el-icon-search"></i>
+</template>
             </el-input>
           </div>
         </div>

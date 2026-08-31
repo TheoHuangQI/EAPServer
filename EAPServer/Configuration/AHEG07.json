@@ -23,7 +23,7 @@
   },
   {
     "Name": "DFEG09",
-    "DeviceID": 0,
+    "DeviceID": 1,
     "ConnectionMode": "ACTIVE",
     "LocalIP": "127.0.0.1",
     "LocalPort": 5000,

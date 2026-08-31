@@ -12,6 +12,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using EAP.RC.MES;
 using System.Net;
@@ -92,6 +93,8 @@ namespace EAPServer
                                 IsActive = isActive,
                                 IpAddress = isActive ? currentConfig.RemoteIP : currentConfig.LocalIP,
                                 Port = isActive ? currentConfig.RemotePort : currentConfig.LocalPort,
+                                LocalIpAddress = currentConfig.LocalIP,
+                                LocalPort = currentConfig.LocalPort,
                                 SocketReceiveBufferSize = (int)65535,
                                 DeviceId = (ushort)currentConfig.DeviceID,
                                 T3 = currentConfig.T3 * 1000,
@@ -100,6 +103,7 @@ namespace EAPServer
                                 T7 = currentConfig.T7 * 1000,
                                 T8 = currentConfig.T8 * 1000,
                                 LinkTestInterval = (currentConfig.HeartbeatInterval ?? 30) * 1000,
+                                AutoReconnect = currentConfig.AutoReconnect,
                             });
                             CancellationTokenSource _cancellationTokenSource = new();
                             HsmsConnection _connector = new HsmsConnection(options, _logger);
@@ -118,11 +122,11 @@ namespace EAPServer
                             var interval = currentConfig.HeartbeatInterval ?? 30;
                             var maxFailures = currentConfig.HeartbeatMaxFailures ?? 3;
                             var connectionVersion = 0L;
-                            _ = RunHeartbeatAsync(eqpid, _secsGem, _connector, interval, maxFailures, _cancellationTokenSource.Token);
 
                             _connector.ConnectionChanged += delegate(object sender, ConnectionState state)
                             {
                                 var currentVersion = Interlocked.Increment(ref connectionVersion);
+                                UpdateEquipmentConnectionSnapshot(eqpid, currentConfig, _connector);
                                 Arguments args = new Arguments()
                                 {
                                     Header = new Dictionary<string, object>(),
@@ -131,15 +135,28 @@ namespace EAPServer
                                 args.Header[CItems.EqpType] = context.EqpType;
                                 args.Header[CItems.ConnectionState] = state;
                                 args.Header[CItems.ConnectionVersion] = currentVersion;
+                                args.Header[CItems.ConnectionRetryCount] = _connector.RetryCount;
+                                args.Header[CItems.ConnectionLastError] = _connector.LastError;
+                                args.Header[CItems.ConnectionLastErrorCode] = _connector.LastErrorCode;
+                                args.Header[CItems.ConnectionLastErrorTime] = _connector.LastErrorTime;
+                                args.Header[CItems.ConnectionLastAttemptTime] = _connector.LastAttemptTime;
+                                args.Header[CItems.ConnectionNextRetryTime] = _connector.NextRetryTime;
+                                args.Header[CItems.ConnectionDisconnectReason] = _connector.LastDisconnectReason;
+                                args.Header[CItems.ConnectionRemoteAddress] = _connector.RemoteAddress;
+                                args.Header[CItems.ConnectionAutoReconnect] = _connector.AutoReconnect;
                                 SecsBase.ReciveSecsMessage(context,args, "ConnectionChange"); 
                             };
                             MESClient.Send_EqpState(eqpid, EQPState.DisConnected);
                             _connector.Start(_cancellationTokenSource.Token);
                             _connector.LinkTestEnabled = true;
+                            _ = RunConnectionMonitorAsync(eqpid, _connector, isActive, interval, _cancellationTokenSource.Token);
+                            _ = RunHeartbeatAsync(eqpid, _connector, interval, maxFailures, _cancellationTokenSource.Token);
                             MESClient.Send_EapState(eqpid, currentConfig.LoadPort, EAPState.Run);
                             try
                             {
-                                while (_connector.State != ConnectionState.Selected && !_cancellationTokenSource.Token.IsCancellationRequested)
+                                while (_connector.State != ConnectionState.Selected &&
+                                       _connector.State != ConnectionState.Communicating &&
+                                       !_cancellationTokenSource.Token.IsCancellationRequested)
                                 {
                                     await Task.Delay(200, _cancellationTokenSource.Token);
                                 }
@@ -170,9 +187,35 @@ namespace EAPServer
             }
         }
 
+        private static void UpdateEquipmentConnectionSnapshot(string eqpid, ConnectionConfigure config, HsmsConnection connector)
+        {
+            if (AppCache.Current.EqpInfos == null ||
+                !AppCache.Current.EqpInfos.TryGetValue(eqpid, out var eqpInfo))
+            {
+                return;
+            }
+
+            eqpInfo.HsmsConnectionState = connector.State.ToString();
+            eqpInfo.HsmsRemoteAddress = connector.RemoteAddress;
+            eqpInfo.HsmsRetryCount = connector.RetryCount;
+            eqpInfo.HsmsLastError = connector.LastError;
+            eqpInfo.HsmsLastErrorCode = connector.LastErrorCode;
+            eqpInfo.HsmsLastErrorTime = connector.LastErrorTime?.LocalDateTime;
+            eqpInfo.HsmsLastAttemptTime = connector.LastAttemptTime?.LocalDateTime;
+            eqpInfo.HsmsNextRetryTime = connector.NextRetryTime?.LocalDateTime;
+            eqpInfo.HsmsDisconnectReason = connector.LastDisconnectReason.ToString();
+            eqpInfo.HsmsAutoReconnect = connector.AutoReconnect;
+
+            if (string.IsNullOrWhiteSpace(eqpInfo.HsmsRemoteAddress))
+            {
+                eqpInfo.HsmsRemoteAddress = config.ConnectionMode == ConnectionMode.ACTIVE
+                    ? $"{config.RemoteIP}:{config.RemotePort}"
+                    : $"{config.LocalIP}:{config.LocalPort}";
+            }
+        }
+
         private static async Task RunHeartbeatAsync(
             string eqpid,
-            SecsGem secsGem,
             HsmsConnection connector,
             int intervalSeconds,
             int maxFailures,
@@ -185,33 +228,35 @@ namespace EAPServer
                 using var heartbeatTimer = new PeriodicTimer(TimeSpan.FromSeconds(intervalSeconds));
                 while (await heartbeatTimer.WaitForNextTickAsync(cancellationToken))
                 {
-                    if (connector.State != ConnectionState.Selected)
+                    if (!connector.HasConnected)
                     {
                         consecutiveFailures = 0;
                         continue;
                     }
 
-                    var heartbeatSessionId = connector.SessionId;
                     try
                     {
-                        using var timeoutTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                        timeoutTokenSource.CancelAfter(TimeSpan.FromSeconds(Math.Min(intervalSeconds, 10)));
-
-                        var reply = await secsGem.SendAsync(new SecsMessage(1, 1), timeoutTokenSource.Token);
-                        if (connector.SessionId != heartbeatSessionId)
+                        if ((connector.State == ConnectionState.Selected ||
+                             connector.State == ConnectionState.Communicating) &&
+                            connector.IsTransportConnected)
                         {
                             consecutiveFailures = 0;
                             continue;
                         }
 
-                        if (reply != null)
+                        if (connector.State == ConnectionState.Connecting ||
+                            connector.State == ConnectionState.Connected ||
+                            connector.State == ConnectionState.Selecting ||
+                            connector.State == ConnectionState.Retry ||
+                            connector.State == ConnectionState.Reconnecting ||
+                            connector.State == ConnectionState.Disabled)
                         {
                             consecutiveFailures = 0;
                             continue;
                         }
 
                         consecutiveFailures++;
-                        _logger.Warning($"Heartbeat failed for {eqpid}. Attempt: {consecutiveFailures}.");
+                        _logger.Warning($"HSMS transport heartbeat failed for {eqpid}. State: {connector.State}. Attempt: {consecutiveFailures}.");
                     }
                     catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                     {
@@ -219,11 +264,6 @@ namespace EAPServer
                     }
                     catch (Exception ex)
                     {
-                        if (connector.SessionId != heartbeatSessionId)
-                        {
-                            consecutiveFailures = 0;
-                            continue;
-                        }
                         consecutiveFailures++;
                         _logger.Warning($"Heartbeat for {eqpid} threw an exception: {ex.Message}. Attempt: {consecutiveFailures}.");
                     }
@@ -234,6 +274,73 @@ namespace EAPServer
                         consecutiveFailures = 0;
                         connector.Reconnect();
                     }
+                }
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+            }
+        }
+
+        private static async Task RunConnectionMonitorAsync(
+            string eqpid,
+            HsmsConnection connector,
+            bool isActive,
+            int intervalSeconds,
+            CancellationToken cancellationToken)
+        {
+            if (!isActive)
+            {
+                return;
+            }
+
+            var idlePollInterval = TimeSpan.FromSeconds(Math.Max(1, Math.Min(intervalSeconds, 5)));
+
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    if (!connector.AutoReconnect ||
+                        connector.State == ConnectionState.Disabled)
+                    {
+                        return;
+                    }
+
+                    if (connector.State == ConnectionState.Connecting ||
+                        connector.State == ConnectionState.Connected ||
+                        connector.State == ConnectionState.Selecting ||
+                        connector.State == ConnectionState.Selected ||
+                        connector.State == ConnectionState.Communicating)
+                    {
+                        await Task.Delay(idlePollInterval, cancellationToken);
+                        continue;
+                    }
+
+                    var nextRetryTime = connector.NextRetryTime;
+                    if (nextRetryTime.HasValue)
+                    {
+                        var delay = nextRetryTime.Value - DateTimeOffset.Now;
+                        if (delay > TimeSpan.Zero)
+                        {
+                            await Task.Delay(delay, cancellationToken);
+                            continue;
+                        }
+                    }
+
+                    try
+                    {
+                        _logger.Info($"Connection monitor reconnecting {eqpid}. State: {connector.State}. RetryCount: {connector.RetryCount}. LastError: {connector.LastError}");
+                        connector.Reconnect();
+                    }
+                    catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Warning($"Connection monitor reconnect for {eqpid} failed: {ex.Message}");
+                    }
+
+                    await Task.Delay(TimeSpan.FromMilliseconds(200), cancellationToken);
                 }
             }
             catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)

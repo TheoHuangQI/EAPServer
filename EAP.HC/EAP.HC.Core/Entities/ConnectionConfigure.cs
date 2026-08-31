@@ -73,6 +73,8 @@ namespace EAP.HC.Core.Entities
         /// </summary>
         public int? HeartbeatMaxFailures { get; set; } = 3;
 
+        public bool AutoReconnect { get; set; } = true;
+
         /// <summary>
         /// 配置合法性检查
         /// </summary>
@@ -98,9 +100,19 @@ namespace EAP.HC.Core.Entities
                 !IPAddress.TryParse(RemoteIP, out _))
                 throw new ArgumentException($"RemoteIP格式错误: {RemoteIP}");
 
-            if (RemotePort != 0 &&
+            if (ConnectionMode == global::EAP.HC.Core.ConnectionMode.ACTIVE)
+            {
+                if (string.IsNullOrWhiteSpace(RemoteIP))
+                    throw new ArgumentException("ACTIVE模式下RemoteIP不能为空");
+
+                if (RemotePort < 1 || RemotePort > 65535)
+                    throw new ArgumentException($"ACTIVE模式下RemotePort无效: {RemotePort}");
+            }
+            else if (RemotePort != 0 &&
                 (RemotePort < 1 || RemotePort > 65535))
+            {
                 throw new ArgumentException($"RemotePort无效: {RemotePort}");
+            }
 
             if (T3 <= 0)
                 throw new ArgumentException("T3必须大于0");

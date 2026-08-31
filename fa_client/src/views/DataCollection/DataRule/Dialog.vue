@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :visible.sync="dialogVisible"
+    v-model:visible="dialogVisible"
     title="VID 采集配置"
     width="600px"
     custom-class="vid-monitor-dialog"
@@ -50,7 +50,7 @@
                 placeholder="采集频率"
                 type="number"
               >
-                <template slot="append">S</template>
+                <template v-slot:append>S</template>
               </el-input>
             </el-form-item>
           </el-col>
@@ -177,10 +177,12 @@
       </div>
     </el-form>
 
-    <div slot="footer" class="dialog-footer">
+    <template v-slot:footer>
+<div  class="dialog-footer">
       <el-button @click="handleClose">取消</el-button>
       <el-button type="primary" @click="handleConfirm">确定</el-button>
     </div>
+</template>
   </el-dialog>
 </template>
 

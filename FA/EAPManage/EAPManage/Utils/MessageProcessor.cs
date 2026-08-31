@@ -29,6 +29,143 @@ namespace EAPManage.Utils
             }
         }
 
+        private int ParsePortId(string portId)
+        {
+            if (string.IsNullOrWhiteSpace(portId))
+            {
+                return 0;
+            }
+
+            var text = portId.Trim().ToUpperInvariant();
+            if (text.StartsWith("LP"))
+            {
+                text = text.Substring(2);
+            }
+
+            if (int.TryParse(text, out var parsed))
+            {
+                return parsed;
+            }
+
+            return 0;
+        }
+
+        private string ExtractMessageToken(string message, string tokenName)
+        {
+            if (string.IsNullOrWhiteSpace(message) || string.IsNullOrWhiteSpace(tokenName))
+            {
+                return string.Empty;
+            }
+
+            var token = tokenName + "=";
+            var index = message.IndexOf(token, StringComparison.OrdinalIgnoreCase);
+            if (index < 0)
+            {
+                return string.Empty;
+            }
+
+            var start = index + token.Length;
+            var end = message.IndexOf(",", start, StringComparison.OrdinalIgnoreCase);
+            if (end < 0)
+            {
+                end = message.Length;
+            }
+
+            return message.Substring(start, end - start).Trim();
+        }
+
+        private bool IsCarrierClearEvent(int ceid)
+        {
+            return ceid == 15 || ceid == 72 || ceid == 10005;
+        }
+
+        private bool IsCarrierPresentEvent(int ceid)
+        {
+            return ceid == 14 || ceid == 37 || ceid == 59 || ceid == 10009;
+        }
+
+        private void ClearLoadPort(string eqpid, int portId)
+        {
+            if (portId <= 0)
+            {
+                return;
+            }
+
+            DataFactory.Current.PortInfo.Update(
+                u => u.eqpId == eqpid && u.portId == portId,
+                u => new PortInfo
+                {
+                    carrierId = string.Empty,
+                    lotId = string.Empty,
+                    slotMap = string.Empty,
+                    pjSlot = string.Empty,
+                    proComSlot = string.Empty
+                });
+
+            var port = portId.ToString();
+            _logService.SendMessage(eqpid, port, "Carrier", string.Empty, "info");
+            _logService.SendMessage(eqpid, port, "lot", string.Empty, "info");
+            _logService.SendMessage(eqpid, port, "Map", string.Empty, "info");
+        }
+
+        private void UpdateCarrierIfPresent(string eqpid, int portId, string carrierId)
+        {
+            if (portId <= 0 || string.IsNullOrWhiteSpace(carrierId))
+            {
+                return;
+            }
+
+            DataFactory.Current.PortInfo.Update(
+                u => u.eqpId == eqpid && u.portId == portId,
+                u => new PortInfo { carrierId = carrierId });
+            _logService.SendMessage(eqpid, portId.ToString(), "Carrier", carrierId, "info");
+        }
+
+        private void InsertOrRefreshAlarm(string eqpid, int portId, string alarmContent)
+        {
+            var eqpInfo = DataFactory.Current.Equipment.GetList(u => u.EqpId == eqpid).FirstOrDefault();
+            var portInfo = portId > 0
+                ? DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid && u.portId == portId).FirstOrDefault()
+                : null;
+            var existing = DataFactory.Current.ExceptionRecord
+                .GetList(u => u.eqpId == eqpid && u.state == 0)
+                .FirstOrDefault(u => (u.content ?? string.Empty).Contains(alarmContent.Split(';')[0]));
+
+            if (existing != null)
+            {
+                return;
+            }
+
+            DataFactory.Current.ExceptionRecord.Insert(new ExceptionRecord()
+            {
+                eqpId = eqpid,
+                eqpType = eqpInfo?.EqpType ?? string.Empty,
+                portId = portId,
+                portName = portInfo?.portName ?? string.Empty,
+                lotId = portInfo?.lotId ?? string.Empty,
+                content = alarmContent,
+                errorTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
+                state = 0
+            });
+        }
+
+        private void ClearAlarm(string eqpid, string alid)
+        {
+            if (string.IsNullOrWhiteSpace(alid))
+            {
+                return;
+            }
+
+            var token = "ALID=" + alid.Trim();
+            var activeAlarms = DataFactory.Current.ExceptionRecord.GetList(u => u.eqpId == eqpid && u.state == 0);
+            foreach (var alarm in activeAlarms.Where(u => (u.content ?? string.Empty).Contains(token)))
+            {
+                DataFactory.Current.ExceptionRecord.Update(
+                    u => u.Id == alarm.Id,
+                    u => new ExceptionRecord { state = 1 });
+            }
+        }
+
         public void HandleMessage(IMessage Imessage, MessageReceivedEventArgs mrea)
         {
             var replyHeader = new MQHeader();
@@ -136,6 +273,62 @@ namespace EAPManage.Utils
                             var msg = request.MESSAGE;
                             var msgType = request.TYPE;  //info / warning / error
                             _logService.SendMessage(eqpid, portId, "Log", $"[{portId}]: {msg}", msgType.ToLower());
+                            break;
+                        }
+                    case "SENDEVENT":
+                        {
+                            res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            MessageBody request = XmlSerialization.DeserializeNodeObj<MessageBody>(message, "Request", "Body");
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(request);
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
+
+                            var eqpid = request.EQUIPMENTID;
+                            var portId = string.IsNullOrWhiteSpace(request.PORT) ? "0" : request.PORT;
+                            var parsedPortId = ParsePortId(portId);
+                            var msg = request.MESSAGE;
+                            var msgType = string.IsNullOrWhiteSpace(request.TYPE) ? "info" : request.TYPE.ToLower();
+                            var carrierId = ExtractMessageToken(msg, "Carrier");
+
+                            if (IsCarrierClearEvent(request.CEID))
+                            {
+                                ClearLoadPort(eqpid, parsedPortId);
+                            }
+                            else if (IsCarrierPresentEvent(request.CEID))
+                            {
+                                UpdateCarrierIfPresent(eqpid, parsedPortId, carrierId);
+                            }
+
+                            _logService.SendMessage(eqpid, portId, "Event", msg, msgType);
+                            break;
+                        }
+                    case "SENDALARM":
+                        {
+                            res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            MessageBody request = XmlSerialization.DeserializeNodeObj<MessageBody>(message, "Request", "Body");
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(request);
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
+
+                            var eqpid = request.EQUIPMENTID;
+                            var portId = string.IsNullOrWhiteSpace(request.PORT) ? "0" : request.PORT;
+                            var parsedPortId = ParsePortId(portId);
+                            var alid = string.IsNullOrWhiteSpace(request.ALID) ? "0" : request.ALID;
+                            var alcd = string.IsNullOrWhiteSpace(request.ALCD) ? "0" : request.ALCD;
+                            var altx = request.ALTX ?? string.Empty;
+                            var alarmContent = $"ALID={alid}; ALCD={alcd}; {altx}".Trim();
+                            var isAlarmSet = alcd != "0";
+
+                            if (isAlarmSet)
+                            {
+                                InsertOrRefreshAlarm(eqpid, parsedPortId, alarmContent);
+                                _logService.SendMessage(eqpid, portId, "Alarm", alarmContent, "error");
+                            }
+                            else
+                            {
+                                ClearAlarm(eqpid, alid);
+                                _logService.SendMessage(eqpid, portId, "AlarmClear", alarmContent, "info");
+                            }
                             break;
                         }
                     case "TRACKIN":
@@ -268,11 +461,34 @@ namespace EAPManage.Utils
                             var portId = request.PORT;
                             if (request.MapStr.EndsWith(';'))
                             {
-                                _logService.SendMessage(eqpid, portId, "Map", $"{request.MapStr.Substring(0, request.MapStr.Length - 1)}", "info");
+                                var slotMap = request.MapStr.Substring(0, request.MapStr.Length - 1);
+                                if (int.TryParse(portId, out var portNo))
+                                {
+                                    DataFactory.Current.PortInfo.Update(
+                                        u => u.eqpId == eqpid && u.portId == portNo,
+                                        u => new PortInfo { slotMap = slotMap, proComSlot = string.Empty }
+                                    );
+                                }
+                                _logService.SendMessage(eqpid, portId, "Map", $"{slotMap}", "info");
 
                             }
                             else
                             {
+                                if (int.TryParse(portId, out var portNo))
+                                {
+                                    var portInfo = DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid && u.portId == portNo).FirstOrDefault();
+                                    var completedSlots = (portInfo?.proComSlot ?? string.Empty)
+                                        .Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                        .ToList();
+                                    if (!completedSlots.Contains(request.MapStr))
+                                    {
+                                        completedSlots.Add(request.MapStr);
+                                    }
+                                    DataFactory.Current.PortInfo.Update(
+                                        u => u.eqpId == eqpid && u.portId == portNo,
+                                        u => new PortInfo { proComSlot = string.Join(';', completedSlots) }
+                                    );
+                                }
                                 _logService.SendMessage(eqpid, portId, "SubStrate", $"{request.MapStr}", "info");
                             }
                             break;
@@ -410,6 +626,7 @@ namespace EAPManage.Utils
                                 errorTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
                                 state = 0
                             });
+                            _logService.SendMessage(eqpid, portId, "Exception", msg, string.IsNullOrEmpty(msgType) ? "error" : msgType.ToLower());
                             break;
                         }
                     case "ACCESSMODE":

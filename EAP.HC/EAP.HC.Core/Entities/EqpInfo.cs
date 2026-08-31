@@ -47,6 +47,26 @@ namespace EAP.HC.Core.Entities
         /// </summary>
         public MESConnectStatus MESConnectStatus { get; set; }
 
+        public string HsmsConnectionState { get; set; } = string.Empty;
+
+        public string HsmsRemoteAddress { get; set; } = string.Empty;
+
+        public int HsmsRetryCount { get; set; }
+
+        public string HsmsLastError { get; set; } = string.Empty;
+
+        public int HsmsLastErrorCode { get; set; }
+
+        public DateTime? HsmsLastErrorTime { get; set; }
+
+        public DateTime? HsmsLastAttemptTime { get; set; }
+
+        public DateTime? HsmsNextRetryTime { get; set; }
+
+        public string HsmsDisconnectReason { get; set; } = string.Empty;
+
+        public bool HsmsAutoReconnect { get; set; } = true;
+
 
         public string Chamber { get; set; }
 

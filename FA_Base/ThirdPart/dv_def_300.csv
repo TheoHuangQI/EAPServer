@@ -1,0 +1,143 @@
+vid,  dv_key,				dv_name, 			format, 	default_val,	desc
+
+# predefined DV for FA300
+# NOTICE: user can change vid and dv_name, but DON NOT change predefined dv_key.
+
+28, CLOCK,		CLOCK,		A,		,
+29, CONTROLSTATE,		CONTROLSTATE,		U1,		,
+164, PortAccessModeList,		PortAccessModeList,		L,		,
+163, PortTransferStateList,		PortTransferStateList,		L,		,
+300, LP1AccessMode,		LP1AccessMode,		U1,		,
+301, LP2AccessMode,		LP2AccessMode,		U1,		,
+302, LP3AccessMode,		LP3AccessMode,		U1,		,
+303, LP4AccessMode,		LP4AccessMode,		U1,		,
+304, LP1TransferStatus,		LP1TransferStatus,		U1,		,
+305, LP2TransferStatus,		LP2TransferStatus,		U1,		,
+306, LP3TransferStatus,		LP3TransferStatus,		U1,		,
+307, LP4TransferStatus,		LP4TransferStatus,		U1,		,
+
+# E40 -- process job
+196, ProcessJobID,	        	ProcessJobID,		A,			,	<PRJOBID>
+197, PRJobState,			PRJobState,			U1,			,	PRSTATE enum
+195, PauseEvent,			PauseEvent,			L,			,	L n=number of collection events
+198, PRMtlNameList,		PRMtlNameList,		L,			,
+199, PRMtlType,			PRMtlType,			BIN,		,	
+200, PRProcessStart,		PRProcessStart,		BOOL,		,	
+201, PRRecipeMethod,		PRRecipeMethod,		U1,			,
+202, RecID,				RecipeID,			A,			,
+203, RecVariableList,		RecVariableList,	L,			,
+
+# 1009, DV_PJOB_MTL_NAME,			PRMtlName,			A,			,
+# 1010, DV_PJOB_RECIPE_VAR,		RecipeVariable,		L,			,
+# 1011, DV_PJOB_RECIPE_VAR_NAME,	RecipeVarName,		A,			,
+# 1012, DV_PJOB_RECIPE_VAR_VALUE,	RecipeVarValue,		,			,
+
+# E94 -- control job
+216, CtrlJobID,	        	CtrlJobID,			A,			,
+205, CarrierInputSpec,		CarrierInputSpec,	L,			,
+206, CurrentPRJob,       	CurrentPRJob,		L,			,
+2003, DataCollectionPlan,   DataCollectionPlan,	A,			,
+208, MtrlOutByStatus,   	MtrlOutByStatus,	L,			,
+209, MtrlOutSpec,        	MtrlOutSpec,		L,			,
+210, PauseEvent,       	PauseEvent,			L,			,
+212, ProcessingCtrlSpec,   ProcessingCtrlSpec,	L,			,
+213, ProcessOrderMgmt,     ProcessOrderMgmt,	U1,			,
+211, PRJobStatusList,   	PRJobStatusList,	L,			,
+214, StartMethod,      	StartMethod,		BOOL,		,
+215, CtrlJobState,				CtrlJobState,		U1,			,
+189, CJObjectID,		CJObjectID,		U1,		,
+493, QueueAvailableSpace,		QueueAvailableSpace,		U1,		,
+
+# MtrlOutSpec cont. TBD
+# ProcessingCtrlSpec cont. TDB
+
+# E87 -- carrier
+113, CarrierID,					CarrierID,				A,			, ObjID
+111, Capacity,					Capacity,				U1,			,
+110, CarrierAccessingStatus,	CarrierAccessingStatus,	U1,			,
+114, CarrierIDStatus,			CarrierIDStatus,		U1,			,
+112, ContentMap,				ContentMap,				L,			,
+115, LocationID,				LocationID,				A,			,
+116, SlotMap,					SlotMap,				L,			,
+117, SlotMapStatus,			SlotMapStatus,			U1,			,
+118, SubstrateCount,			SubstrateCount,			U1,			,
+119, Usage,					Usage,					A,			,
+190, CarrierCompletePortID,					CarrierCompletePortID,					U1,			,
+191, StepNumner,					StepNumner,					U1,			,
+# E87 -- load port
+122, PortID,				PortID,					U1,			, ptn
+123, AccessMode,			PortAccessMode,			U1,			,
+124,PortAssociationState, PortAssociationState,    U1,			,
+127, PortTransferState,	PortTransferState,		U1,			,
+125, PortReservationState,	PortReservationState,	U1,			,
+
+222, AccessMode1,			PortAccessMode1,			U1,			,
+238, AccessMode2,			PortAccessMode2,			U1,			,
+254, AccessMode3,			PortAccessMode3,			U1,			,
+270, AccessMode4,			PortAccessMode4,			U1,			,
+
+226, TransferState1,			PortTransferState1,			U1,			,
+242, TransferState2,			PortTransferState2,			U1,			,
+258, TransferState3,			PortTransferState3,			U1,			,
+274, TransferState4,			PortTransferState4,			U1,			,
+
+
+
+
+# E90 -- substrate
+168, AcquiredID,		AcquiredID,			A,		,
+5001, BatchLocID,		BatchLocID,			A,		, batch process equipment only
+170, LotID,			LotID,				A,		,
+5003, MaterialStatus,	MaterialStatus,		U1,		, Enumerated: equipment dependent
+172, SubstID,			SubstID,			A,		,
+174, SubstDestination,	SubstDestination,	A,		, If empty string, then same as source substrate location
+50007, SubstHistory,		SubstHistory,		L,		, List of structures consisting of SubstLocID (or BatchLocID)
+173, SubstIDStatus,	SubstIDStatus,		U1,		, Enumerated ***
+176, SubstLocID,		SubstLocID,			A,		,
+5009, SubstPosInBatch,	SubstPosInBatch,	A,		, ***
+178, SubstProcState,	SubstProcState,		U1,		, Enumerated
+180, SubstSource,		SubstSource,		A,		,
+179, SubstState,		SubstState,			U1,		, Enumerated, Transport state
+181, SubstType,		SubstType,			U1,		, Enumerated ***
+182, SubstUsage,		SubstUsage,			U1,		, Enumerated ***
+175, SubstHistory,		SubstHistory,			U1,		, Enumerated ***
+# E90 -- substrate location
+184, SubstLocSubstID,			SubstLocSubstID,	A,			,
+186, SubstLocState,	SubstLocState,		U1,			,
+185, SubstLocSubstLocID,			SubstLocSubstLocID,			A,			,
+187, DisableEvents,	DisableEvents,		BOOL,		,
+1201, SubstLocSubstID1,			SubstLocSubstID1,	A,			,
+1202, SubstLocSubstLocID1,			SubstLocSubstLocID1,	A,			,
+1203, SubstLocSubstLocState1,	SubstLocSubstLocState1,		U1,			,
+
+1211, SubstLocSubstID2,			SubstLocSubstID2,	A,			,
+1212, SubstLocSubstLocID2,			SubstLocSubstLocID2,	A,			,
+1213, SubstLocSubstLocState2,	SubstLocSubstLocState2,		U1,			,
+
+1221, SubstLocSubstID3,			SubstLocSubstID3,	A,			,
+1222, SubstLocSubstLocID3,			SubstLocSubstLocID3,	A,			,
+1223, SubstLocSubstLocState3,	SubstLocSubstLocState3,		U1,			,
+
+1231, SubstLocSubstID4,			SubstLocSubstID4,	A,			,
+1232, SubstLocSubstLocID4,			SubstLocSubstLocID4,	A,			,
+1233, SubstLocSubstLocState4,	SubstLocSubstLocState4,		U1,			,
+# E116 -- equipment performance tracker
+# 10000, ObjID,				EPTName,			A,	, ObjID is equipment defined. Examples: EQUIPMENT, CHAMBER A
+
+10000, EPTState,			EPTState,			U1,	,
+10001, PreviousEPTState,	PreviousEPTState,	U1,	,
+10002, EPTStateTime,		EPTStateTime,		U4,	,
+10003, TaskName,			TaskName,			A,	,
+10004, TaskType,			TaskType,			U1,	,
+10005, PreviousTaskName,	PreviousTaskName,	A,	,
+10006, PreviousTaskType,	PreviousTaskType,	U1,	,
+10007, BlockedReason,		BlockedReason,		U1,	,
+10008, BlockedReasonText,	BlockedReasonText,	A,	,
+
+# user defined DVs
+200000, DV_SUBST_LOC_ID_01,			SubstLocID_01,			A,	PM1.s1	,
+200001, DV_SUBST_LOC_STATE_01,		SubstLocState_01,		U2,			,
+200002, DV_SUBST_LOC_SUBST_ID_01,	SubstLocSubstID_01,		A,			,
+
+206000, EcName,		EcName,		A,			,
+206001, EcValue,	EcValue,		A,			,

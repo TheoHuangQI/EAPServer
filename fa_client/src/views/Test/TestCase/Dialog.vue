@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :visible.sync="dialogVisible" :title="isEdit ? '编辑测试用例' : '新增测试用例'" width="600px" custom-class="Test-Item-dialog"
+  <el-dialog v-model:visible="dialogVisible" :title="isEdit ? '编辑测试用例' : '新增测试用例'" width="600px" custom-class="Test-Item-dialog"
     @close="handleClose">
     <el-form ref="testCase" :model="formData">
       <!-- Message Name -->
@@ -21,10 +21,12 @@
         </el-select>
       </el-form-item>
     </el-form>
-    <div slot="footer" class="dialog-footer">
+    <template v-slot:footer>
+<div  class="dialog-footer">
       <el-button @click="handleClose">取消</el-button>
       <el-button type="primary" @click="handleConfirm">确定</el-button>
     </div>
+</template>
   </el-dialog>
 </template>
 

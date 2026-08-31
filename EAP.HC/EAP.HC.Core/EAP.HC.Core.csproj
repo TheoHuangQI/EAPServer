@@ -15,7 +15,7 @@
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 	</ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Secs4Net\Secs4Net.csproj" />
+    <ProjectReference Include="..\..\FA_Base\SecsLiteNet\SecsLiteNet.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Apache.NMS">

@@ -16,6 +16,14 @@ export function GetList (paramsData) {
       })
   }
 
+  export function GetDashboardSnapshot(paramsData) {
+    return request({
+        url: '/Equipment/GetDashboardSnapshot',
+        method: 'get',
+        params: paramsData
+      })
+  }
+
 export function Add(data) {
   return request({
     url: '/Equipment',

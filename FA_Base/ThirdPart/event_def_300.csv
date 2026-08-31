@@ -1,0 +1,162 @@
+evid, ev_name,						enabled, 	desc
+
+# predefined events
+# NOTICE: user can change event ID, but DON NOT change predefined event name.
+8, EV_CTRL_TO_OFFLINE,			1,			Equipment switch to OFFLINE state
+9, EV_CTRL_TO_LOCAL,				1,			Equipment switch to ONLINE-LOCAL state
+10, EV_CTRL_TO_REMOTE,			1,			Equipment switch to ONLINE-REMOTE state
+1005, EV_ALARM_SET,					1,			Alarm cleared
+1006, EV_ALARM_CLEAR,				1,			Alarm set
+1010, EV_PP_CHANGED,				1,			Process program has been changed
+
+# for SEMI E40
+240, E40_01_NostateToQueued,				1,	
+241, E40_02_QueuedToSettingUP,				1,	
+242, E40_03_SettingUPToWaittingForStart,				1,	
+243, E40_04_SettingUPToProcessing,				1,	
+244, E40_05_WaittingForStartToProcessing,				1,	
+245, E40_06_ProcessingToProcessComplete,				1,	
+246, E40_07_ProcessCompleteToNostate,				1,	
+247, E40_08_ExecutingToPausing,				1,	
+248, E40_09_PausingToPaused,				1,	
+249, E40_10_PauseToExecuting,				1,	
+250, E40_11_ExecutingToStopping,				1,	
+251, E40_12_PauseToStoping,				1,	
+252, E40_13_ExecutingToAborting,				1,	
+253, E40_14_StopingToAborting,				1,	
+254, E40_15_PauseToAborting,				1,	
+255, E40_16_AbortingToAborted,				1,	
+256, E40_17_StoppingToStopped,				1,	
+256, E40_18_QueuedToNostate,				1,	
+
+105, EV_PRJOB_QUEUED,				1,			PJ STATE: no-state ==> QUEUED/POOLED
+106, EV_PRJOB_SETTINGUP,			1,			PJ STATE: QUEUED/POOLED ==> SETTINGUP
+108, E40SettingUpTrans04Processing,			1,			
+139, EV_PRJOB_START,				1,			
+110, EV_PRJOB_PROCESS_COMPLETE,	1,			
+141, EV_PRJOB_COMPLETE,			1,		
+144, PRJobStateChange,			1,		
+2006, EV_PRJOB_PAUSING,				1,
+2007, EV_PRJOB_PAUSED,				1,
+2008, EV_PRJOB_RESUME,				1,
+112, EV_PRJOB_STOPPING,			1,
+113, EV_PRJOB_ABORTING,			1,
+2011, EV_PRJOB_ABORTED,				1,
+2012, EV_PRJOB_STOPPED,				1,
+115, E40ExecutingTrans11Stopping,				1,
+116, E40PauseTrans12Stopping,				1,
+117, E40ExecutingTrans13Aborting,				1,
+118, E40StoppingTrans14Aborting,				1,
+119, E40PauseTrans15Aborting,				1,
+# for SEMI E94
+194, E94_CJ_01_NoStateToQueued,				1,	
+195, E94_CJ_02_QueuedToNoState,				1,	
+196, E94_CJ_03_QueuedToSelected,				1,	
+197, E94_CJ_04_SelectedToQueued,				1,	
+198, E94_CJ_05_SelectedToExecuting,				1,	
+199, E94_CJ_06_SelectedToWaitingforstart,				1,	
+200, E94_CJ_07_WaitingforstartToExecuting,				1,	
+201, E94_CJ_08_ExecutingToPaused,				1,	
+202, E94_CJ_09_PausedToExecuting,				1,	
+203, E94_CJ_10_ExecutingToCompleted,				1,	
+204, E94_CJ_11_ActiveToCompletedStop,				1,	
+205, E94_CJ_12_ActiveToCompletedAbort,				1,	
+206, E94_CJ_13_CompletedToNoState,				1,	
+
+123, EV_CJOB_QUEUED,				1,		
+125, EV_CJOB_SELECTED,				1,		
+127, EV_CJOB_EXECUTING,			1,		
+130, EV_CJOB_PAUSED,				1,		
+132, EV_CJOB_COMPLETE,				1,		#10,11,12
+133, E94CJStopTrans11Completed,				1,	
+134, E94CJAbortTrans12Completed,				1,	
+135, EV_CJOB_DELETED,				1,		#13
+136, SelectedCjSetEmptied," 				1"," 	",,
+# for SEMI E87
+65, E87NoStateTrans01Service,	1,	
+67, E87InServiceTrans03OutService,	1,	
+69, E87TransferReadyTrans05ReadyTOLoadOrUnLoad,	1,	
+140, PRJobProcessingComplete,	1,	
+61, AssocToNotAssoc,	1,	
+14, MaterialReceivedEvent, 				1, 	
+15, MaterialRemovedEvent, 				1, 	
+46, NoStateTransSotMapNotRead, 				1, 	
+138, PRJobSetup, 				1, 					1, 	
+90, SubStrateNeedProcessing, 				1, 	
+59, AssocSMGoAssoc, 				1, 	
+37, EV_CARRIER_ID_WAIT_FOR_HOST, 				1, 	
+42, EV_CARRIER_ID_VERIFY_OK, 					1, 	
+43, EV_CARRIER_ID_VERIFY_FAILED, 				1, 	
+
+48, EV_CARRIER_SLOTMAP_WAIT_FOR_HOST, 		1,
+49, EV_CARRIER_SLOTMAP_VERIFY_OK, 			1,
+50, EV_CARRIER_SLOTMAP_VERIFY_FAILED, 		1,
+
+52, EV_CARRIER_IN_ACCESS, 		1, 	#18 NOT_ACCESS ==> IN_ACCESS
+53, EV_CARRIER_COMPLETE,	 		1, 	#19 IN_ACCESS ==> CARRIER_COMPLETE
+54, EV_CARRIER_STOPPED,	 		1, 	#19 IN_ACCESS ==> CARRIER_STOPPED
+
+27, EV_CARRIER_LOCATION_CHANGED, 	1,
+
+75, EV_CARRIER_APPROACH_COMPLETE, 1,
+
+31, EV_CARRIER_CLAMPED, 			1,
+32, EV_CARRIER_UNCLAMPED,			1,
+
+33, EV_CARRIER_TAG_RELEASED,		1,
+35, E87NoStateTrans01Carrier,		1,
+34, EV_CARRIER_DOOR_OPENED, 		1,
+25, EV_CARRIER_DOOR_CLOSED, 		1,
+51,E87NoStateTrans17NotAccessed, 		1,
+3500, EV_LOADPORT_TRANSFER_OOS, 			1,
+72, EV_LOADPORT_TRANSFER_READY_TO_LOAD, 	1,
+73, EV_LOADPORT_TRANSFER_READY_TO_UNLOAD,	1,
+74, E87TransferBlockedTrans10TransferReady,	1,
+70, EV_LOADPORT_TRANSFER_BLOCKED, 		1,
+71, E87ReadyToUnLoadTrans07TransferBlocked, 		1,
+3510, EV_LOADPORT_ALARM_ACCESS_MODE_ON,		1,
+3511, EV_LOADPORT_ALARM_ACCESS_MODE_OFF,	1,
+3512, EV_LOADPORT_ALARM_OOS_ON,				1,
+3513, EV_LOADPORT_ALARM_OOS_OFF,			1,
+3514, EV_LOADPORT_RESERVATION_ON,			1,
+3515, EV_LOADPORT_RESERVATION_OFF,			1,
+
+3520, EV_ALARM_CARRIER_MOVE_FAILED_ON,	1,
+3521, EV_ALARM_CARRIER_MOVE_FAILED_OFF,	1,
+3522, EV_ALARM_CARRIER_PLACE_ERR_ON,	1,
+3523, EV_ALARM_CARRIER_PLACE_ERR_OFF,	1,
+
+# for SEMI E84
+3600, EV_ALARM_PIO_ON,	1,
+3601, EV_ALARM_PIO_OFF,	1,
+23,EV_LOADPORT_ACCESS_MODE_CHANGED_AUTO,1,
+24,EV_LOADPORT_ACCESS_MODE_CHANGED_Manual,1,
+# for SEMI E90   
+81, EV_SUBST_INIT_TO_SOURCE,			1,
+82, EV_SUBST_SOURCE_TO_WORK,			1,
+83, EV_SUBST_WORK_TO_SOURCE,			1,
+84, EV_SUBST_WORK_TO_WORK,			1,
+85, EV_SUBST_WORK_TO_DESTINATION,		1,
+86, EV_SUBST_DESTINATION_TO_WORK,		1,
+87, EV_SUBST_DESTINATION_TO_END,		1,
+88, EV_SUBST_DESTINATION_TO_SOURCE,	1,
+89, EV_SUBST_PROCESS_TO_END,			1,
+90, EV_SUBST_INIT_TO_NEED_PROCESSING,				1,
+91, EV_SUBST_NEED_PROCESSING_TO_IN_PROCESS,		1,
+92, EV_SUBST_IN_PROCESS_TO_PROC_COMPLETE,			1,
+93, EV_SUBST_IN_PROCESS_TO_NEED_PROCESSING,		1,
+94, EV_SUBST_NEED_PROCESSING_TO_PROC_COMPLETE,	1,
+95, EV_SUBST_INIT_TO_ID_NOT_CONFIRMED,				1,
+96, EV_SUBST_ID_NOT_CONFIRMED_TO_CONFIRMED,			1,
+97, EV_SUBST_ID_18,	1, // NOT_CONFIRMED_TO_WAITING_FOR_HOST(ID reading failed)
+98, EV_SUBST_ID_19,	1, // NOT_CONFIRMED_TO_WAITING_FOR_HOST(ID mismatch)
+99, EV_SUBST_ID_WAIT_FOR_HOST_TO_CONFIRMED,			1,
+100, EV_SUBST_ID_WAIT_FOR_HOST_TO_CONFIRM_FAILED,		1,
+101, UnOccupiedTrans01Occupied,		1,
+102, OccupiedTrans02UnOccupied,		1,
+
+# user defined events
+10009,DockComplete,		1,
+10005,UnDockComplete,		1,
+10010,ECChange,		1,
+

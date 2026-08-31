@@ -52,6 +52,14 @@ namespace EAP.HC.Core
                             ControlStatus = ControlState.EQPOFFLINE,
                             ConnectStatus = ConnectStatus.DISCONNECTED,
                             MESConnectStatus = MESConnectStatus.DISCONNECTED,
+                            HsmsConnectionState = "Disconnected",
+                            HsmsRemoteAddress = eqpconfig.ConnectionMode == ConnectionMode.ACTIVE
+                                ? $"{eqpconfig.RemoteIP}:{eqpconfig.RemotePort}"
+                                : $"{eqpconfig.LocalIP}:{eqpconfig.LocalPort}",
+                            HsmsRetryCount = 0,
+                            HsmsLastError = string.Empty,
+                            HsmsDisconnectReason = string.Empty,
+                            HsmsAutoReconnect = eqpconfig.AutoReconnect,
                             Chamber = eqpconfig.Chamber,
                             LoadPort = eqpconfig.LoadPort,
                             PortInfo = new Dictionary<int, PortInfo>()

@@ -17,6 +17,15 @@ namespace EAP.HC.Core
         public static string Enable = "Enable";
         public static string ConnectionState = "ConnectionState";
         public static string ConnectionVersion = "ConnectionVersion";
+        public static string ConnectionRetryCount = "ConnectionRetryCount";
+        public static string ConnectionLastError = "ConnectionLastError";
+        public static string ConnectionLastErrorCode = "ConnectionLastErrorCode";
+        public static string ConnectionLastErrorTime = "ConnectionLastErrorTime";
+        public static string ConnectionLastAttemptTime = "ConnectionLastAttemptTime";
+        public static string ConnectionNextRetryTime = "ConnectionNextRetryTime";
+        public static string ConnectionDisconnectReason = "ConnectionDisconnectReason";
+        public static string ConnectionRemoteAddress = "ConnectionRemoteAddress";
+        public static string ConnectionAutoReconnect = "ConnectionAutoReconnect";
         public static string SlotMap = "SlotMap";
         public static string BatchInfo = "BatchInfo";
         public static string VID = "VID";

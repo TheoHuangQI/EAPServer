@@ -5,7 +5,9 @@
       <el-row :gutter="20">
         <el-col :span="4">
           <el-input v-model="pageInfo.carrierId" placeholder="载具编号" clearable @keyup.enter.native="handleSearch">
-            <i slot="prefix" class="el-icon-search el-input__icon" />
+            <template v-slot:prefix>
+<i  class="el-icon-search el-input__icon" />
+</template>
           </el-input>
         </el-col>
         <el-col :span="4">

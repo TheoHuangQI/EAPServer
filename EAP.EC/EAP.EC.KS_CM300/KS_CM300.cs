@@ -76,6 +76,114 @@ namespace EAP.EC.KS_CM300
         static readonly Regex ChannelRegex = new Regex(@"^(L|R)\dCH\d+_Vlv\d+FlwPV$", RegexOptions.Compiled);
         static readonly Regex ChannelKeyRegex = new Regex(@"^(L|R)\dCH\d+", RegexOptions.Compiled);
         static readonly Regex ChannelKey2Regex = new Regex(@"^(L|R)\dSDS\d+", RegexOptions.Compiled);
+        static readonly Dictionary<int, string> DashboardEventNames = new Dictionary<int, string>
+        {
+            { 8, "EV_CTRL_TO_OFFLINE" },
+            { 9, "EV_CTRL_TO_LOCAL" },
+            { 10, "EV_CTRL_TO_REMOTE" },
+            { 14, "MaterialReceivedEvent" },
+            { 15, "MaterialRemovedEvent" },
+            { 23, "EV_LOADPORT_ACCESS_MODE_CHANGED_AUTO" },
+            { 24, "EV_LOADPORT_ACCESS_MODE_CHANGED_Manual" },
+            { 25, "EV_CARRIER_DOOR_CLOSED" },
+            { 26, "EV_CARRIER_ID_READ_FAILED" },
+            { 27, "EV_CARRIER_LOCATION_CHANGED" },
+            { 31, "EV_CARRIER_CLAMPED" },
+            { 32, "EV_CARRIER_UNCLAMPED" },
+            { 33, "EV_CARRIER_TAG_RELEASED" },
+            { 34, "EV_CARRIER_DOOR_OPENED" },
+            { 35, "E87NoStateTrans01Carrier" },
+            { 37, "EV_CARRIER_ID_WAIT_FOR_HOST" },
+            { 42, "EV_CARRIER_ID_VERIFY_OK" },
+            { 43, "EV_CARRIER_ID_VERIFY_FAILED" },
+            { 46, "NoStateTransSotMapNotRead" },
+            { 48, "EV_CARRIER_SLOTMAP_WAIT_FOR_HOST" },
+            { 49, "EV_CARRIER_SLOTMAP_VERIFY_OK" },
+            { 50, "EV_CARRIER_SLOTMAP_VERIFY_FAILED" },
+            { 51, "E87NoStateTrans17NotAccessed" },
+            { 52, "EV_CARRIER_IN_ACCESS" },
+            { 53, "EV_CARRIER_COMPLETE" },
+            { 54, "EV_CARRIER_STOPPED" },
+            { 59, "AssocSMGoAssoc" },
+            { 61, "AssocToNotAssoc" },
+            { 65, "E87NoStateTrans01Service" },
+            { 67, "E87InServiceTrans03OutService" },
+            { 69, "E87TransferReadyTrans05ReadyTOLoadOrUnLoad" },
+            { 70, "EV_LOADPORT_TRANSFER_BLOCKED" },
+            { 71, "E87ReadyToUnLoadTrans07TransferBlocked" },
+            { 72, "EV_LOADPORT_TRANSFER_READY_TO_LOAD" },
+            { 73, "EV_LOADPORT_TRANSFER_READY_TO_UNLOAD" },
+            { 74, "E87TransferBlockedTrans10TransferReady" },
+            { 75, "EV_CARRIER_APPROACH_COMPLETE" },
+            { 81, "SubstSMTrans01_InitToSource" },
+            { 82, "SubstSMTrans02_SourceToWork" },
+            { 83, "SubstSMTrans03_WorkToSource" },
+            { 84, "SubstSMTrans04_WorkToWork" },
+            { 85, "SubstSMTrans05_WorkToDestination" },
+            { 86, "SubstSMTrans06_DestinationToWork" },
+            { 87, "SubstSMTrans07_DestinationToExtinction" },
+            { 88, "SubstSMTrans08_DestinationToSource" },
+            { 89, "SubstSMTrans09_ProcessToEnd" },
+            { 90, "SubstSMTrans10_InitToNeedProcess" },
+            { 91, "SubstSMTrans11_NeedProcessToInProcess" },
+            { 92, "SubstSMTrans12_InProcessToComplete" },
+            { 93, "SubstSMTrans13_InProcessToNeedProcess" },
+            { 94, "SubstSMTrans14_NeedProcessToComplete" },
+            { 95, "SubstSMTrans16_InitToNotConfirmed" },
+            { 96, "SubstSMTrans17_NotConfirmedToConfirmed" },
+            { 97, "SubstSMTrans18_IDReadFailNotConfirmedToWaitingForHost" },
+            { 98, "SubstSMTrans19_IDMismatchNotConfirmedToWaitingForHost" },
+            { 99, "SubstSMTrans20_WaitingForHostToConfirmed" },
+            { 100, "SubstSMTrans21_WaitingForHostToConfirmationFailed" },
+            { 101, "UnOccupiedTrans01Occupied" },
+            { 102, "OccupiedTrans02UnOccupied" },
+            { 105, "E40_01_NostateToQueued" },
+            { 106, "E40_02_QueuedToSettingUP" },
+            { 107, "E40_03_SettingUPToWaittingForStart" },
+            { 108, "E40_04_SettingUPToProcessing" },
+            { 109, "E40_05_WaittingForStartToProcessing" },
+            { 110, "E40_06_ProcessingToProcessComplete" },
+            { 111, "E40_07_ProcessCompleteToNostate" },
+            { 112, "E40_08_ExcutingToPausing" },
+            { 113, "E40_09_PausingToPaused" },
+            { 114, "E40_10_PauseToExecuting" },
+            { 115, "E40_11_ExecutingToStopping" },
+            { 116, "E40_12_PauseToStoping" },
+            { 117, "E40_13_ExecutingToAborting" },
+            { 118, "E40_14_StopingToAborting" },
+            { 119, "E40_15_PauseToAborting" },
+            { 120, "E40_16_AbortingToAborted" },
+            { 121, "E40_17_StoppingToStopped" },
+            { 122, "E40_18_QueuedToNostate" },
+            { 123, "E94_CJ_01_NoStateToQueued" },
+            { 124, "E94_CJ_02_QueuedToNoState" },
+            { 125, "E94_CJ_03_QueuedToSelected" },
+            { 126, "E94_CJ_04_SelectedToQueued" },
+            { 127, "E94_CJ_05_SelectedToExecuting" },
+            { 128, "E94_CJ_06_SelectedToWaitingforstart" },
+            { 129, "E94_CJ_07_WaitingforstartToExecuting" },
+            { 130, "E94_CJ_08_ExecutingToPaused" },
+            { 131, "E94_CJ_09_PausedToExecuting" },
+            { 132, "E94_CJ_10_ExecutingToCompleted" },
+            { 133, "E94_CJ_11_ActiveToCompletedStop" },
+            { 134, "E94_CJ_12_ActiveToCompletedAbort" },
+            { 135, "E94_CJ_13_CompletedToNoState" },
+            { 136, "SelectedCjSetEmptied" },
+            { 138, "PRJobSetup" },
+            { 139, "PRJobProcessing" },
+            { 140, "PRJobProcessingComplete" },
+            { 141, "PRJobComplete" },
+            { 142, "PRJobWaitingForStart" },
+            { 143, "PRJobWaitingForMaterial" },
+            { 144, "PRJobStateChange" },
+            { 1010, "EV_PP_CHANGED" },
+            { 10005, "UnDockComplete" },
+            { 10009, "DockComplete" },
+            { 10010, "ECChange" },
+            { 10011, "ExchangeStart" },
+            { 10012, "ExchangeEnd" },
+            { 11117, "EquipStateChange" }
+        };
 
         public static bool check = false;
         public static bool error = false;
@@ -341,12 +449,22 @@ namespace EAP.EC.KS_CM300
 
             switch (state)
             {
+                case ConnectionState.Disabled:
+                    HsmsDisConnect(args);
+                    break;
                 case ConnectionState.Connecting:
                     break;
                 case ConnectionState.Connected:
                     break;
+                case ConnectionState.Selecting:
+                    break;
                 case ConnectionState.Selected:
                     await HsmsConnectAsync(args);
+                    break;
+                case ConnectionState.Communicating:
+                    break;
+                case ConnectionState.Reconnecting:
+                    HsmsDisConnect(args);
                     break;
                 case ConnectionState.Retry:
                     HsmsDisConnect(args);
@@ -370,6 +488,7 @@ namespace EAP.EC.KS_CM300
 
                 var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
                 var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
+                SendDashboardSecsEvent(args, ceid);
 
                 switch (ceid)
                 {
@@ -382,9 +501,14 @@ namespace EAP.EC.KS_CM300
                     case 24:
                         Receive_S6F11_LPAccessStateChange(args);
                         break;
+                    case 65:
+                    case 67:
+                    case 69:
                     case 70:
+                    case 71:
                     case 72:
                     case 73:
+                    case 74:
                         Receive_S6F11_LPTransferStateChange(args);
                         break;
                     case 59:
@@ -453,6 +577,177 @@ namespace EAP.EC.KS_CM300
             {
                 ctx.IsRunning = false;
                 LogSVIDErrorAsync(ceid, $"Received Stop CEID: {ceid}", "SVID_ValueCheck_Result");
+            }
+        }
+
+        private string GetDashboardEventName(int ceid)
+        {
+            if (DashboardEventNames.ContainsKey(ceid))
+            {
+                return DashboardEventNames[ceid];
+            }
+            return "CEID_" + ceid.ToString();
+        }
+
+        private LogType GetDashboardEventLogType(int ceid)
+        {
+            switch (ceid)
+            {
+                case 26:
+                case 43:
+                case 50:
+                case 54:
+                case 100:
+                case 117:
+                case 118:
+                case 119:
+                case 120:
+                case 134:
+                    return LogType.ERROR;
+                case 46:
+                case 70:
+                case 71:
+                case 112:
+                case 113:
+                case 115:
+                case 116:
+                case 121:
+                case 143:
+                    return LogType.WARNING;
+                default:
+                    return LogType.INFO;
+            }
+        }
+
+        private string GetSecsTextByPath(Item item, params int[] path)
+        {
+            try
+            {
+                var current = item;
+                foreach (var index in path)
+                {
+                    if (current == null || current.Items == null || index < 0 || index >= current.Items.Length)
+                    {
+                        return string.Empty;
+                    }
+                    current = current[index];
+                }
+                return SecsItemUtil.GetItemValue(current)?.ToString()?.Trim() ?? string.Empty;
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private int NormalizePortId(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return 0;
+            }
+
+            var text = value.Trim().ToUpperInvariant();
+            if (text.StartsWith("LP"))
+            {
+                text = text.Substring(2);
+            }
+
+            if (int.TryParse(text, out var portId) && portId >= 1 && portId <= 4)
+            {
+                return portId;
+            }
+
+            return 0;
+        }
+
+        private int ExtractDashboardPortId(Item rootItem)
+        {
+            var candidates = new List<string>
+            {
+                GetSecsTextByPath(rootItem, 2, 0, 1, 0),
+                GetSecsTextByPath(rootItem, 2, 0, 1, 1),
+                GetSecsTextByPath(rootItem, 2, 1, 1, 0)
+            };
+
+            foreach (var candidate in candidates)
+            {
+                var portId = NormalizePortId(candidate);
+                if (portId > 0)
+                {
+                    return portId;
+                }
+            }
+
+            return 0;
+        }
+
+        private string ExtractDashboardCarrierId(Item rootItem)
+        {
+            var candidates = new List<string>
+            {
+                GetSecsTextByPath(rootItem, 2, 0, 1, 2),
+                GetSecsTextByPath(rootItem, 2, 0, 1, 5, 0),
+                GetSecsTextByPath(rootItem, 2, 0, 1, 10)
+            };
+
+            foreach (var candidate in candidates)
+            {
+                if (string.IsNullOrWhiteSpace(candidate))
+                {
+                    continue;
+                }
+
+                if (candidate.Contains("."))
+                {
+                    return candidate.Split('.')[0].Trim();
+                }
+
+                var portId = NormalizePortId(candidate);
+                if (portId == 0)
+                {
+                    return candidate.Trim();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        private void SendDashboardSecsEvent(Arguments args, int ceid)
+        {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                var portId = ExtractDashboardPortId(rootItem);
+                var carrierId = ExtractDashboardCarrierId(rootItem);
+                var eventName = GetDashboardEventName(ceid);
+                var parts = new List<string>
+                {
+                    "CEID=" + ceid.ToString(),
+                    eventName
+                };
+
+                if (portId > 0)
+                {
+                    parts.Add("LP" + portId.ToString());
+                }
+
+                if (!string.IsNullOrWhiteSpace(carrierId))
+                {
+                    parts.Add("Carrier=" + carrierId);
+                }
+
+                MESClient.Send_Event(
+                    eqpId,
+                    portId > 0 ? portId.ToString() : "0",
+                    ceid,
+                    eventName,
+                    string.Join(", ", parts),
+                    GetDashboardEventLogType(ceid));
+            }
+            catch
+            {
             }
         }
 
@@ -539,6 +834,9 @@ namespace EAP.EC.KS_CM300
                         };
                     }
                 }
+
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                MESClient.Send_Alarm(eqpId, "0", alcd, alid, altx, alcd != 0);
 
                 args.SetResultOK();
             }
@@ -694,15 +992,6 @@ namespace EAP.EC.KS_CM300
                                 //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
                                 //}
 
-                                while (true)
-                                {
-                                    Stopwatch sw = Stopwatch.StartNew();
-                                    Send_S7F25_GetRecipeBody(args);
-                                    await Task.Delay(990);
-                                    sw.Stop();
-                                    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
-                                }
-
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
                                 eqp.Value.ControlStatus = (ControlState)controlState;
                                 MESClient.Send_ControlState(eqpId, (ControlState)controlState);
@@ -811,13 +1100,37 @@ namespace EAP.EC.KS_CM300
                     return;
                 }
                 var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
-                var portId = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString());
+                var portId = ExtractDashboardPortId(rootItem);
+                if (portId <= 0)
+                {
+                    return;
+                }
                 var eqp = AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId);
                 if (eqp.Value != null)
                 {
                     switch (ceid)
                     {
+                        case 65:
+                            {
+                                eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.InService;
+                                MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.InService);
+                                break;
+                            }
+                        case 67:
+                            {
+                                eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.OutOfService;
+                                MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.OutOfService);
+                                break;
+                            }
+                        case 69:
+                        case 74:
+                            {
+                                eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.TransferReady;
+                                MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.TransferReady);
+                                break;
+                            }
                         case 70:
+                        case 71:
                             {
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.TransferBlocked;
                                 MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.TransferBlocked);
@@ -2412,56 +2725,70 @@ namespace EAP.EC.KS_CM300
 
         public async Task HsmsConnectAsync(Arguments args)
         {
-            //建立逻辑连接
-            var eqpId = args.Header[CItems.EqpId].ToString();
-            var version = args.Header.ContainsKey(CItems.ConnectionVersion)
-                ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
-                : 0;
-            var context = EAPContext.contexts?.FirstOrDefault(a => a.EquipmentID == eqpId);
-            if (context == null)
+            var eqpId = string.Empty;
+            try
             {
-                args.SetResultNG($"No EAP context found for {eqpId}.");
-                return;
-            }
-            if (!IsLatestConnectionVersion(eqpId, version))
-            {
-                return;
-            }
-
-            // 检查是否已经连接，如果是则不需要发送 S1F13
-            bool isAlreadyConnected = false;
-            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfoObj))
-            {
-                isAlreadyConnected = eqpInfoObj.ConnectStatus == ConnectStatus.CONNECTED;
-            }
-
-            if (!isAlreadyConnected)
-            {
-                SecsMessage msg = new SecsMessage(1, 13);
-                msg.SecsItem = Item.L();
-                var reply = await context.SecsGem.SendAsync(msg);
-
-                if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
+                //建立逻辑连接
+                eqpId = args.Header[CItems.EqpId].ToString();
+                var version = args.Header.ContainsKey(CItems.ConnectionVersion)
+                    ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
+                    : 0;
+                var context = EAPContext.contexts?.FirstOrDefault(a => a.EquipmentID == eqpId);
+                if (context == null)
                 {
-                    args.SetResultNG("Send S1F13, Equipment Reply Empty.");
+                    args.SetResultNG($"No EAP context found for {eqpId}.");
                     return;
                 }
-                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
-                if (retCode != 0)
+                if (!IsLatestConnectionVersion(eqpId, version))
                 {
-                    args.SetResultNG("Send S1F13, Equipment Reply Fail.");
                     return;
                 }
 
-                MESClient.Send_EqpState(eqpId, EQPState.Connected);
-
-                if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+                // 检查是否已经连接，如果是则不需要发送 S1F13
+                bool isAlreadyConnected = false;
+                if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfoObj))
                 {
-                    eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+                    isAlreadyConnected = eqpInfoObj.ConnectStatus == ConnectStatus.CONNECTED;
                 }
-            }
 
-            args.SetResultOK();
+                if (!isAlreadyConnected)
+                {
+                    SecsMessage msg = new SecsMessage(1, 13);
+                    msg.SecsItem = Item.L();
+                    var reply = await context.SecsGem.SendAsync(msg);
+
+                    if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
+                    {
+                        args.SetResultNG("Send S1F13, Equipment Reply Empty.");
+                        return;
+                    }
+                    byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
+                    if (retCode != 0)
+                    {
+                        args.SetResultNG("Send S1F13, Equipment Reply Fail.");
+                        return;
+                    }
+
+                    MESClient.Send_EqpState(eqpId, EQPState.Connected);
+
+                    if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+                    {
+                        eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+                    }
+                }
+
+                args.SetResultOK();
+            }
+            catch (TimeoutException ex)
+            {
+                logger.Error($"HsmsConnectAsync S1F13 timeout. eqpId={eqpId}, error={ex.Message}");
+                args.SetResultNG($"Send S1F13 timeout: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"HsmsConnectAsync failed. eqpId={eqpId}, error={ex}");
+                args.SetResultNG($"HsmsConnect failed: {ex.Message}");
+            }
         }
 
         public void HsmsDisConnect(Arguments args)

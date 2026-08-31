@@ -81,7 +81,7 @@
     </el-card>
 
     <!-- 编辑对话框 -->
-    <Dialog :visible.sync="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+    <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
   </div>
 </template>
   

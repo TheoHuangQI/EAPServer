@@ -1,0 +1,7 @@
+1.适配层删除PPGNT 定义，已增加在底层，直接调用即可
+2.ACKC7 的枚举有变化，适配层要做对应更改，主要是Recipe格式的校验需要交由底层处理，通过S9F7 返回结果。
+3.多处地方要引入新的命名空间，根据报错自动导入即可
+4.Abort 的时候PJ 调用S16F17 Cancel改为调用 S16F5 Abort
+5.OnControlJobDone 适配层不再执行删除页面CJ操作
+6.OnControlJobDelete 适配层增加删除页面CJ 操作
+7.PJ,CJ 结束改变状态，不删除，Foup移走再删除

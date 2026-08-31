@@ -5,7 +5,9 @@
       <el-row :gutter="20">
         <el-col :xs="24" :sm="16" :md="12" :lg="8">
           <el-input v-model="testCaseName" placeholder="测试用例名" clearable @keyup.enter.native="handleSearch">
-            <i slot="prefix" class="el-icon-search el-input__icon" />
+            <template v-slot:prefix>
+<i  class="el-icon-search el-input__icon" />
+</template>
           </el-input>
         </el-col>
         <el-col :xs="24" :sm="8" :md="12" :lg="16" class="operation-col">
@@ -61,7 +63,7 @@
     </el-card>
 
     <!-- 编辑对话框 -->
-    <Dialog :visible.sync="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+    <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
   </div>
 </template>
   
