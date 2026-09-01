@@ -34,6 +34,35 @@ namespace EAPManage.Utils
             }
         }
 
+        public static FdcSvidCollection CollectFdcSvidValues(string eqpId, List<int> svids, bool saveToHistory, int maxCount = 0, int chunkSize = 120)
+        {
+            try
+            {
+                MQHeader header = new MQHeader();
+                header.MESSAGENAME = "FDCSVIDCOLLECT";
+                var requestMessage = new MQData();
+                requestMessage.mQHeader = header;
+
+                var body = new FdcSvidCollection
+                {
+                    EQUIPMENTID = eqpId,
+                    RequestedSvids = svids ?? new List<int>(),
+                    SaveToHistory = saveToHistory,
+                    MaxCount = maxCount,
+                    ChunkSize = chunkSize
+                };
+
+                var xmlBody = XmlSerialization.SerializeOnlyBody(body);
+                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
+                return ActiveMQClient.Current.SendRequestAsync<FdcSvidCollection>(xmlMessage).Result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
         public static void StartTest(TestCase testCase)
         {
             try

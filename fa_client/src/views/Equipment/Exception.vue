@@ -1,306 +1,712 @@
 <template>
-  <div class="app-container">
-    <el-card class="filter-card" shadow="never">
-    <!-- 修改后的栅格布局 -->
-    <el-row :gutter="10">
-      <!-- 搜索条件列 -->
-      <el-col :xs="24" :sm="6" :md="4" :lg="4">
-        <el-input v-model="pageInfo.eqpId" placeholder="设备ID" />
-      </el-col>
-      <el-col :xs="24" :sm="6" :md="4" :lg="4">
-        <el-input v-model="pageInfo.eqpType" placeholder="设备类型" />
-      </el-col>
-      <el-col :xs="24" :sm="6" :md="4" :lg="4">
-        <el-select v-model="pageInfo.state" placeholder="处理状态" clearable>
-          <el-option  v-for="option in stateOptions" :key="option.value" :label="option.label" :value="option.value" />
-        </el-select>
-      </el-col>
-      <!-- 操作按钮列 -->
-      <el-col :xs="24" :sm="24" :md="12" :lg="12">
-        <div class="action-group">
-          <el-button type="primary" icon="el-icon-search"  @click="handleSearch">查询</el-button>
-          <el-button type="primary" icon="el-icon-download" @click="handleExport">导出</el-button>
-          <el-button type="success" icon="el-icon-check" :disabled="selectedRows.length === 0"   @click="handleBatchProcess">批量处理</el-button>
-          <el-button type="danger" icon="el-icon-delete" :disabled="selectedRows.length === 0"   @click="handleBatchDelete">批量删除</el-button>
-        </div>
-      </el-col>
-    </el-row>
-    </el-card>
+  <div class="page-shell">
+    <section class="filter-panel">
+      <div class="tab-row">
+        <el-tabs v-model="activeTab" class="exception-tabs" @tab-change="handleTabChange">
+          <el-tab-pane name="all">
+            <template #label>
+              <span class="tab-label">全部 <em>{{ counts.all }}</em></span>
+            </template>
+          </el-tab-pane>
+          <el-tab-pane name="pending">
+            <template #label>
+              <span class="tab-label">未处理 <em>{{ counts.pending }}</em></span>
+            </template>
+          </el-tab-pane>
+          <el-tab-pane name="processed">
+            <template #label>
+              <span class="tab-label">已处理 <em>{{ counts.processed }}</em></span>
+            </template>
+          </el-tab-pane>
+          <el-tab-pane name="today">
+            <template #label>
+              <span class="tab-label">今日异常 <em>{{ counts.today }}</em></span>
+            </template>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
 
-    <!-- 数据表格 -->
-    <el-card class="table-card" shadow="never">
-      <el-table v-loading="loading" :data="tableData.slice((pageInfo.pageNo-1)*pageInfo.pageSize,pageInfo.pageNo*pageInfo.pageSize)" style="width: 100%" stripe row-key="id"
-        @selection-change="handleSelectionChange">
-        <el-table-column type="selection" width="55" align="center" reserve-selection />
-        <el-table-column label="序号" width="50" align="center">
+      <div class="filter-grid">
+        <el-input v-model="pageInfo.eqpId" placeholder="设备ID" clearable @keyup.enter="handleSearch">
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
+
+        <el-input v-model="pageInfo.eqpType" placeholder="设备类型" clearable @keyup.enter="handleSearch">
+          <template #prefix>
+            <el-icon><Monitor /></el-icon>
+          </template>
+        </el-input>
+
+        <el-input v-model="pageInfo.keyword" placeholder="异常内容" clearable @keyup.enter="handleSearch">
+          <template #prefix>
+            <el-icon><Warning /></el-icon>
+          </template>
+        </el-input>
+
+        <div class="toolbar">
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+          <el-button plain @click="handleReset">
+            <el-icon><RefreshLeft /></el-icon>
+            重置
+          </el-button>
+          <el-button plain :loading="loading" @click="fetchData">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+          <el-button type="success" plain @click="handleExport">
+            <el-icon><Download /></el-icon>
+            导出
+          </el-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="table-panel">
+      <div class="table-toolbar">
+        <div class="selection-text">
+          已选择 <b>{{ selectedIds.length }}</b> 条异常，自动刷新每 10 秒执行一次
+        </div>
+        <div class="toolbar toolbar--right">
+          <el-button size="small" type="success" :disabled="selectedIds.length === 0" @click="openBatchProcess">
+            <el-icon><CircleCheck /></el-icon>
+            批量处理
+          </el-button>
+          <el-button size="small" type="danger" plain :disabled="selectedIds.length === 0" @click="handleBatchDelete">
+            <el-icon><Delete /></el-icon>
+            批量删除
+          </el-button>
+        </div>
+      </div>
+
+      <el-table
+        v-loading="loading"
+        :data="paginatedData"
+        border
+        stripe
+        highlight-current-row
+        row-key="id"
+        max-height="calc(100vh - 340px)"
+        @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
+      >
+        <el-table-column type="selection" width="54" align="center" reserve-selection fixed />
+        <el-table-column label="序号" width="74" align="center" fixed>
           <template #default="scope">
             {{ (pageInfo.pageNo - 1) * pageInfo.pageSize + scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="eqpId" label="设备号" width="100" align="center" />
-        <el-table-column prop="eqpType" label="设备类型" width="150" align="center" />
-        <el-table-column prop="portName" label="PORT" width="100" align="center" />
-        <el-table-column prop="lotId" label="LOT" width="200" align="center" />
-        <el-table-column prop="content" label="异常内容"/>
-        <el-table-column prop="errorTime" label="异常时间" width="200"/>
-        <el-table-column prop="state" label="状态" width="100" align="center">
+        <el-table-column prop="eqpId" label="设备号" width="130" fixed sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="eqpType" label="设备类型" width="140" sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="portName" label="PORT" width="110" align="center" sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="lotId" label="LOT" min-width="150" sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="priority" label="优先级" width="116" align="center" sortable="custom">
           <template #default="scope">
-            <el-tag :type="scope.row.state === 0 ? 'warning' : 'success'">
-              {{ scope.row.state === 0 ? '待处理' : '已处理' }}
-            </el-tag>
+            <span class="priority-badge" :class="'priority-badge--' + priorityMeta(scope.row).tone">
+              {{ priorityMeta(scope.row).text }}
+            </span>
           </template>
         </el-table-column>
-
-        <el-table-column label="操作" width="180" align="center">
+        <el-table-column prop="content" label="异常内容" min-width="320" sortable="custom">
           <template #default="scope">
-            <el-tooltip content="处理" placement="top">
-              <el-button type="primary" icon="el-icon-check" circle size="small" @click="handleProcess(scope.row)" />
+            <el-tooltip :content="scope.row.content || 'N/A'" placement="top" effect="dark">
+              <span class="content-text">{{ scope.row.content || 'N/A' }}</span>
             </el-tooltip>
-            <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
-            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="errorTime" label="异常时间" width="190" sortable="custom" />
+        <el-table-column prop="state" label="状态" width="120" align="center" sortable="custom">
+          <template #default="scope">
+            <span
+              class="status-badge"
+              :class="[
+                'status-badge--' + statusMeta(scope.row.state).tone,
+                { 'status-badge--pulse': Number(scope.row.state) === 0 }
+              ]"
+            >
+              <span class="status-dot"></span>
+              {{ statusMeta(scope.row.state).text }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="132" align="center" fixed="right">
+          <template #default="scope">
+            <div class="icon-actions">
+              <el-tooltip content="处理" placement="top">
+                <el-button
+                  type="primary"
+                  circle
+                  size="small"
+                  :disabled="Number(scope.row.state) !== 0"
+                  @click="openProcessDialog(scope.row)"
+                >
+                  <el-icon><CircleCheck /></el-icon>
+                </el-button>
+              </el-tooltip>
+              <el-tooltip content="删除" placement="top">
+                <el-button type="danger" circle size="small" @click="handleDelete(scope.row)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </el-tooltip>
+            </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- 分页 -->
-      <el-pagination class="pagination-wrapper" :current-page="pageInfo.pageNo" :page-sizes="[10, 20, 50]"
-        :page-size="pageInfo.pageSize" :total="total" layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange" @current-change="handlePageChange" />
-    </el-card>
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pageInfo.pageNo"
+          v-model:page-size="pageInfo.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="filteredData.length"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+        />
+      </div>
+    </section>
+
+    <el-dialog v-model="processDialogVisible" title="异常处理" width="520px">
+      <el-form label-position="top">
+        <el-form-item label="处理对象">
+          <span class="dialog-tip">{{ processingIds.length }} 条异常</span>
+        </el-form-item>
+        <el-form-item label="处理结果 / 备注">
+          <el-input
+            v-model="processRemark"
+            type="textarea"
+            :rows="4"
+            maxlength="300"
+            show-word-limit
+            placeholder="请输入处理说明"
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="processDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="processLoading" @click="submitProcess">提交处理</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { GetList, Delete, Deletes, Edit } from "@/api/Exception"
+import { GetList, Delete, Deletes, Edit } from '@/api/Exception'
+
+const POLL_INTERVAL = 10000
 
 export default {
+  name: 'ExceptionRecordsPage',
   data() {
     return {
       loading: false,
-      selectedRows: [],
+      processLoading: false,
+      selectedIds: [],
       tableData: [],
       total: 0,
-      stateOptions: [
-        { value: 0, label: '待处理' },
-        { value: 1, label: '已处理' }
-      ],
+      activeTab: 'all',
+      pollTimer: null,
+      knownPendingIds: new Set(),
+      hasInitializedPolling: false,
+      processDialogVisible: false,
+      processRemark: '',
+      processingIds: [],
+      sortInfo: {
+        prop: '',
+        order: ''
+      },
       pageInfo: {
         eqpId: '',
         eqpType: '',
-        state: null,
+        keyword: '',
         pageNo: 1,
-        pageSize: 10,
+        pageSize: 20
       }
+    }
+  },
+  computed: {
+    counts() {
+      return {
+        all: this.tableData.length,
+        pending: this.tableData.filter(item => Number(item.state) === 0).length,
+        processed: this.tableData.filter(item => Number(item.state) !== 0).length,
+        today: this.tableData.filter(item => this.isToday(item.errorTime)).length
+      }
+    },
+    filteredData() {
+      const keyword = String(this.pageInfo.keyword || '').trim().toLowerCase()
+      let data = [...this.tableData]
+
+      if (this.activeTab === 'pending') {
+        data = data.filter(item => Number(item.state) === 0)
+      } else if (this.activeTab === 'processed') {
+        data = data.filter(item => Number(item.state) !== 0)
+      } else if (this.activeTab === 'today') {
+        data = data.filter(item => this.isToday(item.errorTime))
+      }
+
+      if (keyword) {
+        data = data.filter(item => String(item.content || '').toLowerCase().includes(keyword))
+      }
+
+      if (this.sortInfo.prop && this.sortInfo.order) {
+        const direction = this.sortInfo.order === 'ascending' ? 1 : -1
+        data.sort((a, b) => {
+          const left = this.sortInfo.prop === 'priority' ? this.priorityMeta(a).weight : a[this.sortInfo.prop]
+          const right = this.sortInfo.prop === 'priority' ? this.priorityMeta(b).weight : b[this.sortInfo.prop]
+          if (left === right) return 0
+          if (left === null || left === undefined) return -1 * direction
+          if (right === null || right === undefined) return 1 * direction
+          return String(left).localeCompare(String(right), 'zh-CN', { numeric: true }) * direction
+        })
+      }
+
+      return data
+    },
+    paginatedData() {
+      const start = (this.pageInfo.pageNo - 1) * this.pageInfo.pageSize
+      const end = this.pageInfo.pageNo * this.pageInfo.pageSize
+      return this.filteredData.slice(start, end)
     }
   },
   created() {
     this.fetchData()
   },
+  mounted() {
+    this.startPolling()
+  },
+  activated() {
+    this.startPolling()
+  },
+  deactivated() {
+    this.stopPolling()
+  },
+  beforeUnmount() {
+    this.stopPolling()
+  },
   methods: {
-    // 数据获取
-    async fetchData() {
-      this.loading = true
+    async fetchData(options = {}) {
+      if (!options.silent) {
+        this.loading = true
+      }
+
       try {
-        const res = await GetList(this.pageInfo)
-        this.tableData = res.data.list
-        this.total = res.data.total
+        const res = await GetList({
+          eqpId: this.pageInfo.eqpId,
+          eqpType: this.pageInfo.eqpType,
+          pageNo: this.pageInfo.pageNo,
+          pageSize: this.pageInfo.pageSize
+        })
+        const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
+        this.tableData = list
+        this.total = res && res.data && Number.isFinite(Number(res.data.total)) ? Number(res.data.total) : list.length
+        this.handleRealtimeNotice(list)
       } finally {
         this.loading = false
       }
     },
+    startPolling() {
+      if (this.pollTimer) {
+        return
+      }
 
-    // 搜索
+      this.pollTimer = setInterval(() => {
+        this.fetchData({ silent: true })
+      }, POLL_INTERVAL)
+    },
+    stopPolling() {
+      if (!this.pollTimer) {
+        return
+      }
+
+      clearInterval(this.pollTimer)
+      this.pollTimer = null
+    },
+    handleRealtimeNotice(list) {
+      const pendingRows = list.filter(item => Number(item.state) === 0)
+      const nextIds = new Set(pendingRows.map(item => item.id))
+
+      if (this.hasInitializedPolling) {
+        const newRows = pendingRows.filter(item => !this.knownPendingIds.has(item.id))
+        if (newRows.length > 0 && this.$notify) {
+          this.$notify({
+            title: '新异常提醒',
+            message: `发现 ${newRows.length} 条新的未处理异常`,
+            type: 'warning',
+            duration: 4500
+          })
+        }
+      }
+
+      this.knownPendingIds = nextIds
+      this.hasInitializedPolling = true
+    },
     handleSearch() {
       this.pageInfo.pageNo = 1
       this.fetchData()
     },
-
-    // 分页
-    handleSizeChange(val) {
-      this.pageInfo.pageSize = val
+    handleReset() {
+      this.pageInfo.eqpId = ''
+      this.pageInfo.eqpType = ''
+      this.pageInfo.keyword = ''
+      this.activeTab = 'all'
       this.pageInfo.pageNo = 1
       this.fetchData()
     },
-    handlePageChange(val) {
-      this.pageInfo.pageNo = val
-      this.fetchData()
+    handleTabChange() {
+      this.pageInfo.pageNo = 1
     },
-
-    // 批量操作
+    handleSortChange({ prop, order }) {
+      this.sortInfo = { prop, order }
+    },
+    handleSizeChange() {
+      this.pageInfo.pageNo = 1
+    },
     handleSelectionChange(selection) {
-      this.selectedRows = selection.map(item => item.id)
+      this.selectedIds = selection.map(item => item.id)
+    },
+    statusMeta(state) {
+      return Number(state) === 0
+        ? { text: '未处理', tone: 'danger' }
+        : { text: '已处理', tone: 'success' }
+    },
+    priorityMeta(row) {
+      const content = String(row.content || '').toUpperCase()
+      if (Number(row.state) === 0 && /(ALID|ALARM|ERROR|FAIL|CRITICAL)/.test(content)) {
+        return { text: '高', tone: 'high', weight: 3 }
+      }
+      if (Number(row.state) === 0) {
+        return { text: '中', tone: 'middle', weight: 2 }
+      }
+      return { text: '低', tone: 'low', weight: 1 }
+    },
+    isToday(value) {
+      if (!value) {
+        return false
+      }
+
+      const date = new Date(value)
+      const now = new Date()
+      return date.getFullYear() === now.getFullYear() &&
+        date.getMonth() === now.getMonth() &&
+        date.getDate() === now.getDate()
+    },
+    openProcessDialog(row) {
+      this.processingIds = [row.id]
+      this.processRemark = ''
+      this.processDialogVisible = true
+    },
+    openBatchProcess() {
+      if (this.selectedIds.length === 0) {
+        return
+      }
+
+      this.processingIds = [...this.selectedIds]
+      this.processRemark = ''
+      this.processDialogVisible = true
+    },
+    async submitProcess() {
+      if (!this.processRemark.trim()) {
+        this.$message.warning('请填写处理结果或备注')
+        return
+      }
+
+      this.processLoading = true
+      try {
+        const res = await Edit(this.processingIds)
+        if (res.return === 'OK') {
+          this.tableData = this.tableData.map(item => this.processingIds.includes(item.id)
+            ? { ...item, state: 1, processRemark: this.processRemark }
+            : item
+          )
+          this.$message.success('处理成功')
+          this.processDialogVisible = false
+          await this.fetchData({ silent: true })
+        } else {
+          this.$message.error(res.message || '处理失败')
+        }
+      } finally {
+        this.processLoading = false
+      }
     },
     handleBatchDelete() {
-      this.$confirm(`确定删除选中的 ${this.selectedRows.length} 条记录吗？`, '警告', {
+      if (this.selectedIds.length === 0) {
+        this.$message.warning('请至少选择一条记录')
+        return
+      }
+
+      this.$confirm(`确定删除选中的 ${this.selectedIds.length} 条异常记录吗？`, '删除确认', {
+        type: 'warning',
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
-      }).then(async () => {
-        Deletes(this.selectedRows).then(res => {
-          if (res.return == "OK") {
+      }).then(() => {
+        Deletes(this.selectedIds).then(res => {
+          if (res.return === 'OK') {
             this.$message.success('删除成功')
             this.fetchData()
-          }
-          else {
+          } else {
             this.$message.error(res.message)
           }
-        });
-      }).catch(() => null)
-    },
-    handleBatchProcess() {
-      this.$confirm(`确定处理选中的 ${this.selectedRows.length} 条记录吗？`, '提示').then(async () => {
-        Edit(this.selectedRows).then(res => {
-          if (res.return == "OK") {
-            this.$message.success('处理成功')
-            this.fetchData()
-          }
-          else {
-            this.$message.error(res.message)
-          }
-        });
-      }).catch(() => null)
-    },
-
-    // 单条操作
-    handleProcess(row) {
-      this.$confirm('确定处理该异常吗？', '提示').then(async () => {
-        Edit([row.id]).then(res => {
-          if (res.return == "OK") {
-            this.$message.success('处理成功')
-            this.fetchData()
-          }
-          else {
-            this.$message.error(res.message)
-          }
-        });
-      }).catch(() => null)
+        })
+      }).catch(() => {})
     },
     handleDelete(row) {
-      this.$confirm('确定删除该记录吗？', '警告', {
+      this.$confirm('确定删除该异常记录吗？', '删除确认', {
+        type: 'warning',
+        confirmButtonText: '确认删除',
+        cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
-      }).then(async () => {
+      }).then(() => {
         Delete(row).then(res => {
-          if (res.return == "OK") {
+          if (res.return === 'OK') {
             this.$message.success('删除成功')
             this.fetchData()
-          }
-          else {
+          } else {
             this.$message.error(res.message)
           }
-        });
-      }).catch(() => null)
+        })
+      }).catch(() => {})
     },
-
-    // 导出
-    // async handleExport() {
-    //   this.loading = true
-    //   try {
-    //     const res = await Export(this.pageInfo)
-    //     const blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-    //     const link = document.createElement('a')
-    //     link.href = URL.createObjectURL(blob)
-    //     link.download = `异常记录_${new Date().toLocaleDateString()}.xlsx`
-    //     link.click()
-    //   } finally {
-    //     this.loading = false
-    //   }
-    // }
-    async handleExport() {
-      this.$message.warning('Export is not implemented yet')
+    handleExport() {
+      const headers = ['设备号', '设备类型', 'PORT', 'LOT', '优先级', '异常内容', '异常时间', '状态']
+      const body = this.filteredData.map(row => [
+        row.eqpId,
+        row.eqpType,
+        row.portName || row.portId,
+        row.lotId,
+        this.priorityMeta(row).text,
+        row.content,
+        row.errorTime,
+        this.statusMeta(row.state).text
+      ])
+      this.downloadCsv('异常记录.csv', [headers, ...body])
+    },
+    downloadCsv(filename, rows) {
+      const content = rows
+        .map(row => row.map(value => `"${String(value ?? '').replace(/"/g, '""')}"`).join(','))
+        .join('\n')
+      const blob = new Blob(['\ufeff' + content], { type: 'text/csv;charset=utf-8;' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = filename
+      link.click()
+      URL.revokeObjectURL(link.href)
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.app-container {
-  padding: 20px;
-  background-color: #f5f7fa;
+.page-shell {
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+  background: #f5f7fa;
+  color: #182433;
+  text-align: left;
+  box-sizing: border-box;
+}
 
-  .filter-card {
-  :deep() .el-card__body {
-    padding: 18px 20px;
+.filter-panel,
+.table-panel {
+  border: 1px solid #dce3ec;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 36, 51, 0.05);
+}
+
+.filter-panel {
+  padding: 12px 14px 14px;
+  margin-bottom: 12px;
+}
+
+.tab-row {
+  margin-bottom: 8px;
+}
+
+.exception-tabs :deep(.el-tabs__header) {
+  margin: 0;
+}
+
+.tab-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.tab-label em {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  color: #1890ff;
+  background: #e9f2ff;
+  font-style: normal;
+  text-align: center;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(160px, 220px) minmax(180px, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.toolbar,
+.icon-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar--right {
+  justify-content: flex-end;
+}
+
+.table-panel {
+  padding: 12px;
+}
+
+.table-toolbar,
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.table-toolbar {
+  margin-bottom: 10px;
+}
+
+.selection-text {
+  color: #596679;
+  font-size: 13px;
+}
+
+.selection-text b {
+  color: #1890ff;
+}
+
+.content-text {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.pagination-bar {
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: 12px;
+  padding-top: 10px;
+  background: #fff;
+}
+
+.status-badge,
+.priority-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge--success {
+  color: #13744d;
+  background: #e9f7f0;
+}
+
+.status-badge--danger {
+  color: #b42318;
+  background: #fff0ed;
+}
+
+.status-badge--pulse {
+  animation: pulseWarning 1.8s ease-in-out infinite;
+}
+
+.priority-badge--high {
+  color: #fff;
+  background: #ff4d4f;
+}
+
+.priority-badge--middle {
+  color: #8a5a00;
+  background: #fff4dc;
+}
+
+.priority-badge--low {
+  color: #5f6b7a;
+  background: #f0f3f7;
+}
+
+.dialog-tip {
+  color: #596679;
+  font-weight: 700;
+}
+
+@keyframes pulseWarning {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.32);
   }
-
-  .el-col {
-    margin-bottom: 12px;
-    
-    // 最后一个列取消底部间距
-    &:last-child {
-      margin-bottom: 0;
-    }
-
-    // 中等屏幕以上布局
-    @media (min-width: 992px) {
-      margin-bottom: 0;
-      display: flex;
-      align-items: center;
-      min-height: 40px;  // 与输入框高度保持一致
-    }
+  70% {
+    box-shadow: 0 0 0 8px rgba(255, 77, 79, 0);
   }
-
-  .action-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    
-    // 中等屏幕以上布局
-    @media (min-width: 992px) {
-      justify-content: flex-end;
-    }
-
-    // 小屏幕布局
-    @media (max-width: 991px) {
-      .el-button {
-        flex: 1 1 48%; // 两列布局
-        min-width: 120px;
-      }
-    }
-
-    // 超小屏幕布局
-    @media (max-width: 480px) {
-      .el-button {
-        flex: 1 1 100%; // 单列布局
-      }
-    }
-  }
-
-  // 统一输入组件高度
-  .el-input, .el-select {
-    :deep(.el-input__inner) {
-      height: 40px;
-      line-height: 40px;
-    }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 79, 0);
   }
 }
 
-  .table-card {
-    :deep(.el-table) {
-      th.el-table__cell {
-        background-color: #fafafa;
-      }
+:deep(.el-table th.el-table__cell) {
+  background: #f5f7fa;
+  color: #182433;
+  font-weight: 800;
+}
 
-      .el-tag {
-        padding: 0 8px;
-        height: 24px;
-        line-height: 24px;
-      }
-    }
+:deep(.el-table__row:hover > td.el-table__cell) {
+  background: #f2f8ff;
+}
 
-    .pagination-wrapper {
-      margin-top: 20px;
-      display: flex;
-      justify-content: flex-end;
-    }
+:deep(.el-button),
+:deep(.el-input__wrapper) {
+  border-radius: 6px;
+}
+
+@media (max-width: 980px) {
+  .filter-grid {
+    grid-template-columns: 1fr;
   }
 
-  @media (max-width: 768px) {
-    .el-col {
-      margin-bottom: 10px;
+  .table-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 
-      &:last-child {
-        margin-bottom: 0;
-      }
-    }
+  .toolbar--right {
+    justify-content: flex-start;
   }
 }
 </style>

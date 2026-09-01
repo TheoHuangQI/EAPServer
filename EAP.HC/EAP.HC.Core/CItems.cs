@@ -31,6 +31,7 @@ namespace EAP.HC.Core
         public static string VID = "VID";
         public static string Check = "Check";
         public static string TestItem = "TestItem";
+        public static string FdcSvidCollection = "FdcSvidCollection";
 
     }
 }

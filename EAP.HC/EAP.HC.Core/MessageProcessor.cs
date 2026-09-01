@@ -182,6 +182,51 @@ namespace EAP.HC.Core
                             mrea.Reply(xmlMessage);
                             break;
                         }
+                    case "FDCSVIDCOLLECT":
+                        {
+                            FdcSvidCollection mQBody = XmlSerialization.DeserializeNodeObj<FdcSvidCollection>(message, "Request", "Body");
+                            mQBody ??= new FdcSvidCollection();
+                            var eqpId = mQBody.EQUIPMENTID;
+                            if (string.IsNullOrWhiteSpace(eqpId))
+                            {
+                                mQBody.Return = "NG";
+                                mQBody.Message = "Equipment id is empty.";
+                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                            }
+                            else if (AppCache.Current.EqpInfos.ContainsKey(eqpId))
+                            {
+                                var context = EAPContext.contexts.FirstOrDefault(u => u.EquipmentID == eqpId);
+                                Arguments args = new Arguments()
+                                {
+                                    Header = new Dictionary<string, object>()
+                                };
+                                args.Header[CItems.EqpId] = eqpId;
+                                args.Header[CItems.FdcSvidCollection] = mQBody;
+
+                                var collectResult = SecsBase.ReciveSecsMessage<FdcSvidCollection>(context, args, "CollectFdcSvidValues");
+                                if (collectResult != null)
+                                {
+                                    mQBody = collectResult;
+                                    res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                                }
+                                else
+                                {
+                                    mQBody.Return = "NG";
+                                    mQBody.Message = $"FDC S1F3 collect failed for {eqpId}.";
+                                    res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                                }
+                            }
+                            else
+                            {
+                                mQBody.Return = "NG";
+                                mQBody.Message = $"Equipment {eqpId} is not loaded in EAPServer.";
+                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                            }
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(mQBody);
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
+                            break;
+                        }
                     case "TestItemStart":
                         {
                             EAPTestItemStart eapTestItem = XmlSerialization.DeserializeNodeObj<EAPTestItemStart>(message, "Request", "Body");

@@ -1,4 +1,4 @@
-using EAP.HC.Core;
+﻿using EAP.HC.Core;
 using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
 using EAP.RC.MES;
@@ -46,6 +46,9 @@ namespace EAP.EC.KS_CM300
         public string type;
         public string value;
         public string name;
+        public string unit;
+        public string ecsName;
+        public string description;
         public int abnormal;
     }
 
@@ -282,7 +285,7 @@ namespace EAP.EC.KS_CM300
 
             var item1 = new Item[svidDict.Count];
             int i = 0;
-            foreach (var (svid, vidItem) in svidDict)
+            foreach (var svid in svidDict.Keys)
             {
                 item1[i] = Item.U4((uint)svid);
                 i++;
@@ -293,7 +296,6 @@ namespace EAP.EC.KS_CM300
                 {
                     SecsItem = Item.L(item1)
                 };
-
 
                 SecsMessage reply = null;
                 try
@@ -323,30 +325,21 @@ namespace EAP.EC.KS_CM300
                             try
                             {
                                 var rawValue = SecsItemUtil.GetItemValue(resItem)?.ToString();
-                                string curValue = svidDict[svid].value;
-                                VIDItem vID = svidDict[svid];
-                                if (curValue == rawValue && curValue != "0" && rawValue != "0")
+                                var vID = svidDict[svid];
+                                var previousValue = vID.value;
+
+                                if (string.Equals(previousValue, rawValue, StringComparison.OrdinalIgnoreCase) && previousValue != "0" && rawValue != "0")
                                 {
-                                    LogSVIDErrorAsync(svid, $"Value match: last={curValue}, current={rawValue}", "SVID_ValueCheck_Result");
-                                    //AsyncLogger.SVIDError(svid, $"Value match: last={curValue}, current={rawValue}", "SVID_ValueCheck_Result");
-                                    //发给后端，保存到数据库，相同的非0数据
-                                    //MESClient.Send_SVIDValue(eqpId, new VID() { vID = svid, name = vID.name, type = vID.type, value = rawValue, abnormal = (int)VIDAbnormalType.SameAsPrevious });
+                                    LogSVIDErrorAsync(svid, $"Value match: last={previousValue}, current={rawValue}", "SVID_ValueCheck_Result");
                                 }
-                                else
-                                {
-                                    svidDict[svid].value = rawValue;
-                                    //发给后端，保存到数据库，不同的数据
-                                    //MESClient.Send_SVIDValue(eqpId, new VID() { vID = svid, name = vID.name, type = vID.type, value = rawValue, abnormal = (int)VIDAbnormalType.None });
-                                }
+
+                                svidDict[svid].value = rawValue;
+                                PublishSvidValue(eqpId, svid, vID.name, actualFormat, rawValue, previousValue);
                             }
                             catch (Exception ex)
                             {
                                 LogSVIDErrorAsync(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
                             }
-                        }
-                        else
-                        {
-                            //LogSVIDErrorAsync(svid, "Item has no children", "SVID_ValueCheck_Result");
                         }
                     }
                 }
@@ -355,6 +348,38 @@ namespace EAP.EC.KS_CM300
             {
                 LogSVIDErrorAsync(-1, ex.Message, "SVID_ValueCheck_Result");
             }
+        }
+
+        private static int ResolveAbnormalFlag(string previousValue, string currentValue)
+        {
+            if (string.Equals(currentValue, "0", StringComparison.OrdinalIgnoreCase))
+            {
+                return (int)VIDAbnormalType.ZeroValue;
+            }
+
+            if (string.IsNullOrWhiteSpace(previousValue))
+            {
+                return (int)VIDAbnormalType.FirstValue;
+            }
+
+            if (string.Equals(previousValue, currentValue, StringComparison.OrdinalIgnoreCase))
+            {
+                return (int)VIDAbnormalType.SameAsPrevious;
+            }
+
+            return (int)VIDAbnormalType.None;
+        }
+
+        private static void PublishSvidValue(string eqpId, int svid, string name, string type, string value, string previousValue)
+        {
+            MESClient.Send_SVIDValue(eqpId, new VID()
+            {
+                vID = svid,
+                name = name,
+                type = type,
+                value = value,
+                abnormal = ResolveAbnormalFlag(previousValue, value)
+            });
         }
 
         void LogSVIDErrorAsync(int svid, string message, string category)
@@ -367,7 +392,7 @@ namespace EAP.EC.KS_CM300
                 }
                 catch
                 {
-                    // 日志失败不能反向影响业务线程
+                    // 鏃ュ織澶辫触涓嶈兘鍙嶅悜褰卞搷涓氬姟绾跨▼
                 }
             });
         }
@@ -391,7 +416,7 @@ namespace EAP.EC.KS_CM300
                                 case 1:
                                     ReciveMsgS1F1(args);
                                     break;
-                                case 13:  // 新增 S1F13 处理
+                                case 13:  // 鏂板 S1F13 澶勭悊
                                     ReciveMsgS1F13(args);
                                     break;
                             }
@@ -555,7 +580,7 @@ namespace EAP.EC.KS_CM300
             LoadSVIDDef();
             if (ceid == startCeid)
             {
-                LogSVIDErrorAsync(ceid, $"Received Start CEID: {ceid}", "SVID_ValueCheck_Result");
+                //LogSVIDErrorAsync(ceid, $"Received Start CEID: {ceid}", "SVID_ValueCheck_Result");
                 if (ctx.IsRunning) return;
 
                 ctx.IsRunning = true;
@@ -569,14 +594,14 @@ namespace EAP.EC.KS_CM300
 
                         await Task.Delay(1000);
                         sw.Stop();
-                        Console.WriteLine($"Channel {startCeid} 执行时间: {sw.ElapsedMilliseconds} ms");
+                        Console.WriteLine($"Channel {startCeid} 鎵ц鏃堕棿: {sw.ElapsedMilliseconds} ms");
                     }
                 });
             }
             else if (ceid == stopCeid)
             {
                 ctx.IsRunning = false;
-                LogSVIDErrorAsync(ceid, $"Received Stop CEID: {ceid}", "SVID_ValueCheck_Result");
+                //LogSVIDErrorAsync(ceid, $"Received Stop CEID: {ceid}", "SVID_ValueCheck_Result");
             }
         }
 
@@ -776,23 +801,23 @@ namespace EAP.EC.KS_CM300
         {
             try
             {
-                // 创建内层 List (MDLN + SOFTREV)
+                // 鍒涘缓鍐呭眰 List (MDLN + SOFTREV)
                 Item innerList = Item.L(
                     Item.A("EAPServer"),  // MDLN
                     Item.A("v1.1")         // SOFTREV
                 );
 
-                // 创建外层 List (COMMACK + 内层List)
+                // 鍒涘缓澶栧眰 List (COMMACK + 鍐呭眰List)
                 Item replyItem = Item.L(
                     Item.B(0x00),  // COMMACK = 0 (OK)
                     innerList
                 );
 
-                // 创建 S1F14 回复消息
+                // 鍒涘缓 S1F14 鍥炲娑堟伅
                 SecsMessage replyMsg = new SecsMessage(1, 14);
                 replyMsg.SecsItem = replyItem;
 
-                // 发送回复
+                // 鍙戦€佸洖澶?
                 await args.SecsData.TryReplyAsync(replyMsg);
 
                 args.SetResultOK();
@@ -912,7 +937,7 @@ namespace EAP.EC.KS_CM300
         }
 
         /// <summary>
-        /// 设备控制状态Check
+        /// 璁惧鎺у埗鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
         public async void Receive_S6F11_ControlStateChange(Arguments args)
@@ -953,7 +978,7 @@ namespace EAP.EC.KS_CM300
 
                                 //    Thread.Sleep(150);
                                 //    sw.Stop();
-                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                //    Console.WriteLine($"鎵ц鏃堕棿锛歿sw.ElapsedMilliseconds} ms \r\n");
                                 //}
 
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
@@ -989,7 +1014,7 @@ namespace EAP.EC.KS_CM300
                                 //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
                                 //    await Task.Delay(990);
                                 //    sw.Stop();
-                                //    Console.WriteLine($"执行时间：{sw.ElapsedMilliseconds} ms \r\n");
+                                //    Console.WriteLine($"鎵ц鏃堕棿锛歿sw.ElapsedMilliseconds} ms \r\n");
                                 //}
 
                                 var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
@@ -1032,7 +1057,7 @@ namespace EAP.EC.KS_CM300
         }
 
         /// <summary>
-        /// LP Access 状态Check
+        /// LP Access 鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
         public async void Receive_S6F11_LPAccessStateChange(Arguments args)
@@ -1086,7 +1111,7 @@ namespace EAP.EC.KS_CM300
         }
 
         /// <summary>
-        /// LP Transfer 状态Check
+        /// LP Transfer 鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
         public async void Receive_S6F11_LPTransferStateChange(Arguments args)
@@ -1238,7 +1263,7 @@ namespace EAP.EC.KS_CM300
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
             MESClient.Send_MaterialRecived(eqpId, portId, carrierId);
 
-            // 检查循环跑片状态（按LP），如果已停止或暂停，则释放Carrier
+            // 妫€鏌ュ惊鐜窇鐗囩姸鎬侊紙鎸塋P锛夛紝濡傛灉宸插仠姝㈡垨鏆傚仠锛屽垯閲婃斁Carrier
             if (!IsLoopProcessEnabled(eqpId, portId))
             {
                 var loopState = 0;
@@ -1282,7 +1307,7 @@ namespace EAP.EC.KS_CM300
             args.Header[CItems.CarrierId] = carrierId;
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
 
-            // 再次检查暂停状态（防止在下载期间状态发生改变）
+            // 鍐嶆妫€鏌ユ殏鍋滅姸鎬侊紙闃叉鍦ㄤ笅杞芥湡闂寸姸鎬佸彂鐢熸敼鍙橈級
             if (AppCache.Current.LoopProcessState.ContainsKey(eqpId) &&
                 AppCache.Current.LoopProcessState[eqpId].ContainsKey(portId) &&
                 AppCache.Current.LoopProcessState[eqpId][portId] == 2)
@@ -1669,7 +1694,7 @@ namespace EAP.EC.KS_CM300
             if (reply == null)
                 return;
 
-            // S7F26 解析...
+            // S7F26 瑙ｆ瀽...
         }
 
         public void Send_S1F3_Get_AllDifferenceSVID(Arguments args)
@@ -1683,7 +1708,7 @@ namespace EAP.EC.KS_CM300
                 string definedType = kv.Value;
 
                 SecsMessage msg = new SecsMessage(1, 3);
-                msg.SecsItem = Item.L(Item.U4((uint)svid));   // 发送 SVID
+                msg.SecsItem = Item.L(Item.U4((uint)svid));   // 鍙戦€?SVID
 
                 SecsMessage reply = null;
 
@@ -1758,12 +1783,12 @@ namespace EAP.EC.KS_CM300
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            bool first = false;
 
             if (dict.Count == 0)
             {
                 return;
             }
+
             L2CH1FlwSvidDict.Clear();
             foreach (var item in allSvidDict)
             {
@@ -1772,17 +1797,17 @@ namespace EAP.EC.KS_CM300
                     L2CH1FlwSvidDict.Add(item.Key, item.Value);
                 }
             }
-            SecsMessage msg = new SecsMessage(1, 3);
-            nextVIDList.Clear();
-            var item1 = new Item[L2CH1FlwSvidDict.Count];
-            int i = 0;
-            foreach (var chItem in L2CH1FlwSvidDict)
+
+            if (L2CH1FlwSvidDict.Count == 0)
             {
-                int svid = chItem.Key;
-                item1[i] = Item.U4((uint)svid);
-                i++;
+                return;
             }
+
+            SecsMessage msg = new SecsMessage(1, 3);
+            var svidKeys = L2CH1FlwSvidDict.Keys.ToArray();
+            var item1 = svidKeys.Select(svid => Item.U4((uint)svid)).ToArray();
             msg.SecsItem = Item.L(item1);
+
             SecsMessage reply = null;
             try
             {
@@ -1795,89 +1820,41 @@ namespace EAP.EC.KS_CM300
 
             if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
             {
-                //LogSVIDError(0, $"Empty S1F3 reply, {msg.SecsItem}", "SVID_ValueCheck_Result");
                 return;
             }
 
-            for (int j = 0; j < reply.SecsItem.Items.Length; j++)
-            {
-                Item resItem = reply.SecsItem.Items[j];
-                var actualFormat = resItem.Format.ToString();
-                string svidTemp = SecsItemUtil.GetItemValue(item1[j])?.ToString();
-                if (int.TryParse(svidTemp, out int svid))
-                {
-                    if (resItem.Count > 0)
-                    {
-                        try
-                        {
-                            var rawValue = SecsItemUtil.GetItemValue(resItem)?.ToString();
-                            if (!currentVIDList.Any(item => item.VID == svid))
-                            {
-                                first = true;
-                                currentVIDList.Add(new VIDItem()
-                                {
-                                    VID = svid,
-                                    type = actualFormat,
-                                    value = rawValue
-                                });
-                            }
-                            else
-                            {
-                                first = false;
-                            }
+            var previousByVid = currentVIDList.ToDictionary(item => item.VID, item => item);
+            currentVIDList.Clear();
 
-                            nextVIDList.Add(new VIDItem()
-                            {
-                                VID = svid,
-                                type = actualFormat,
-                                value = rawValue
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
-                        }
-                    }
-                    else
-                    {
-                        //LogSVIDError(svid, "Item has no children", "SVID_ValueCheck_Result");
-                    }
+            for (var j = 0; j < reply.SecsItem.Items.Length && j < svidKeys.Length; j++)
+            {
+                var svid = svidKeys[j];
+                var resItem = reply.SecsItem.Items[j];
+                if (resItem.Count <= 0)
+                {
+                    continue;
                 }
-            }
 
-            if (!first)
-            {
-                foreach (var kv in currentVIDList)
+                try
                 {
-                    if (nextVIDList.Any(item => item.VID == kv.VID))
-                    {
-                        VIDItem vidItem = nextVIDList.FirstOrDefault(item => item.VID == kv.VID);
+                    var rawValue = SecsItemUtil.GetItemValue(resItem)?.ToString();
+                    var actualFormat = resItem.Format.ToString();
+                    previousByVid.TryGetValue(svid, out var previousItem);
+                    var previousValue = previousItem?.value;
 
-                        if (kv.value == "0" || vidItem.value == "0")
-                        {
-                            kv.value = vidItem.value;
-                            continue;
-                        }
-                        string vidName = allSvidDict[vidItem.VID]?.name;
-                        if (string.Equals(kv.value, vidItem.value, StringComparison.OrdinalIgnoreCase))
-                        {
-                            //LogSVIDError(kv.VID, $"Value match: last={kv.value}, current={vidItem.value}, name={allSvidDict[kv.VID].name}", "SVID_ValueCheck_Result");
-                            //发给后端，保存到数据库，相同的非0数据
-                            //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.SameAsPrevious });
-                        }
-                        else
-                        {
-                            kv.value = vidItem.value;
-                            //发给后端，保存到数据库，不同的数据
-                            //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value, abnormal = (int)VIDAbnormalType.None });
-                        }
-                        //string vidName = allSvidDict[vidItem.VID]?.name;
-                        //MESClient.Send_SVIDValue(eqpId, new VID() { vID = vidItem.VID, name = vidName, type = vidItem.type, value = vidItem.value });
-                    }
-                    else
+                    currentVIDList.Add(new VIDItem()
                     {
-                        LogSVIDError(kv.VID, "第一次查询到的SVID，本次查不到值", "SVID_ValueCheck_Result");
-                    }
+                        VID = svid,
+                        type = actualFormat,
+                        value = rawValue
+                    });
+
+                    allSvidDict.TryGetValue(svid, out var definition);
+                    PublishSvidValue(eqpId, svid, definition?.name, actualFormat, rawValue, previousValue);
+                }
+                catch (Exception ex)
+                {
+                    LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
                 }
             }
         }
@@ -1895,7 +1872,6 @@ namespace EAP.EC.KS_CM300
             foreach (var vidItem in L2CH1FlwSvidDict)
             {
                 int svid = vidItem.Key;
-                string definedType = vidItem.Value.type;
 
                 SecsMessage msg = new SecsMessage(1, 3);
                 msg.SecsItem = Item.L(Item.U4((uint)svid));
@@ -1920,32 +1896,27 @@ namespace EAP.EC.KS_CM300
 
                 var item = reply.SecsItem[0];
 
-                //if (item.Format != SecsFormat.List)
+                if (item.Count > 0)
                 {
-                    if (item.Count > 0)
+                    try
                     {
-                        try
-                        {
-                            var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+                        var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+                        var previousValue = L2CH1FlwSvidDict[svid].value;
 
-                            //如果前后值相等就打印
-                            if (L2CH1FlwSvidDict[svid].value == rawValue)
-                            {
-                                LogSVIDError(svid, $"Value mismatch: current={L2CH1FlwSvidDict[svid].value}, next={rawValue}", "SVID_ValueCheck_Result");
-                            }
-                            else
-                            {
-                                L2CH1FlwSvidDict[svid].value = rawValue;
-                            }
-                        }
-                        catch (Exception ex)
+                        if (string.Equals(previousValue, rawValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
+                            LogSVIDError(svid, $"Value mismatch: current={previousValue}, next={rawValue}", "SVID_ValueCheck_Result");
                         }
+                        else
+                        {
+                            L2CH1FlwSvidDict[svid].value = rawValue;
+                        }
+
+                        PublishSvidValue(eqpId, svid, vidItem.Value.name, item.Format.ToString(), rawValue, previousValue);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //LogSVIDError(svid, "Item has no children", "SVID_ValueCheck_Result");
+                        LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
                     }
                 }
             }
@@ -1964,7 +1935,6 @@ namespace EAP.EC.KS_CM300
             foreach (var vidItem in L2CH2FlwSvidDict)
             {
                 int svid = vidItem.Key;
-                string definedType = vidItem.Value.type;
 
                 SecsMessage msg = new SecsMessage(1, 3);
                 msg.SecsItem = Item.L(Item.U4((uint)svid));
@@ -1989,32 +1959,27 @@ namespace EAP.EC.KS_CM300
 
                 var item = reply.SecsItem[0];
 
-                //if (item.Format != SecsFormat.List)
+                if (item.Count > 0)
                 {
-                    if (item.Count > 0)
+                    try
                     {
-                        try
-                        {
-                            var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+                        var rawValue = SecsItemUtil.GetItemValue(item)?.ToString();
+                        var previousValue = L2CH2FlwSvidDict[svid].value;
 
-                            //如果前后值相等就打印
-                            if (L2CH2FlwSvidDict[svid].value == rawValue)
-                            {
-                                LogSVIDError(svid, $"Value mismatch: current={L2CH2FlwSvidDict[svid].value}, next={rawValue}", "SVID_ValueCheck_Result");
-                            }
-                            else
-                            {
-                                L2CH2FlwSvidDict[svid].value = rawValue;
-                            }
-                        }
-                        catch (Exception ex)
+                        if (string.Equals(previousValue, rawValue, StringComparison.OrdinalIgnoreCase))
                         {
-                            LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
+                            LogSVIDError(svid, $"Value mismatch: current={previousValue}, next={rawValue}", "SVID_ValueCheck_Result");
                         }
+                        else
+                        {
+                            L2CH2FlwSvidDict[svid].value = rawValue;
+                        }
+
+                        PublishSvidValue(eqpId, svid, vidItem.Value.name, item.Format.ToString(), rawValue, previousValue);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        //LogSVIDError(svid, "Item has no children", "SVID_ValueCheck_Result");
+                        LogSVIDError(svid, $"Value get error: {ex.Message}", "SVID_ValueCheck_Result");
                     }
                 }
             }
@@ -2027,7 +1992,7 @@ namespace EAP.EC.KS_CM300
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 string logFile = Path.Combine(desktop, $"{fileName}.csv");
 
-                // 如果文件不存在，写入表头
+                // 濡傛灉鏂囦欢涓嶅瓨鍦紝鍐欏叆琛ㄥご
                 if (!File.Exists(logFile))
                 {
                     File.WriteAllText(logFile, "Time,SVID,Message\r\n");
@@ -2039,12 +2004,12 @@ namespace EAP.EC.KS_CM300
             }
             catch (Exception ex)
             {
-                // 最终兜底，避免因为日志写失败影响主流程
+                // 鏈€缁堝厹搴曪紝閬垮厤鍥犱负鏃ュ織鍐欏け璐ュ奖鍝嶄富娴佺▼
                 Console.WriteLine($"[LogSVIDError FAILED] {ex.Message}");
             }
         }
 
-        string path = @"E:\Project\Y26004\CTC\Bin\Module_Gem\conf\ecs_sv_def.csv";
+        string path = string.Empty;
         Dictionary<int, string> dict = new Dictionary<int, string>();
         Dictionary<int, VIDItem> allSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> L2CH1FlwSvidDict = new Dictionary<int, VIDItem>();
@@ -2072,11 +2037,20 @@ namespace EAP.EC.KS_CM300
         Dictionary<int, VIDItem> R3SDS3FlwSvidDict = new Dictionary<int, VIDItem>();
         Dictionary<int, VIDItem> R3SDS4FlwSvidDict = new Dictionary<int, VIDItem>();
         List<VIDItem> currentVIDList = new List<VIDItem>();
-        List<VIDItem> nextVIDList = new List<VIDItem>();
 
-        public void LoadSVIDDef()
+        public void LoadSVIDDef(string equipmentId = null)
         {
             dict.Clear();
+            allSvidDict.Clear();
+            if (_channelSvidDictMap != null)
+            {
+                foreach (var channelDict in _channelSvidDictMap.Values)
+                {
+                    channelDict.Clear();
+                }
+            }
+
+            path = ResolveSvidDefinitionPath(equipmentId);
             if (!File.Exists(path))
             {
                 return;
@@ -2084,26 +2058,29 @@ namespace EAP.EC.KS_CM300
             var lines = File.ReadAllLines(path);
             foreach (var line in lines)
             {
-                // 跳过空行或表头
+                // 璺宠繃绌鸿鎴栬〃澶?
                 if (string.IsNullOrWhiteSpace(line) || line.StartsWith("id,"))
                     continue;
 
-                var parts = line.Split(',');
+                var parts = ReadCsvFields(line);
 
-                // 必须至少包含 id 和 type 字段
+                // 蹇呴』鑷冲皯鍖呭惈 id 鍜?type 瀛楁
                 if (parts.Length < 3)
                     continue;
 
-                // 解析 ID
+                // 瑙ｆ瀽 ID
                 if (int.TryParse(parts[0], out int id))
                 {
-                    string type = parts[2].Trim();  // type 列
+                    string type = parts[2].Trim();  // type 鍒?
                     dict[id] = type;
                     allSvidDict[id] = new VIDItem()
                     {
                         VID = id,
                         type = type,
-                        name = parts[1]
+                        name = parts[1].Trim(),
+                        unit = parts.Length > 3 ? parts[3].Trim() : string.Empty,
+                        ecsName = parts.Length > 5 ? parts[5].Trim() : string.Empty,
+                        description = parts.Length > 6 ? parts[6].Trim() : string.Empty
                     };
 
                     //currentVIDList.Add(new VIDItem()
@@ -2122,11 +2099,11 @@ namespace EAP.EC.KS_CM300
             }
             foreach (var svid in allSvidDict.Values)
             {
-                // 快速失败：不符合基本 FlwPV 规则直接跳过，还需要添加SDS的SVID
+                // 蹇€熷け璐ワ細涓嶇鍚堝熀鏈?FlwPV 瑙勫垯鐩存帴璺宠繃锛岃繕闇€瑕佹坊鍔燬DS鐨凷VID
                 if (!ChannelRegex.IsMatch(svid.name) && !svid.name.Contains("SDS"))
                     continue;
 
-                // 提取 ChannelKey（如：L2CH1）
+                // 鎻愬彇 ChannelKey锛堝锛歀2CH1锛?
                 var channelKeyMatch = ChannelKeyRegex.Match(svid.name);
                 if (!channelKeyMatch.Success)
                 {
@@ -2137,7 +2114,7 @@ namespace EAP.EC.KS_CM300
 
                 string channelKey = channelKeyMatch.Value;
 
-                // 查找对应 Dictionary
+                // 鏌ユ壘瀵瑰簲 Dictionary
                 if (_channelSvidDictMap.TryGetValue(channelKey, out var dict))
                 {
                     dict[svid.VID] = svid;
@@ -2161,6 +2138,271 @@ namespace EAP.EC.KS_CM300
                 return false;
 
             return Regex.IsMatch(input, matchRule);
+        }
+
+        public FdcSvidCollection CollectFdcSvidValues(Arguments args)
+        {
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var request = args.Header.ContainsKey(CItems.FdcSvidCollection)
+                ? args.Header[CItems.FdcSvidCollection] as FdcSvidCollection
+                : null;
+
+            request ??= new FdcSvidCollection();
+
+            var result = new FdcSvidCollection
+            {
+                EQUIPMENTID = eqpId,
+                SaveToHistory = request.SaveToHistory,
+                MaxCount = request.MaxCount,
+                ChunkSize = request.ChunkSize,
+                CollectedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"),
+                Return = "OK",
+                Message = "SUCCESS"
+            };
+
+            try
+            {
+                LoadSVIDDef(eqpId);
+                if (allSvidDict.Count == 0)
+                {
+                    result.Return = "NG";
+                    result.Message = $"SVID definition file not found or empty: {path}";
+                    return result;
+                }
+
+                var svids = request.RequestedSvids?
+                    .Where(svid => svid > 0)
+                    .Distinct()
+                    .ToList() ?? new List<int>();
+
+                if (svids.Count == 0)
+                {
+                    svids = allSvidDict.Keys.OrderBy(svid => svid).ToList();
+                }
+
+                if (request.MaxCount > 0)
+                {
+                    svids = svids.Take(request.MaxCount).ToList();
+                }
+
+                if (svids.Count == 0)
+                {
+                    result.Return = "NG";
+                    result.Message = "No SVID requested.";
+                    return result;
+                }
+
+                var chunkSize = request.ChunkSize <= 0 ? 120 : Math.Min(request.ChunkSize, 200);
+                var context = EAPContext.contexts.FirstOrDefault(a => a.EquipmentID == eqpId);
+                if (context == null)
+                {
+                    result.Return = "NG";
+                    result.Message = $"No EAP context found for {eqpId}.";
+                    return result;
+                }
+
+                foreach (var chunk in svids.Chunk(chunkSize))
+                {
+                    var items = chunk.Select(svid => Item.U4((uint)svid)).ToArray();
+                    var msg = new SecsMessage(1, 3)
+                    {
+                        SecsItem = Item.L(items)
+                    };
+
+                    SecsMessage reply;
+                    try
+                    {
+                        reply = context.SecsGem.SendAsync(msg).Result;
+                    }
+                    catch (Exception ex)
+                    {
+                        foreach (var svid in chunk)
+                        {
+                            result.Values.Add(CreateFailedSvidValue(svid, $"Send S1F3 failed: {ex.Message}"));
+                        }
+                        continue;
+                    }
+
+                    if (reply?.SecsItem?.Items == null || reply.SecsItem.Items.Length == 0)
+                    {
+                        foreach (var svid in chunk)
+                        {
+                            result.Values.Add(CreateFailedSvidValue(svid, "Empty S1F4 reply."));
+                        }
+                        continue;
+                    }
+
+                    for (var i = 0; i < chunk.Length; i++)
+                    {
+                        var svid = chunk[i];
+                        if (i >= reply.SecsItem.Items.Length)
+                        {
+                            result.Values.Add(CreateFailedSvidValue(svid, "S1F4 reply item missing."));
+                            continue;
+                        }
+
+                        try
+                        {
+                            result.Values.Add(CreateCollectedSvidValue(svid, reply.SecsItem.Items[i]));
+                        }
+                        catch (Exception ex)
+                        {
+                            result.Values.Add(CreateFailedSvidValue(svid, $"S1F4 value parse failed: {ex.Message}"));
+                        }
+                    }
+                }
+
+                if (!result.Values.Any(item => item.Status == "OK"))
+                {
+                    result.Return = "NG";
+                    result.Message = "No SVID values collected.";
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Return = "NG";
+                result.Message = ex.Message;
+            }
+
+            return result;
+        }
+
+        private FdcSvidValue CreateCollectedSvidValue(int svid, Item item)
+        {
+            allSvidDict.TryGetValue(svid, out var definition);
+            return new FdcSvidValue
+            {
+                Svid = svid,
+                Name = definition?.name,
+                DefinedType = definition?.type,
+                ActualType = NormalizeSecsFormat(item.Format.ToString()),
+                Unit = definition?.unit,
+                Value = FormatSecsItemValue(item),
+                EcsName = definition?.ecsName,
+                Description = definition?.description,
+                Status = "OK",
+                ErrorMessage = string.Empty
+            };
+        }
+
+        private FdcSvidValue CreateFailedSvidValue(int svid, string errorMessage)
+        {
+            allSvidDict.TryGetValue(svid, out var definition);
+            return new FdcSvidValue
+            {
+                Svid = svid,
+                Name = definition?.name,
+                DefinedType = definition?.type,
+                ActualType = string.Empty,
+                Unit = definition?.unit,
+                Value = string.Empty,
+                EcsName = definition?.ecsName,
+                Description = definition?.description,
+                Status = "NG",
+                ErrorMessage = errorMessage
+            };
+        }
+
+        private static string FormatSecsItemValue(Item item)
+        {
+            if (item == null)
+            {
+                return string.Empty;
+            }
+
+            if (item.Format == SecsFormat.List)
+            {
+                return item.Items == null
+                    ? "[]"
+                    : "[" + string.Join(",", item.Items.Select(FormatSecsItemValue)) + "]";
+            }
+
+            return SecsItemUtil.GetItemValue(item)?.ToString() ?? string.Empty;
+        }
+
+        private static string NormalizeSecsFormat(string format)
+        {
+            return format switch
+            {
+                "ASCII" => "A",
+                "List" => "L",
+                _ => format
+            };
+        }
+
+        private string ResolveSvidDefinitionPath(string equipmentId)
+        {
+            if (!string.IsNullOrWhiteSpace(path) && File.Exists(path))
+            {
+                return path;
+            }
+
+            var configName = string.IsNullOrWhiteSpace(equipmentId)
+                ? EAPContext.ServerName ?? "AHEG07"
+                : equipmentId;
+
+            var candidates = new List<string>
+            {
+                Path.Combine(EAPContext.RootPath, "Configuration", "conf", configName, "ecs_sv_def.csv"),
+                Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Configuration", "conf", configName, "ecs_sv_def.csv"),
+                Path.Combine(Directory.GetCurrentDirectory(), "Configuration", "conf", configName, "ecs_sv_def.csv"),
+                Path.Combine(Directory.GetCurrentDirectory(), "EAPServer", "Configuration", "conf", configName, "ecs_sv_def.csv")
+            };
+
+            foreach (var root in new[] { EAPContext.RootPath, AppDomain.CurrentDomain.BaseDirectory, Directory.GetCurrentDirectory() })
+            {
+                if (string.IsNullOrWhiteSpace(root))
+                {
+                    continue;
+                }
+
+                var directory = new DirectoryInfo(root);
+                while (directory != null)
+                {
+                    candidates.Add(Path.Combine(directory.FullName, "EAPServer", "Configuration", "conf", configName, "ecs_sv_def.csv"));
+                    candidates.Add(Path.Combine(directory.FullName, "Configuration", "conf", configName, "ecs_sv_def.csv"));
+                    directory = directory.Parent;
+                }
+            }
+
+            return candidates.FirstOrDefault(File.Exists) ?? candidates[0];
+        }
+
+        private static string[] ReadCsvFields(string line)
+        {
+            var fields = new List<string>();
+            var current = new StringBuilder();
+            var inQuotes = false;
+
+            for (var i = 0; i < line.Length; i++)
+            {
+                var ch = line[i];
+                if (ch == '"')
+                {
+                    if (inQuotes && i + 1 < line.Length && line[i + 1] == '"')
+                    {
+                        current.Append('"');
+                        i++;
+                    }
+                    else
+                    {
+                        inQuotes = !inQuotes;
+                    }
+                    continue;
+                }
+
+                if (ch == ',' && !inQuotes)
+                {
+                    fields.Add(current.ToString());
+                    current.Clear();
+                    continue;
+                }
+
+                current.Append(ch);
+            }
+
+            fields.Add(current.ToString());
+            return fields.ToArray();
         }
 
         public async void Send_S1F3_Get_DataVarible(Arguments args)
@@ -2233,24 +2475,24 @@ namespace EAP.EC.KS_CM300
 
                 if (reply == null)
                 {
-                    //Console.WriteLine($"[{eqpId}] S5F7 查询失败：S5F8 返回为空");
+                    //Console.WriteLine($"[{eqpId}] S5F7 鏌ヨ澶辫触锛歋5F8 杩斿洖涓虹┖");
                     return;
                 }
 
                 var root = reply.SecsItem;
                 if (root == null || root.Items == null || root.Items.Length == 0)
                 {
-                    //Console.WriteLine($"[{eqpId}] S5F8 无已使能报警");
+                    //Console.WriteLine($"[{eqpId}] S5F8 鏃犲凡浣胯兘鎶ヨ");
                     return;
                 }
 
-                //Console.WriteLine($"[{eqpId}] S5F8 已使能报警数量: {root.Items.Length}");
+                //Console.WriteLine($"[{eqpId}] S5F8 宸蹭娇鑳芥姤璀︽暟閲? {root.Items.Length}");
                 for (int i = 0; i < root.Items.Length; i++)
                 {
                     var alarmItem = root.Items[i];
                     if (alarmItem == null || alarmItem.Count < 3)
                     {
-                        //Console.WriteLine($"[{eqpId}] Alarm[{i + 1}] 格式异常");
+                        //Console.WriteLine($"[{eqpId}] Alarm[{i + 1}] 鏍煎紡寮傚父");
                         continue;
                     }
 
@@ -2267,7 +2509,7 @@ namespace EAP.EC.KS_CM300
             }
             catch (Exception ex)
             {
-                //Console.WriteLine($"Send S5F7 查询报警失败: {ex.Message}");
+                //Console.WriteLine($"Send S5F7 鏌ヨ鎶ヨ澶辫触: {ex.Message}");
             }
         }
 
@@ -2290,7 +2532,7 @@ namespace EAP.EC.KS_CM300
                 if (reply != null)
                 {
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
-                    // 校验返回码：0表示成功，非0表示设备拒绝
+                    // 鏍￠獙杩斿洖鐮侊細0琛ㄧず鎴愬姛锛岄潪0琛ㄧず璁惧鎷掔粷
                     if (retCode != 0)
                     {
                         args.SetResultNG($"Send S2F41 {cmd}, Equipment Reject. ReturnCode: {retCode}");
@@ -2706,7 +2948,7 @@ namespace EAP.EC.KS_CM300
         }
 
         /// <summary>
-        /// 检查LP是否允许进行循环跑片
+        /// 妫€鏌P鏄惁鍏佽杩涜寰幆璺戠墖
         /// </summary>
         private bool IsLoopProcessEnabled(string eqpId, int portId = 0)
         {
@@ -2728,7 +2970,7 @@ namespace EAP.EC.KS_CM300
             var eqpId = string.Empty;
             try
             {
-                //建立逻辑连接
+                //寤虹珛閫昏緫杩炴帴
                 eqpId = args.Header[CItems.EqpId].ToString();
                 var version = args.Header.ContainsKey(CItems.ConnectionVersion)
                     ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
@@ -2744,7 +2986,7 @@ namespace EAP.EC.KS_CM300
                     return;
                 }
 
-                // 检查是否已经连接，如果是则不需要发送 S1F13
+                // 妫€鏌ユ槸鍚﹀凡缁忚繛鎺ワ紝濡傛灉鏄垯涓嶉渶瑕佸彂閫?S1F13
                 bool isAlreadyConnected = false;
                 if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfoObj))
                 {
@@ -2802,7 +3044,7 @@ namespace EAP.EC.KS_CM300
                 return;
             }
             MESClient.Send_EqpState(eqpId, EQPState.DisConnected);
-            //建立逻辑连接
+            //寤虹珛閫昏緫杩炴帴
             if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
             {
                 eqpInfo.ConnectStatus = ConnectStatus.DISCONNECTED;
@@ -3076,21 +3318,21 @@ namespace EAP.EC.KS_CM300
 
         public static bool CheckItem(Item replyItem, SECSITEM secsItem)
         {
-            //先校验节点格式是否对的上
+            //鍏堟牎楠岃妭鐐规牸寮忔槸鍚﹀鐨勪笂
             if (!CheckSecsItemFormart(replyItem.Format, secsItem.Type))
                 return false;
-            //非List节点
+            //闈濴ist鑺傜偣
             if (replyItem.Format != SecsFormat.List)
             {
-                //根据Fixed配置决定是否校验节点值
+                //鏍规嵁Fixed閰嶇疆鍐冲畾鏄惁鏍￠獙鑺傜偣鍊?
                 if (secsItem.Fixed)
                 {
-                    //根据count决定校验方式
-                    if (secsItem.count == 0) //表示不校验具体值，只需要有该节点即可
+                    //鏍规嵁count鍐冲畾鏍￠獙鏂瑰紡
+                    if (secsItem.count == 0) //琛ㄧず涓嶆牎楠屽叿浣撳€硷紝鍙渶瑕佹湁璇ヨ妭鐐瑰嵆鍙?
                     {
                         return true;
                     }
-                    else //表示需要校验具体值，设备回复中该节点值必须和配置的一模一样
+                    else //琛ㄧず闇€瑕佹牎楠屽叿浣撳€硷紝璁惧鍥炲涓鑺傜偣鍊煎繀椤诲拰閰嶇疆鐨勪竴妯′竴鏍?
                     {
                         var replyValue = SecsItemUtil.GetItemValue(replyItem).ToString();
                         if (replyValue != secsItem.Value)
@@ -3100,24 +3342,24 @@ namespace EAP.EC.KS_CM300
                 }
                 return true;
             }
-            //List节点校验子节点数量
+            //List鑺傜偣鏍￠獙瀛愯妭鐐规暟閲?
             else
             {
                 if (secsItem.Fixed)
                 {
-                    if (secsItem.count == 9999)  //表示List下可能有N个节点，但不会是0节点
+                    if (secsItem.count == 9999)  //琛ㄧずList涓嬪彲鑳芥湁N涓妭鐐癸紝浣嗕笉浼氭槸0鑺傜偣
                     {
                         if (replyItem.Items.Count() > 0)
                             return true;
                         return false;
                     }
-                    else if (secsItem.count == 0) //表示List下不能有节点
+                    else if (secsItem.count == 0) //琛ㄧずList涓嬩笉鑳芥湁鑺傜偣
                     {
                         if (replyItem.Items.Count() > 0)
                             return false;
                         return true;
                     }
-                    else//表示配置了具体的节点数量，设备的回复需要对的上
+                    else//琛ㄧず閰嶇疆浜嗗叿浣撶殑鑺傜偣鏁伴噺锛岃澶囩殑鍥炲闇€瑕佸鐨勪笂
                     {
                         if (replyItem.Items.Count() != secsItem.count)
                             return false;
@@ -3178,7 +3420,7 @@ namespace EAP.EC.KS_CM300
                     }
                     catch
                     {
-                        // 单条日志失败不能影响线程
+                        // 鍗曟潯鏃ュ織澶辫触涓嶈兘褰卞搷绾跨▼
                     }
                 }
             }
@@ -3193,7 +3435,7 @@ namespace EAP.EC.KS_CM300
             _queue.CompleteAdding();
         }
 
-        // ================== 对外统一入口（业务层调用） ==================
+        // ================== 瀵瑰缁熶竴鍏ュ彛锛堜笟鍔″眰璋冪敤锛?==================
 
         public static void SVIDError(int svid, string message, string category)
         {
@@ -3213,7 +3455,7 @@ namespace EAP.EC.KS_CM300
                 WriteException(ex, category));
         }
 
-        // ================== 队列入队 ==================
+        // ================== 闃熷垪鍏ラ槦 ==================
 
         private static void Enqueue(Action action)
         {
@@ -3225,21 +3467,21 @@ namespace EAP.EC.KS_CM300
 
         private static void WriteSVIDError(int svid, string message, string category)
         {
-            LogSVIDError(svid, message, category);   // 原同步方法
+            LogSVIDError(svid, message, category);   // 鍘熷悓姝ユ柟娉?
         }
 
         private static void WriteInfo(string message, string category)
         {
-            LogInfo(message, category);              // 原同步方法
+            LogInfo(message, category);              // 鍘熷悓姝ユ柟娉?
         }
 
         private static void WriteException(Exception ex, string category)
         {
-            LogException(ex, category);              // 原同步方法
+            LogException(ex, category);              // 鍘熷悓姝ユ柟娉?
         }
 
-        // ================== 你原来的同步日志方法（示意） ==================
-        // ⚠️ 这三者必须是“已有的、同步的、非 AsyncLogger 内部方法”
+        // ================== 浣犲師鏉ョ殑鍚屾鏃ュ織鏂规硶锛堢ず鎰忥級 ==================
+        // 鈿狅笍 杩欎笁鑰呭繀椤绘槸鈥滃凡鏈夌殑銆佸悓姝ョ殑銆侀潪 AsyncLogger 鍐呴儴鏂规硶鈥?
 
         private static void LogSVIDError(int svid, string msg, string fileName)
         {
@@ -3248,7 +3490,7 @@ namespace EAP.EC.KS_CM300
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 string logFile = Path.Combine(desktop, $"{fileName}.csv");
 
-                // 如果文件不存在，写入表头
+                // 濡傛灉鏂囦欢涓嶅瓨鍦紝鍐欏叆琛ㄥご
                 if (!File.Exists(logFile))
                 {
                     File.WriteAllText(logFile, "Time,SVID,Message\r\n");
@@ -3260,19 +3502,22 @@ namespace EAP.EC.KS_CM300
             }
             catch (Exception ex)
             {
-                // 最终兜底，避免因为日志写失败影响主流程
+                // 鏈€缁堝厹搴曪紝閬垮厤鍥犱负鏃ュ織鍐欏け璐ュ奖鍝嶄富娴佺▼
                 Console.WriteLine($"[LogSVIDError FAILED] {ex.Message}");
             }
         }
 
         private static void LogInfo(string message, string category)
         {
-            // 日志逻辑
+            // 鏃ュ織閫昏緫
         }
 
         private static void LogException(Exception ex, string category)
         {
-            // 日志逻辑
+            // 鏃ュ織閫昏緫
         }
     }
 }
+
+
+

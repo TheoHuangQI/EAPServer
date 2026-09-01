@@ -1,106 +1,243 @@
 <template>
-  <div class="app-container">
-    <!-- 操作栏 -->
-    <el-card class="filter-card" shadow="never">
-      <el-row :gutter="20">
-        <el-col :xs="4" :sm="4" :md="4" :lg="4">
-          <el-input v-model="pageInfo.eqpId" placeholder="设备ID" clearable @keyup.enter.native="handleSearch">
-          </el-input>
-        </el-col>
-        <el-col :xs="4" :sm="4" :md="4" :lg="4">
-          <el-input v-model="pageInfo.eqpType" placeholder="设备类型" clearable @keyup.enter.native="handleSearch">
-          </el-input>
-        </el-col>
-        <el-col :xs="8" :sm="8" :md="8" :lg="8" class="operation-col">
-          <el-button-group>
-            <el-button type="primary" @click="handleSearch">
-              <i class="el-icon-search" /> 查询
-            </el-button>
-            <el-button type="success" @click="handleAdd">
-              <i class="el-icon-plus" /> 新增
-            </el-button>
-            <el-button type="danger" :disabled="selectedRows.length === 0" @click="handleBatchDelete">
-              <i class="el-icon-delete" /> 批量删除
-            </el-button>
-          </el-button-group>
-        </el-col>
-      </el-row>
-    </el-card>
+  <div class="page-shell">
+    <section class="filter-panel">
+      <div class="filter-grid">
+        <el-input
+          v-model="pageInfo.eqpId"
+          placeholder="设备ID"
+          clearable
+          @keyup.enter="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Search /></el-icon>
+          </template>
+        </el-input>
 
-    <!-- 数据表格 -->
-    <el-card class="table-card" shadow="never">
-      <el-table :data="tableData.slice((pageInfo.pageNo - 1) * pageInfo.pageSize, pageInfo.pageNo * pageInfo.pageSize)" style="width: 100%" stripe
-        @selection-change="handleSelectionChange" row-key="eqpId">
-        <el-table-column type="selection" width="55" align="center" reserve-selection/>
-        <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
-        <el-table-column prop="eqpId" label="设备号" align="center" />
-        <el-table-column prop="eqpType" label="设备类型" />
-        <el-table-column prop="enable" label="启用">
+        <el-input
+          v-model="pageInfo.eqpType"
+          placeholder="设备类型"
+          clearable
+          @keyup.enter="handleSearch"
+        >
+          <template #prefix>
+            <el-icon><Monitor /></el-icon>
+          </template>
+        </el-input>
+
+        <div class="toolbar">
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+          <el-button plain @click="handleReset">
+            <el-icon><RefreshLeft /></el-icon>
+            重置
+          </el-button>
+          <el-button plain :loading="loading" @click="fetchData">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+          <el-button type="success" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            新增
+          </el-button>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <article class="metric-card metric-card--info">
+        <span>总设备数</span>
+        <strong>{{ stats.total }}</strong>
+      </article>
+      <article class="metric-card metric-card--success">
+        <span>在线设备</span>
+        <strong>{{ stats.online }}</strong>
+      </article>
+      <article class="metric-card metric-card--danger">
+        <span>离线设备</span>
+        <strong>{{ stats.offline }}</strong>
+      </article>
+      <article class="metric-card metric-card--neutral">
+        <span>已启用</span>
+        <strong>{{ stats.enabled }}</strong>
+      </article>
+    </section>
+
+    <section class="table-panel">
+      <div class="table-toolbar">
+        <div class="selection-text">
+          已选择 <b>{{ selectedDevices.length }}</b> 台设备
+        </div>
+        <div class="toolbar toolbar--right">
+          <el-button size="small" plain :disabled="selectedDevices.length === 0" @click="handleBatchEnable(1)">
+            <el-icon><CircleCheck /></el-icon>
+            批量启用
+          </el-button>
+          <el-button size="small" plain :disabled="selectedDevices.length === 0" @click="handleBatchEnable(0)">
+            <el-icon><CircleClose /></el-icon>
+            批量禁用
+          </el-button>
+          <el-button size="small" type="danger" plain :disabled="selectedDevices.length === 0" @click="handleBatchDelete">
+            <el-icon><Delete /></el-icon>
+            批量删除
+          </el-button>
+        </div>
+      </div>
+
+      <el-table
+        v-loading="loading"
+        :data="paginatedData"
+        border
+        stripe
+        highlight-current-row
+        row-key="eqpId"
+        max-height="calc(100vh - 360px)"
+        @selection-change="handleSelectionChange"
+        @sort-change="handleSortChange"
+      >
+        <el-table-column type="selection" width="54" align="center" reserve-selection fixed />
+        <el-table-column :index="indexHandler" label="序号" type="index" width="74" align="center" fixed sortable="custom" />
+        <el-table-column prop="eqpId" label="设备号" min-width="150" fixed sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="eqpType" label="设备类型" min-width="150" sortable="custom" show-overflow-tooltip />
+        <el-table-column prop="enable" label="启用" width="110" align="center" sortable="custom">
           <template #default="scope">
-            <span v-if="scope.row.enable === 0">❌</span>
-            <span v-else>✔️</span>
+            <el-switch
+              :model-value="isEnabled(scope.row.enable)"
+              active-text="启用"
+              inactive-text="禁用"
+              inline-prompt
+              :loading="scope.row.__switching"
+              @change="value => handleEnableChange(scope.row, value)"
+            />
           </template>
         </el-table-column>
-        <el-table-column prop="eqpStatus" label="设备状态">
+        <el-table-column prop="eqpStatus" label="设备状态" width="150" align="center" sortable="custom">
           <template #default="scope">
-            <span v-if="isConnected(scope.row.eqpStatus)">Connected</span>
-            <span v-else>DisConnected</span>
+            <span class="status-badge" :class="'status-badge--' + statusMeta(scope.row.eqpStatus).tone">
+              <span class="status-dot"></span>
+              {{ statusMeta(scope.row.eqpStatus).text }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column prop="eapStatus" label="EAP状态">
+        <el-table-column prop="eapStatus" label="EAP状态" width="150" align="center" sortable="custom">
           <template #default="scope">
-            <span v-if="isConnected(scope.row.eapStatus)">Connected</span>
-            <span v-else>DisConnected</span>
+            <span class="status-badge" :class="'status-badge--' + statusMeta(scope.row.eapStatus).tone">
+              <span class="status-dot"></span>
+              {{ statusMeta(scope.row.eapStatus).text }}
+            </span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="150" align="center">
-          <template v-slot="scope">
-            <el-tooltip content="编辑" placement="top">
-              <el-button type="primary" icon="el-icon-edit" circle size="small" @click="handleEdit(scope.row)" />
-            </el-tooltip>
-            <el-tooltip content="删除" placement="top">
-              <el-button type="danger" icon="el-icon-delete" circle size="small" @click="handleDelete(scope.row)" />
-            </el-tooltip>
+        <el-table-column label="操作" width="148" align="center" fixed="right">
+          <template #default="scope">
+            <div class="icon-actions">
+              <el-tooltip content="编辑" placement="top">
+                <el-button type="primary" circle size="small" @click="handleEdit(scope.row)">
+                  <el-icon><Edit /></el-icon>
+                </el-button>
+              </el-tooltip>
+              <el-tooltip content="删除" placement="top">
+                <el-button type="danger" circle size="small" @click="handleDelete(scope.row)">
+                  <el-icon><Delete /></el-icon>
+                </el-button>
+              </el-tooltip>
+              <el-dropdown trigger="click" @command="command => handleMoreCommand(command, scope.row)">
+                <el-button circle size="small">
+                  <el-icon><MoreFilled /></el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item command="refresh">刷新列表</el-dropdown-item>
+                    <el-dropdown-item command="copy">复制设备ID</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </div>
           </template>
         </el-table-column>
       </el-table>
 
-      <!-- 分页 -->
-      <el-pagination class="pagination-wrapper" :current-page="pageInfo.pageNo" :page-sizes="[5, 10, 20]"
-        :page-size="pageInfo.pageSize" :total="total" layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange" @current-change="handlePageChange" />
-    </el-card>
+      <div class="pagination-bar">
+        <el-pagination
+          v-model:current-page="pageInfo.pageNo"
+          v-model:page-size="pageInfo.pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="sortedData.length"
+          background
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
+      </div>
+    </section>
 
-    <!-- 编辑对话框 -->
-    <Dialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+    <EquipmentDialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
   </div>
 </template>
-  
+
 <script>
 import * as signalR from '@microsoft/signalr'
-import { GetList, Add, Edit, Delete,Deletes} from "@/api/equipment"
+import { GetList, Add, Edit, Delete, Deletes } from '@/api/equipment'
+import EquipmentDialog from './Dialog.vue'
 
-import Dialog from "./Dialog.vue"
 export default {
-  components: { Dialog },
+  name: 'EquipmentListPage',
+  components: { EquipmentDialog },
   data() {
     return {
       loading: false,
-      selectedRows: [],
+      selectedDevices: [],
       showModal: false,
       isEdit: false,
-      tableData: [
-      ],
+      tableData: [],
       formData: this.getDefaultForm(),
       total: 0,
       connection: null,
+      sortInfo: {
+        prop: '',
+        order: ''
+      },
       pageInfo: {
         eqpId: '',
         eqpType: '',
         pageNo: 1,
-        pageSize: 10,
-      },
+        pageSize: 10
+      }
+    }
+  },
+  computed: {
+    sortedData() {
+      const data = [...this.tableData]
+      if (!this.sortInfo.prop || !this.sortInfo.order) {
+        return data
+      }
 
+      const direction = this.sortInfo.order === 'ascending' ? 1 : -1
+      return data.sort((a, b) => {
+        const left = a[this.sortInfo.prop]
+        const right = b[this.sortInfo.prop]
+        if (left === right) return 0
+        if (left === null || left === undefined) return -1 * direction
+        if (right === null || right === undefined) return 1 * direction
+        return String(left).localeCompare(String(right), 'zh-CN', { numeric: true }) * direction
+      })
+    },
+    paginatedData() {
+      const start = (this.pageInfo.pageNo - 1) * this.pageInfo.pageSize
+      const end = this.pageInfo.pageNo * this.pageInfo.pageSize
+      return this.sortedData.slice(start, end)
+    },
+    stats() {
+      const total = this.tableData.length || this.total
+      const online = this.tableData.filter(item => this.isConnected(item.eqpStatus)).length
+      const enabled = this.tableData.filter(item => this.isEnabled(item.enable)).length
+
+      return {
+        total,
+        online,
+        offline: Math.max(total - online, 0),
+        enabled
+      }
     }
   },
   created() {
@@ -117,7 +254,7 @@ export default {
       return {
         eqpId: '',
         eqpType: '',
-        enable:''
+        enable: 1
       }
     },
     indexHandler(index) {
@@ -126,12 +263,21 @@ export default {
     isConnected(status) {
       return Number(status) === 1
     },
+    isEnabled(enable) {
+      return Number(enable) !== 0
+    },
+    statusMeta(status) {
+      return this.isConnected(status)
+        ? { text: 'Connected', tone: 'success' }
+        : { text: 'DisConnected', tone: 'danger' }
+    },
     initSignalR() {
       if (this.connection) {
         return
       }
+
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl("https://localhost:7255/logHub", {
+        .withUrl('https://localhost:7255/logHub', {
           skipNegotiation: true,
           transport: signalR.HttpTransportType.WebSockets,
           withCredentials: true
@@ -140,30 +286,33 @@ export default {
         .configureLogging(signalR.LogLevel.Information)
         .build()
 
-      this.connection.on("ReceiveLog", this.handleRealtimeLog)
+      this.connection.on('ReceiveLog', this.handleRealtimeLog)
       this.connection.onreconnected(() => {
         this.fetchData()
       })
       this.connection.start()
-        .catch(err => console.error("SignalR Connection Error: ", err))
+        .catch(err => console.error('SignalR Connection Error: ', err))
     },
     stopSignalR() {
       if (!this.connection) {
         return
       }
-      this.connection.off("ReceiveLog", this.handleRealtimeLog)
+
+      this.connection.off('ReceiveLog', this.handleRealtimeLog)
       this.connection.stop().catch(() => {})
       this.connection = null
     },
     handleRealtimeLog(log) {
-      if (!log || (log.type !== "EqpState" && log.type !== "EapState")) {
+      if (!log || (log.type !== 'EqpState' && log.type !== 'EapState')) {
         return
       }
+
       const index = this.tableData.findIndex(item => item.eqpId === log.eqpId)
       if (index < 0) {
         return
       }
-      const field = log.type === "EqpState" ? "eqpStatus" : "eapStatus"
+
+      const field = log.type === 'EqpState' ? 'eqpStatus' : 'eapStatus'
       this.tableData.splice(index, 1, {
         ...this.tableData[index],
         [field]: log.message
@@ -173,14 +322,25 @@ export default {
       this.loading = true
       try {
         const res = await GetList(this.pageInfo)
-        this.tableData = res.data.list
-        this.total = res.data.total
+        const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
+        this.tableData = list
+        this.total = res && res.data && Number.isFinite(Number(res.data.total)) ? Number(res.data.total) : list.length
       } finally {
         this.loading = false
       }
     },
     handleSearch() {
+      this.pageInfo.pageNo = 1
       this.fetchData()
+    },
+    handleReset() {
+      this.pageInfo.eqpId = ''
+      this.pageInfo.eqpType = ''
+      this.pageInfo.pageNo = 1
+      this.fetchData()
+    },
+    handleSortChange({ prop, order }) {
+      this.sortInfo = { prop, order }
     },
     handleAdd() {
       this.isEdit = false
@@ -192,140 +352,310 @@ export default {
       this.showModal = true
       this.formData = { ...row }
     },
+    async handleEnableChange(row, enabled) {
+      row.__switching = true
+      const nextEnable = enabled ? 1 : 0
+      const previousEnable = row.enable
+
+      try {
+        const res = await Edit({ ...row, enable: nextEnable })
+        if (res.return === 'OK') {
+          row.enable = nextEnable
+          this.$message.success(enabled ? '设备已启用' : '设备已禁用')
+        } else {
+          row.enable = previousEnable
+          this.$message.error(res.message || '操作失败')
+        }
+      } catch (error) {
+        row.enable = previousEnable
+        this.$message.error('操作失败')
+      } finally {
+        row.__switching = false
+      }
+    },
+    async handleBatchEnable(enable) {
+      if (this.selectedDevices.length === 0) {
+        return
+      }
+
+      this.loading = true
+      try {
+        const requests = this.selectedDevices.map(row => Edit({ ...row, enable }))
+        await Promise.all(requests)
+        this.$message.success(enable === 1 ? '批量启用完成' : '批量禁用完成')
+        await this.fetchData()
+      } finally {
+        this.loading = false
+      }
+    },
     handleDelete(row) {
-      this.$confirm('确定删除设备吗？', '警告', {
+      this.$confirm(`确定删除设备 ${row.eqpId || ''} 吗？`, '删除确认', {
         type: 'warning',
         confirmButtonText: '确认删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
       }).then(() => {
         Delete(row).then(res => {
-          if (res.return == "OK") {
+          if (res.return === 'OK') {
             this.$message.success('删除成功')
             this.fetchData()
-          }
-          else {
+          } else {
             this.$message.error(res.message)
           }
-        });
-      }).catch(() => { })
+        })
+      }).catch(() => {})
     },
     handleBatchDelete() {
-      if (this.selectedRows.length === 0) {
-        this.$message.warning('请至少选择一条记录')
+      if (this.selectedDevices.length === 0) {
+        this.$message.warning('请至少选择一台设备')
         return
       }
-      this.$confirm(`确定删除选中的 ${this.selectedRows.length} 条记录吗？`, '警告', {
+
+      const ids = this.selectedDevices.map(item => item.eqpId)
+      this.$confirm(`确定删除选中的 ${ids.length} 台设备吗？`, '删除确认', {
         type: 'warning',
         confirmButtonText: '确认删除',
         cancelButtonText: '取消',
         confirmButtonClass: 'el-button--danger'
       }).then(() => {
-        Deletes(this.this.selectedRows).then(res => {
-          if (res.return == "OK") {
+        Deletes(ids).then(res => {
+          if (res.return === 'OK') {
             this.$message.success('删除成功')
             this.fetchData()
-          }
-          else {
+          } else {
             this.$message.error(res.message)
           }
-        });
-      }).catch(() => { })
+        })
+      }).catch(() => {})
     },
     handleSelectionChange(selection) {
-      this.selectedRows = selection.map(item => item.eqpId)
+      this.selectedDevices = selection
     },
-    handleSizeChange(val) {
-      this.pageInfo.pageSize = val
+    handleSizeChange() {
       this.pageInfo.pageNo = 1
     },
-    handlePageChange(val) {
-      this.pageInfo.pageNo = val
-    },
+    handlePageChange() {},
     handleDialogSubmit(formData) {
       this.loading = true
-      try {
-        if (this.isEdit) {
-          const res = Edit(formData).then(res => {
-            if (res.return == "OK") {
-              this.$message.success('修改成功')
-              this.fetchData()
-            }
-            else {
-              this.$message.error(res.message)
-            }
-          })
-        }
-        else {
-          const res = Add(formData).then(res => {
-            if (res.return == "OK") {
-              this.$message.success('添加成功')
-              this.fetchData()
-            }
-            else {
-              this.$message.error(res.message)
-            }
-          })
-        }
+      const request = this.isEdit ? Edit(formData) : Add(formData)
 
-      } finally {
+      request.then(res => {
+        if (res.return === 'OK') {
+          this.$message.success(this.isEdit ? '修改成功' : '添加成功')
+          this.showModal = false
+          this.fetchData()
+        } else {
+          this.$message.error(res.message)
+        }
+      }).finally(() => {
         this.loading = false
+      })
+    },
+    handleMoreCommand(command, row) {
+      if (command === 'refresh') {
+        this.fetchData()
       }
+      if (command === 'copy') {
+        this.copyText(row.eqpId || '')
+      }
+    },
+    copyText(text) {
+      if (!text) {
+        return
+      }
+
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text)
+      }
+      this.$message.success('已复制')
     }
   }
 }
 </script>
-  
+
 <style lang="scss" scoped>
-.app-container {
-  padding: 20px;
-  background-color: #f5f7fa;
-
-  .filter-card {
-    margin-bottom: 20px;
-    border-radius: 8px;
-    border: 1px solid #ebeef5;
-
-    .operation-col {
-      text-align: left;
-
-      @media (max-width: 768px) {
-        text-align: left;
-        margin-top: 10px;
-      }
-    }
-  }
-
-  .table-card {
-    border-radius: 8px;
-    border: 1px solid #ebeef5;
-
-    :deep() .el-table {
-      th {
-        background-color: #f5f7fa;
-      }
-    }
-
-    .pagination-wrapper {
-      margin-top: 20px;
-      text-align: right;
-    }
-  }
-
-  .el-button-group {
-    .el-button {
-      &+.el-button {
-        margin-left: 8px;
-      }
-    }
-  }
+.page-shell {
+  min-height: calc(100vh - 64px);
+  padding: 16px;
+  background: #f5f7fa;
+  color: #182433;
+  text-align: left;
+  box-sizing: border-box;
 }
 
-.el-dialog {
+.filter-panel,
+.table-panel,
+.metric-card {
+  border: 1px solid #dce3ec;
   border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(24, 36, 51, 0.05);
+}
 
-  .el-form-item {
-    margin-bottom: 22px;
+.filter-panel {
+  padding: 14px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(180px, 240px) minmax(360px, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.toolbar,
+.icon-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar--right {
+  justify-content: flex-end;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.metric-card {
+  min-height: 78px;
+  padding: 12px;
+  border-left: 4px solid #8a96a8;
+  box-sizing: border-box;
+}
+
+.metric-card span {
+  color: #596679;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.metric-card strong {
+  display: block;
+  margin-top: 10px;
+  color: #162235;
+  font-size: 26px;
+  line-height: 1;
+}
+
+.metric-card--success {
+  border-left-color: #52c41a;
+}
+
+.metric-card--info {
+  border-left-color: #1890ff;
+}
+
+.metric-card--danger {
+  border-left-color: #ff4d4f;
+}
+
+.metric-card--neutral {
+  border-left-color: #8a96a8;
+}
+
+.table-panel {
+  padding: 12px;
+}
+
+.table-toolbar,
+.pagination-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.table-toolbar {
+  margin-bottom: 10px;
+}
+
+.selection-text {
+  color: #596679;
+  font-size: 13px;
+}
+
+.selection-text b {
+  color: #1890ff;
+}
+
+.pagination-bar {
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  margin-top: 12px;
+  padding-top: 10px;
+  background: #fff;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.status-badge--success {
+  color: #13744d;
+  background: #e9f7f0;
+}
+
+.status-badge--danger {
+  color: #b42318;
+  background: #fff0ed;
+}
+
+:deep(.el-table th.el-table__cell) {
+  background: #f5f7fa;
+  color: #182433;
+  font-weight: 800;
+}
+
+:deep(.el-table__row:hover > td.el-table__cell) {
+  background: #f2f8ff;
+}
+
+:deep(.el-button) {
+  border-radius: 6px;
+}
+
+:deep(.el-input__wrapper) {
+  border-radius: 6px;
+}
+
+@media (max-width: 960px) {
+  .filter-grid,
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .table-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .toolbar--right {
+    justify-content: flex-start;
   }
 }
 </style>
