@@ -23,6 +23,21 @@
         />
       </el-form-item>
 
+      <!-- 设备 -->
+      <el-form-item label="设备：" prop="eqpId">
+        <el-select
+          v-model="formData.eqpId"
+          placeholder="请选择设备"
+          filterable
+          clearable
+          :disabled="isEdit && Boolean(formData.eqpId)"
+          style="width: 100%"
+          @change="handleEquipmentChange"
+        >
+          <el-option v-for="device in devices" :key="device.eqpId" :label="device.eqpId" :value="device.eqpId" />
+        </el-select>
+      </el-form-item>
+
       <!-- 数量 -->
       <el-form-item label="数量：" prop="qty">
         <el-input 
@@ -97,6 +112,7 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { GetPPIDList } from "@/api/lot"
+import { GetList as GetEquipmentList } from "@/api/equipment"
 
 const props = defineProps({
   visible: {
@@ -118,6 +134,7 @@ const emit = defineEmits(['update:visible', 'submit'])
 const formRef = ref(null)
 const formData = ref({ ...props.form })
 const ppidOptions = ref([])
+const devices = ref([])
 
 const validateQty = (rule, value, callback) => {
   if (value === '') return callback(new Error('请输入数量'))
@@ -138,6 +155,9 @@ const rules = {
   ],
   ppid: [
     { required: false, message: '请选择PPID', trigger: 'change' }
+  ],
+  eqpId: [
+    { required: true, message: '请选择设备', trigger: 'change' }
   ]
 }
 
@@ -152,9 +172,22 @@ const isAllSelected = computed(() => formData.value.slots.length === 25)
 const selectedCount = computed(() => formData.value.slots.length)
 
 const getppList = () => {
-  GetPPIDList(formData.value.lotId).then(res => {
-    ppidOptions.value = res.data.list
+  GetPPIDList({ lotId: formData.value.lotId, eqpId: formData.value.eqpId }).then(res => {
+    ppidOptions.value = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
   })
+}
+
+const getDeviceList = () => {
+  GetEquipmentList({}).then(res => {
+    const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
+    devices.value = list.filter(device => Number(device.enable) !== 0 && device.eqpId)
+  })
+}
+
+const handleEquipmentChange = () => {
+  formData.value.ppid = ''
+  ppidOptions.value = []
+  if (formData.value.eqpId) getppList()
 }
 
 const handleClose = () => {
@@ -181,13 +214,10 @@ const handleConfirm = () => {
 watch(() => props.visible, (newVal) => {
   if (newVal) {
     formData.value = { ...props.form }
-    // 仅在“编辑”模式下才加载PPID列表
-    if (props.isEdit) {
-      getppList()
-    } else {
-      // 在“新增”模式下，清空旧的选项以防数据显示错乱
-      ppidOptions.value = []
-    }
+    getDeviceList()
+    // 编辑旧 Lot 时优先使用 Lot 记录的设备；旧数据没有设备字段时由后端从 Batch 推断。
+    if (props.isEdit && formData.value.lotId) getppList()
+    else ppidOptions.value = []
   }
 })
 </script>

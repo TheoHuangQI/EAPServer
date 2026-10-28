@@ -100,6 +100,18 @@
         <el-table-column :index="indexHandler" label="序号" type="index" width="74" align="center" fixed sortable="custom" />
         <el-table-column prop="eqpId" label="设备号" min-width="150" fixed sortable="custom" show-overflow-tooltip />
         <el-table-column prop="eqpType" label="设备类型" min-width="150" sortable="custom" show-overflow-tooltip />
+        <el-table-column label="连接配置" min-width="230">
+          <template #default="scope">
+            <div v-if="scope.row.connectionConfig" class="connection-summary">
+              <el-tag size="small" effect="plain">{{ scope.row.connectionConfig.connectionType }}</el-tag>
+              <el-tag size="small" effect="plain" type="info">{{ scope.row.connectionConfig.connectionMode }}</el-tag>
+              <span>{{ connectionSummary(scope.row.connectionConfig) }}</span>
+            </div>
+            <el-tag v-else size="small" :type="scope.row.connectionConfigError ? 'danger' : 'warning'" effect="plain">
+              {{ scope.row.connectionConfigError ? '读取失败' : '未配置' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="enable" label="启用" width="110" align="center" sortable="custom">
           <template #default="scope">
             <el-switch
@@ -128,9 +140,14 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="148" align="center" fixed="right">
+        <el-table-column label="操作" width="210" align="center" fixed="right">
           <template #default="scope">
             <div class="icon-actions">
+              <el-tooltip content="连接参数" placement="top">
+                <el-button type="primary" plain size="small" @click="handleConnectionConfig(scope.row)">
+                  参数
+                </el-button>
+              </el-tooltip>
               <el-tooltip content="编辑" placement="top">
                 <el-button type="primary" circle size="small" @click="handleEdit(scope.row)">
                   <el-icon><Edit /></el-icon>
@@ -172,12 +189,106 @@
     </section>
 
     <EquipmentDialog v-model:visible="showModal" :is-edit="isEdit" :form="formData" @submit="handleDialogSubmit" />
+
+    <el-dialog
+      v-model="showConfigModal"
+      title="设备连接配置"
+      width="min(860px, calc(100vw - 32px))"
+      :close-on-click-modal="false"
+      destroy-on-close
+    >
+      <el-form :model="configForm" label-width="145px" class="connection-config-form">
+        <el-row :gutter="16">
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="设备名称">
+              <el-input v-model="configForm.name" disabled />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="Device ID">
+              <el-input-number v-model="configForm.deviceID" :min="0" :max="65535" controls-position="right" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="连接模式">
+              <el-select v-model="configForm.connectionMode" style="width: 100%">
+                <el-option label="ACTIVE（主动）" value="ACTIVE" />
+                <el-option label="PASSIVE（被动）" value="PASSIVE" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="连接类型">
+              <el-select v-model="configForm.connectionType" style="width: 100%">
+                <el-option label="HSMS" value="HSMS" />
+                <el-option label="SECSI" value="SECSI" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="本地 IP">
+              <el-input v-model="configForm.localIP" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="本地端口">
+              <el-input-number v-model="configForm.localPort" :min="1" :max="65535" controls-position="right" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="远端 IP">
+              <el-input v-model="configForm.remoteIP" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="远端端口">
+              <el-input-number v-model="configForm.remotePort" :min="0" :max="65535" controls-position="right" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="设备类型">
+              <el-input v-model="configForm.eqpType" />
+            </el-form-item>
+          </el-col>
+          <el-col :xs="24" :sm="12">
+            <el-form-item label="LoadPort 数量">
+              <el-input-number v-model="configForm.loadPort" :min="1" controls-position="right" />
+            </el-form-item>
+          </el-col>
+          <el-col v-for="field in timeoutFields" :key="field.key" :xs="12" :sm="8">
+            <el-form-item :label="field.label">
+              <el-input-number v-model="configForm[field.key]" :min="1" controls-position="right" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="Chamber">
+              <el-input v-model="configForm.chamber" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-form-item label="Event Report 文件">
+              <el-input v-model="configForm.eventReportFile" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="自动重连">
+              <el-switch v-model="configForm.autoReconnect" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+      <template #footer>
+        <el-button @click="showConfigModal = false">取消</el-button>
+        <el-button type="primary" :loading="configSaving" @click="saveConnectionConfig">保存配置</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import * as signalR from '@microsoft/signalr'
-import { GetList, Add, Edit, Delete, Deletes } from '@/api/equipment'
+import { GetList, Add, Edit, Delete, Deletes, GetConnectionConfig, SetConnectionConfig } from '@/api/equipment'
+import request from '@/utils/request'
 import EquipmentDialog from './Dialog.vue'
 
 export default {
@@ -188,11 +299,27 @@ export default {
       loading: false,
       selectedDevices: [],
       showModal: false,
+      showConfigModal: false,
+      configSaving: false,
+      configDeviceId: '',
+      connectionConfigs: {},
+      configForm: this.getDefaultConnectionConfig(),
+      timeoutFields: [
+        { key: 't3', label: 'T3 超时（秒）' },
+        { key: 't5', label: 'T5 超时（秒）' },
+        { key: 't6', label: 'T6 超时（秒）' },
+        { key: 't7', label: 'T7 超时（秒）' },
+        { key: 't8', label: 'T8 超时（秒）' },
+        { key: 'heartbeatInterval', label: '心跳周期（秒）' },
+        { key: 'heartbeatMaxFailures', label: '心跳失败次数' }
+      ],
       isEdit: false,
       tableData: [],
       formData: this.getDefaultForm(),
       total: 0,
       connection: null,
+      statusRefreshTimer: null,
+      statusRefreshInFlight: false,
       sortInfo: {
         prop: '',
         order: ''
@@ -245,8 +372,10 @@ export default {
   },
   mounted() {
     this.initSignalR()
+    this.startStatusPolling()
   },
   beforeUnmount() {
+    this.stopStatusPolling()
     this.stopSignalR()
   },
   methods: {
@@ -255,6 +384,78 @@ export default {
         eqpId: '',
         eqpType: '',
         enable: 1
+      }
+    },
+    getDefaultConnectionConfig() {
+      return {
+        name: '',
+        deviceID: 0,
+        connectionMode: 'ACTIVE',
+        localIP: '0.0.0.0',
+        localPort: 5000,
+        remoteIP: '0.0.0.0',
+        remotePort: 5000,
+        eqpType: '',
+        t3: 45,
+        t5: 10,
+        t6: 5,
+        t7: 10,
+        t8: 5,
+        connectionType: 'HSMS',
+        chamber: '9,10,11,13,14,15,17,18,19,21,22,23',
+        loadPort: 4,
+        eventReportFile: 'event-report-CH.xml',
+        heartbeatInterval: 30,
+        heartbeatMaxFailures: 3,
+        autoReconnect: true
+      }
+    },
+    mapConnectionConfig(config) {
+      return {
+        name: config.Name,
+        deviceID: Number(config.DeviceID),
+        connectionMode: config.ConnectionMode,
+        localIP: config.LocalIP,
+        localPort: Number(config.LocalPort),
+        remoteIP: config.RemoteIP,
+        remotePort: Number(config.RemotePort),
+        eqpType: config.EQPType,
+        t3: Number(config.T3),
+        t5: Number(config.T5),
+        t6: Number(config.T6),
+        t7: Number(config.T7),
+        t8: Number(config.T8),
+        connectionType: config.ConnectionType,
+        chamber: config.Chamber,
+        loadPort: Number(config.LoadPort),
+        eventReportFile: config.EventReportFile,
+        heartbeatInterval: Number(config.HeartbeatInterval),
+        heartbeatMaxFailures: Number(config.HeartbeatMaxFailures),
+        autoReconnect: config.AutoReconnect !== false
+      }
+    },
+    serializeConnectionConfig(config) {
+      return {
+        Name: config.name,
+        DeviceID: Number(config.deviceID),
+        ConnectionMode: config.connectionMode,
+        LocalIP: config.localIP,
+        LocalPort: Number(config.localPort),
+        RemoteIP: config.remoteIP,
+        RemotePort: Number(config.remotePort),
+        EQPType: config.eqpType,
+        T3: Number(config.t3),
+        T5: Number(config.t5),
+        T6: Number(config.t6),
+        T7: Number(config.t7),
+        T8: Number(config.t8),
+        ConnectionType: config.connectionType,
+        Chamber: config.chamber,
+        LoadPort: Number(config.loadPort),
+        EventReportFile: config.eventReportFile,
+        HeartbeatInterval: Number(config.heartbeatInterval),
+        HeartbeatMaxFailures: Number(config.heartbeatMaxFailures),
+        AutoReconnect: Boolean(config.autoReconnect)
       }
     },
     indexHandler(index) {
@@ -271,16 +472,24 @@ export default {
         ? { text: 'Connected', tone: 'success' }
         : { text: 'DisConnected', tone: 'danger' }
     },
+    connectionSummary(config) {
+      if (config.connectionMode === 'PASSIVE') {
+        return `监听 ${config.localIP}:${config.localPort}`
+      }
+      return `${config.remoteIP}:${config.remotePort}`
+    },
     initSignalR() {
       if (this.connection) {
         return
       }
 
+      const apiUrl = new URL(request.defaults.baseURL, window.location.origin)
+      const logHubUrl = new URL('../logHub', apiUrl).href
       this.connection = new signalR.HubConnectionBuilder()
-        .withUrl('https://localhost:7255/logHub', {
+        .withUrl(logHubUrl, {
           skipNegotiation: true,
           transport: signalR.HttpTransportType.WebSockets,
-          withCredentials: true
+          withCredentials: false
         })
         .withAutomaticReconnect()
         .configureLogging(signalR.LogLevel.Information)
@@ -301,6 +510,48 @@ export default {
       this.connection.off('ReceiveLog', this.handleRealtimeLog)
       this.connection.stop().catch(() => {})
       this.connection = null
+    },
+    startStatusPolling() {
+      if (this.statusRefreshTimer) {
+        return
+      }
+      this.statusRefreshTimer = window.setInterval(() => {
+        this.refreshStatuses()
+      }, 5000)
+    },
+    stopStatusPolling() {
+      if (this.statusRefreshTimer) {
+        window.clearInterval(this.statusRefreshTimer)
+        this.statusRefreshTimer = null
+      }
+    },
+    async refreshStatuses() {
+      if (this.statusRefreshInFlight || this.loading || !this.tableData.length || document.hidden) {
+        return
+      }
+
+      this.statusRefreshInFlight = true
+      try {
+        const res = await GetList(this.pageInfo)
+        const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
+        const latestById = new Map(list.map(item => [item.eqpId, item]))
+        this.tableData = this.tableData.map(row => {
+          const latest = latestById.get(row.eqpId)
+          if (!latest) {
+            return row
+          }
+          return {
+            ...row,
+            eqpStatus: latest.eqpStatus,
+            eapStatus: latest.eapStatus,
+            controlState: latest.controlState
+          }
+        })
+      } catch (error) {
+        // Keep the last known status; the next poll or SignalR event will refresh it.
+      } finally {
+        this.statusRefreshInFlight = false
+      }
     },
     handleRealtimeLog(log) {
       if (!log || (log.type !== 'EqpState' && log.type !== 'EapState')) {
@@ -323,7 +574,24 @@ export default {
       try {
         const res = await GetList(this.pageInfo)
         const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
-        this.tableData = list
+        const configEntries = await Promise.all(list.map(async item => {
+          try {
+            const configRes = await GetConnectionConfig(item.eqpId)
+            if (configRes && configRes.return === 'OK' && configRes.data) {
+              return [item.eqpId, this.mapConnectionConfig(configRes.data), '']
+            }
+            return [item.eqpId, null, (configRes && configRes.message) || '读取设备连接配置失败']
+          } catch (error) {
+            return [item.eqpId, null, error.message || '读取设备连接配置失败']
+          }
+        }))
+        this.connectionConfigs = Object.fromEntries(configEntries.map(([eqpId, config]) => [eqpId, config]))
+        const configErrors = Object.fromEntries(configEntries.map(([eqpId, , error]) => [eqpId, error]))
+        this.tableData = list.map(item => ({
+          ...item,
+          connectionConfig: this.connectionConfigs[item.eqpId],
+          connectionConfigError: configErrors[item.eqpId]
+        }))
         this.total = res && res.data && Number.isFinite(Number(res.data.total)) ? Number(res.data.total) : list.length
       } finally {
         this.loading = false
@@ -351,6 +619,59 @@ export default {
       this.isEdit = true
       this.showModal = true
       this.formData = { ...row }
+    },
+    async handleConnectionConfig(row, configData = null) {
+      this.configDeviceId = row.eqpId
+      let config = this.connectionConfigs[row.eqpId]
+      if (!config && configData) {
+        config = this.mapConnectionConfig(configData)
+        this.connectionConfigs = { ...this.connectionConfigs, [row.eqpId]: config }
+      }
+      if (!config) {
+        try {
+          const res = await GetConnectionConfig(row.eqpId)
+          if (!res || res.return !== 'OK' || !res.data) {
+            row.connectionConfigError = (res && res.message) || '未找到设备连接配置'
+            this.$message.error(row.connectionConfigError)
+            return
+          }
+          config = this.mapConnectionConfig(res.data)
+          this.connectionConfigs = { ...this.connectionConfigs, [row.eqpId]: config }
+          row.connectionConfigError = ''
+          row.connectionConfig = config
+        } catch (error) {
+          row.connectionConfigError = error.message || '读取设备连接配置失败'
+          this.$message.error(row.connectionConfigError)
+          return
+        }
+      }
+      this.configForm = { ...this.getDefaultConnectionConfig(), ...config }
+      this.showConfigModal = true
+    },
+    async saveConnectionConfig() {
+      this.configSaving = true
+      try {
+        const res = await SetConnectionConfig(this.configDeviceId, this.serializeConnectionConfig(this.configForm))
+        if (res && res.return === 'OK') {
+          const config = this.mapConnectionConfig(res.data)
+          const savedFiles = Array.isArray(res.files) ? res.files : []
+          this.connectionConfigs = { ...this.connectionConfigs, [this.configDeviceId]: config }
+          const row = this.tableData.find(item => item.eqpId === this.configDeviceId)
+          if (row) {
+            row.connectionConfig = config
+            row.connectionConfigError = ''
+          }
+          this.showConfigModal = false
+          const filesText = savedFiles.length ? `已写入后端本机文件：${savedFiles.join('；')}。` : ''
+          this.$message.success(`配置已保存，${filesText}启用时会加载最新配置；已启用设备请先禁用再启用`)
+        } else {
+          this.$message.error((res && res.message) || '保存连接配置失败')
+        }
+      } catch (error) {
+        this.$message.error('保存连接配置失败')
+      } finally {
+        this.configSaving = false
+      }
     },
     async handleEnableChange(row, enabled) {
       row.__switching = true
@@ -380,10 +701,28 @@ export default {
 
       this.loading = true
       try {
-        const requests = this.selectedDevices.map(row => Edit({ ...row, enable }))
-        await Promise.all(requests)
-        this.$message.success(enable === 1 ? '批量启用完成' : '批量禁用完成')
+        const results = []
+        for (const row of [...this.selectedDevices]) {
+          try {
+            const res = await Edit({ ...row, enable })
+            if (res.return === 'OK') {
+              results.push({ row, success: true })
+            } else {
+              results.push({ row, success: false, message: res.message || '操作失败' })
+            }
+          } catch (error) {
+            results.push({ row, success: false, message: error.message || '请求失败' })
+          }
+        }
+
+        const failed = results.filter(result => !result.success)
         await this.fetchData()
+        if (failed.length === 0) {
+          this.$message.success(enable === 1 ? '批量启用完成' : '批量禁用完成')
+        } else {
+          const failedNames = failed.map(result => result.row.eqpId).join('、')
+          this.$message.error(`${failedNames} 启停失败：${failed[0].message}`)
+        }
       } finally {
         this.loading = false
       }
@@ -435,21 +774,27 @@ export default {
       this.pageInfo.pageNo = 1
     },
     handlePageChange() {},
-    handleDialogSubmit(formData) {
+    async handleDialogSubmit(formData) {
       this.loading = true
-      const request = this.isEdit ? Edit(formData) : Add(formData)
-
-      request.then(res => {
+      const isEdit = this.isEdit
+      try {
+        const res = await (isEdit ? Edit(formData) : Add(formData))
         if (res.return === 'OK') {
-          this.$message.success(this.isEdit ? '修改成功' : '添加成功')
+          this.$message.success(isEdit ? '修改成功' : '添加成功，已生成默认连接参数')
           this.showModal = false
-          this.fetchData()
+          await this.fetchData()
+          if (!isEdit) {
+            const row = this.tableData.find(item => item.eqpId === formData.eqpId)
+            const configData = res.data || null
+            await this.handleConnectionConfig(row || { eqpId: formData.eqpId }, configData)
+            this.$message.info('请确认并修改设备 IP 和端口，保存后重启 EAPServer 加载新设备')
+          }
         } else {
           this.$message.error(res.message)
         }
-      }).finally(() => {
+      } finally {
         this.loading = false
-      })
+      }
     },
     handleMoreCommand(command, row) {
       if (command === 'refresh') {
@@ -582,6 +927,23 @@ export default {
 
 .selection-text b {
   color: #1890ff;
+}
+
+.connection-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.connection-summary span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.connection-config-form :deep(.el-input-number) {
+  width: 100%;
 }
 
 .pagination-bar {

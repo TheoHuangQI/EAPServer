@@ -1,0 +1,1380 @@
+﻿id,sv_name,type,unit,isbuilt,ecs_name,desc
+28,CLOCK,A,,0,CLOCK,Value of equipment??s internal clock in cs Format: YYYYMMDDhhmmsscc.
+29,ControlState,U1,,0,FA.REMOTE,Current control state of the equipment.
+30,PreviousControlState,U1,,0,PreviousControlState,Previous control state of the equipment.
+32,LINKSTATE,U1,,0,FA.ONLINE,Current communication state of the equipment.
+33,MDLN,A,,0,MDLN,Equipment model type.
+38,PreviousProcessState,U1,,0,GEM.PRE_RUN_CONTROL,Previous Process state of the equipment.
+39,ProcessState,U1,,0,GEM.RUN_CONTROL,Current Process state of the equipment.
+40,SOFTREV,A,,0,SOFTREV,The current software version in the equipment.
+493,QueueAvailableSpace,U1,,0,QueueAvailableSpace,
+160,PortAssociationStateList,L,,0,PortAssociationStateList,Indicates the loadport association state for all loadports on the tool.
+162,PortReservationStateList,L,,0,PortReservationStateList,Indicates the loadport Reservation state for all loadports on the tool.
+163,PortTransferStateList,L,,0,PortTransferStateList,Indicates the transfer state of all the loadports on the tool.
+164,PortAccessModeList,L,,0,PortAccessModeList,Indicates the Access model of all the loadports on the tool.
+165,PortCarrierIDList,L,,0,PortCarrierIDList,Provides a list of Carrier IDs for all defined portsList.
+300,LP1AssociationState,U1,,0,LP1AssociationState,Indicates the loadport association state for loadport1 on the tool.
+301,LP2AssociationState,U1,,0,LP2AssociationState,Indicates the loadport association state for loadport2 on the tool.
+302,LP3AssociationState,U1,,0,LP3AssociationState,Indicates the loadport association state for loadport3 on the tool.
+303,LP4AssociationState,U1,,0,LP4AssociationState,Indicates the loadport association state for loadport4 on the tool.
+320,LP1ReservationState,U1,,0,LP1ReservationState,Indicates the loadport Reservation state for loadport1 on the tool.
+321,LP2ReservationState,U1,,0,LP2ReservationState,Indicates the loadport Reservation state for loadport2 on the tool.
+322,LP3ReservationState,U1,,0,LP3ReservationState,Indicates the loadport Reservation state for loadport3 on the tool.
+323,LP4ReservationState,U1,,0,LP4ReservationState,Indicates the loadport Reservation state for loadport4 on the tool.
+330,LP1TransferState,U1,,0,LP1TransferState,Indicates the loadport transfer state for loadport1 on the tool.
+331,LP2TransferState,U1,,0,LP2TransferState,Indicates the loadport transfer state for loadport2 on the tool.
+332,LP3TransferState,U1,,0,LP3TransferState,Indicates the loadport transfer state for loadport3 on the tool.
+333,LP4TransferState,U1,,0,LP4TransferState,Indicates the loadport transfer state for loadport4 on the tool.
+340,LP1AccessMode,U1,,0,LP1.E84Mode,Indicates the loadport Access Mode for loadport1 on the tool.
+341,LP2AccessMode,U1,,0,LP2.E84Mode,Indicates the loadport Access Mode for loadport2 on the tool.
+342,LP3AccessMode,U1,,0,LP3.E84Mode,Indicates the loadport Access Mode for loadport3 on the tool.
+343,LP4AccessMode,U1,,0,LP4.E84Mode,Indicates the loadport Access Mode for loadport4 on the tool.
+350,LP1CarrierID,A,,0,LP1.ReadRFID,Indicates the CarrierID for loadport1 on the tool.
+351,LP2CarrierID,A,,0,LP2.ReadRFID,Indicates the CarrierID for loadport2 on the tool.
+352,LP3CarrierID,A,,0,LP3.ReadRFID,Indicates the CarrierID for loadport3 on the tool.
+353,LP4CarrierID,A,,0,LP4.ReadRFID,Indicates the CarrierID for loadport4 on the tool.
+360,PortClampState1,U1,,0,LP1.ClampSts,LoadPort1 Clamp Status.
+361,PortClampState2,U1,,0,LP2.ClampSts,LoadPort2 Clamp Status.
+362,PortClampState3,U1,,0,LP3.ClampSts,LoadPort3 Clamp Status.
+363,PortClampState4,U1,,0,LP4.ClampSts,LoadPort4 Clamp Status.
+10001,FFU1.SpeedRead,U4,,0,FFU1.SpeedRead,EFEM1 Speed Read
+10002,FFU2.SpeedRead,U4,,0,FFU2.SpeedRead,EFEM2 Speed Read
+10003,FFU3.SpeedRead,U4,,0,FFU3.SpeedRead,EFEM3 Speed Read
+10004,FFU4.SpeedRead,U4,,0,FFU4.SpeedRead,F2 1 Speed Read
+10005,FFU5.SpeedRead,U4,,0,FFU5.SpeedRead,F2 2 Speed Read
+10006,FFU6.SpeedRead,U4,,0,FFU6.SpeedRead,F3 Speed Read
+11090001,L2CH1_Arm1VerCtrl,U4, ,0,L2CH1_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11090002,L2CH1_Arm2VerCtrl,U4, ,0,L2CH1_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11090003,L2CH1_Arm3VerCtrl,U4, ,0,L2CH1_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11090004,L2CH1_Arm1HorPosID,U4, ,0,L2CH1_Arm1HorPosID,Arm1运动状态
+11090005,L2CH1_Arm2HorPosID,U4, ,0,L2CH1_Arm2HorPosID,Arm2运动状态
+11090006,L2CH1_Arm3HorPosID,U4, ,0,L2CH1_Arm3HorPosID,Arm3运动状态
+11090007,L2CH1_Cup1PosID,U4, ,0,L2CH1_Cup1PosID,Cup1运动位置
+11090008,L2CH1_Cup2PosID,U4, ,0,L2CH1_Cup2PosID,Cup2运动位置
+11090009,L2CH1_Cup3PosID,U4, ,0,L2CH1_Cup3PosID,Cup3运动位置
+11090010,L2CH1_ShutterVerCtrl,U4, ,0,L2CH1_ShutterVerCtrl,Shutter垂直运动位置
+11090011,L2CH1_ShutterHorCtrl,U4, ,0,L2CH1_ShutterHorCtrl,Shutter水平运动位置
+11090012,L2CH1_SpinCurRpm,F4, ,0,L2CH1_SpinCurRpm,SpinHome 当前转速 Real
+11090013,L2CH1_RecipeStepNum,U4, ,0,L2CH1_RecipeStepNum,
+11090014,L2CH1_Recipe_Max_Step,U4, ,0,L2CH1_Recipe_Max_Step,
+11090015,L2CH1_Vlv1Ctrl,U4, ,0,L2CH1_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11090016,L2CH1_Vlv2Ctrl,U4, ,0,L2CH1_Vlv2Ctrl, Valve Status BS N2
+11090019,L2CH1_Vlv5Ctrl,U4, ,0,L2CH1_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11090020,L2CH1_Vlv6Ctrl,U4, ,0,L2CH1_Vlv6Ctrl, Valve Status Shutter Purge N2
+11090022,L2CH1_Vlv8Ctrl,U4, ,0,L2CH1_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11090027,L2CH1_Vlv13Ctrl,U4, ,0,L2CH1_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11090028,L2CH1_Vlv14Ctrl,U4, ,0,L2CH1_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11090035,L2CH1_Vlv21Ctrl,U4, ,0,L2CH1_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11090036,L2CH1_Vlv22Ctrl,U4, ,0,L2CH1_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11090037,L2CH1_Vlv23Ctrl,U4, ,0,L2CH1_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11090045,L2CH1_Vlv31Ctrl,U4, ,0,L2CH1_Vlv31Ctrl, Valve Status SPV S3 IPA
+11090047,L2CH1_Vlv33Ctrl,U4, ,0,L2CH1_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11090048,L2CH1_Vlv34Ctrl,U4, ,0,L2CH1_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11090049,L2CH1_Vlv35Ctrl,U4, ,0,L2CH1_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11090054,L2CH1_Vlv40Ctrl,U4, ,0,L2CH1_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11090055,L2CH1_Vlv41Ctrl,U4, ,0,L2CH1_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11090056,L2CH1_Vlv42Ctrl,U4, ,0,L2CH1_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11090057,L2CH1_Vlv43Ctrl,U4, ,0,L2CH1_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11090058,L2CH1_Vlv44Ctrl,U4, ,0,L2CH1_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11090059,L2CH1_Vlv45Ctrl,U4, ,0,L2CH1_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11090060,L2CH1_Vlv46Ctrl,U4, ,0,L2CH1_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11090061,L2CH1_Vlv47Ctrl,U4, ,0,L2CH1_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11090063,L2CH1_Vlv49Ctrl,U4, ,0,L2CH1_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11090064,L2CH1_Vlv50Ctrl,U4, ,0,L2CH1_Vlv50Ctrl, Valve Status MV1 CO2W
+11090065,L2CH1_Vlv51Ctrl,U4, ,0,L2CH1_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11090066,L2CH1_Vlv52Ctrl,U4, ,0,L2CH1_Vlv52Ctrl, Valve Status MV1 H2O2
+11090068,L2CH1_Vlv54Ctrl,U4, ,0,L2CH1_Vlv54Ctrl, Valve Status MV1 NH4OH
+11090074,L2CH1_Vlv60Ctrl,U4, ,0,L2CH1_Vlv60Ctrl, Valve Status MV2 CO2W
+11090075,L2CH1_Vlv61Ctrl,U4, ,0,L2CH1_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11090076,L2CH1_Vlv62Ctrl,U4, ,0,L2CH1_Vlv62Ctrl, Valve Status MV2 H2O2
+11090078,L2CH1_Vlv64Ctrl,U4, ,0,L2CH1_Vlv64Ctrl, Valve Status MV2 NH4OH
+11090085,L2CH1_Vlv71Ctrl,U4, ,0,L2CH1_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11090086,L2CH1_Vlv72Ctrl,U4, ,0,L2CH1_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11090087,L2CH1_Vlv73Ctrl,U4, ,0,L2CH1_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11090094,L2CH1_Vlv80Ctrl,U4, ,0,L2CH1_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11090097,L2CH1_Vlv83Ctrl,U4, ,0,L2CH1_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11090098,L2CH1_Vlv84Ctrl,U4, ,0,L2CH1_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11090099,L2CH1_Vlv85Ctrl,U4, ,0,L2CH1_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11090100,L2CH1_Vlv86Ctrl,U4, ,0,L2CH1_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11090102,L2CH1_Vlv88Ctrl,U4, ,0,L2CH1_Vlv88Ctrl, Valve Status SBV S3 IPA
+11090108,L2CH1_Vlv94Ctrl,U4, ,0,L2CH1_Vlv94Ctrl, Valve Status MaSV CO2W
+11090110,L2CH1_Vlv96Ctrl,U4, ,0,L2CH1_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11090112,L2CH1_Vlv2FlwPV,F4,L/Min,0,L2CH1_Vlv2FlwPV,流量读取 BS N2
+11090123,L2CH1_Vlv13FlwPV,F4,mL/Min,0,L2CH1_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11090124,L2CH1_Vlv14FlwPV,F4,mL/Min,0,L2CH1_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11090132,L2CH1_Vlv22FlwPV,F4,mL/Min,0,L2CH1_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11090133,L2CH1_Vlv23FlwPV,F4,L/Min,0,L2CH1_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11090141,L2CH1_Vlv31FlwPV,F4,mL/Min,0,L2CH1_Vlv31FlwPV,流量读取 SPV S3 IPA
+11090143,L2CH1_Vlv33FlwPV,F4,mL/Min,0,L2CH1_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11090151,L2CH1_Vlv41FlwPV,F4,mL/Min,0,L2CH1_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11090152,L2CH1_Vlv42FlwPV,F4,mL/Min,0,L2CH1_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11090153,L2CH1_Vlv43FlwPV,F4,mL/Min,0,L2CH1_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11090154,L2CH1_Vlv44FlwPV,F4,mL/Min,0,L2CH1_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11090157,L2CH1_Vlv47FlwPV,F4,mL/Min,0,L2CH1_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11090160,L2CH1_Vlv50FlwPV,F4,mL/Min,0,L2CH1_Vlv50FlwPV,流量读取 MV1 CO2W
+11090161,L2CH1_Vlv51FlwPV,F4,mL/Min,0,L2CH1_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11090162,L2CH1_Vlv52FlwPV,F4,mL/Min,0,L2CH1_Vlv52FlwPV,流量读取 MV1 H2O2
+11090164,L2CH1_Vlv54FlwPV,F4,mL/Min,0,L2CH1_Vlv54FlwPV,流量读取 MV1 NH4OH
+11090170,L2CH1_Vlv60FlwPV,F4,mL/Min,0,L2CH1_Vlv60FlwPV,流量读取 MV2 CO2W
+11090171,L2CH1_Vlv61FlwPV,F4,mL/Min,0,L2CH1_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11090172,L2CH1_Vlv62FlwPV,F4,mL/Min,0,L2CH1_Vlv62FlwPV,流量读取 MV2 H2O2
+11090174,L2CH1_Vlv64FlwPV,F4,mL/Min,0,L2CH1_Vlv64FlwPV,流量读取 MV2 NH4OH
+11090206,L2CH1_Vlv96FlwPV,F4,mL/Min,0,L2CH1_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11090207,L2CH1_Ana1FlwPV,F4,Mpa,0,L2CH1_Ana1FlwPV,实时流量 Unit CDA PG
+11090208,L2CH1_Ana2FlwPV,F4,Mpa,0,L2CH1_Ana2FlwPV,实时流量 Unit N2 PG
+11090209,L2CH1_Ana3FlwPV,F4,L/Min,0,L2CH1_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11090210,L2CH1_Ana4FlwPV,F4,L/Min,0,L2CH1_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11090211,L2CH1_Ana5FlwPV,F4,L/Min,0,L2CH1_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11090212,L2CH1_Ana6FlwPV,F4,PA,0,L2CH1_Ana6FlwPV,实时流量 Ch Inner PG
+11090213,L2CH1_Ana7FlwPV,F4,L/Min,0,L2CH1_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11090214,L2CH1_Ana8FlwPV,F4,PA,0,L2CH1_Ana8FlwPV,实时流量 Exh PG
+11090216,L2CH1_Ana10FlwPV,F4,℃,0,L2CH1_Ana10FlwPV,实时流量 Drain Tank Temp
+11090217,L2CH1_Ana11FlwPV,F4,KPA,0,L2CH1_Ana11FlwPV,实时流量 Spin Eject PG
+11090222,FFU.L2CH1_SpeedRead,U4, ,0,FFU.L2CH1_SpeedRead,
+11090223,FFU.L2CH1_SpeedSet,U4, ,0,FFU.L2CH1_SpeedSet,
+11090224,L2CH1_FDCRunTotalTime,F4, ,0,L2CH1_FDCRunTotalTime,
+11090225,L2CH1_FDCRunSPMTime,F4, ,0,L2CH1_FDCRunSPMTime,
+11100001,L2CH2_Arm1VerCtrl,U4, ,0,L2CH2_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11100002,L2CH2_Arm2VerCtrl,U4, ,0,L2CH2_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11100003,L2CH2_Arm3VerCtrl,U4, ,0,L2CH2_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11100004,L2CH2_Arm1HorPosID,U4, ,0,L2CH2_Arm1HorPosID,Arm1运动状态
+11100005,L2CH2_Arm2HorPosID,U4, ,0,L2CH2_Arm2HorPosID,Arm2运动状态
+11100006,L2CH2_Arm3HorPosID,U4, ,0,L2CH2_Arm3HorPosID,Arm3运动状态
+11100007,L2CH2_Cup1PosID,U4, ,0,L2CH2_Cup1PosID,Cup1运动位置
+11100008,L2CH2_Cup2PosID,U4, ,0,L2CH2_Cup2PosID,Cup2运动位置
+11100009,L2CH2_Cup3PosID,U4, ,0,L2CH2_Cup3PosID,Cup3运动位置
+11100010,L2CH2_ShutterVerCtrl,U4, ,0,L2CH2_ShutterVerCtrl,Shutter垂直运动位置
+11100011,L2CH2_ShutterHorCtrl,U4, ,0,L2CH2_ShutterHorCtrl,Shutter水平运动位置
+11100012,L2CH2_SpinCurRpm,F4, ,0,L2CH2_SpinCurRpm,SpinHome 当前转速 Real
+11100013,L2CH2_RecipeStepNum,U4, ,0,L2CH2_RecipeStepNum,
+11100014,L2CH2_Recipe_Max_Step,U4, ,0,L2CH2_Recipe_Max_Step,
+11100015,L2CH2_Vlv1Ctrl,U4, ,0,L2CH2_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11100016,L2CH2_Vlv2Ctrl,U4, ,0,L2CH2_Vlv2Ctrl, Valve Status BS N2
+11100019,L2CH2_Vlv5Ctrl,U4, ,0,L2CH2_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11100020,L2CH2_Vlv6Ctrl,U4, ,0,L2CH2_Vlv6Ctrl, Valve Status Shutter Purge N2
+11100022,L2CH2_Vlv8Ctrl,U4, ,0,L2CH2_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11100027,L2CH2_Vlv13Ctrl,U4, ,0,L2CH2_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11100028,L2CH2_Vlv14Ctrl,U4, ,0,L2CH2_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11100035,L2CH2_Vlv21Ctrl,U4, ,0,L2CH2_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11100036,L2CH2_Vlv22Ctrl,U4, ,0,L2CH2_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11100037,L2CH2_Vlv23Ctrl,U4, ,0,L2CH2_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11100045,L2CH2_Vlv31Ctrl,U4, ,0,L2CH2_Vlv31Ctrl, Valve Status SPV S3 IPA
+11100047,L2CH2_Vlv33Ctrl,U4, ,0,L2CH2_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11100048,L2CH2_Vlv34Ctrl,U4, ,0,L2CH2_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11100049,L2CH2_Vlv35Ctrl,U4, ,0,L2CH2_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11100054,L2CH2_Vlv40Ctrl,U4, ,0,L2CH2_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11100055,L2CH2_Vlv41Ctrl,U4, ,0,L2CH2_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11100056,L2CH2_Vlv42Ctrl,U4, ,0,L2CH2_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11100057,L2CH2_Vlv43Ctrl,U4, ,0,L2CH2_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11100058,L2CH2_Vlv44Ctrl,U4, ,0,L2CH2_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11100059,L2CH2_Vlv45Ctrl,U4, ,0,L2CH2_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11100060,L2CH2_Vlv46Ctrl,U4, ,0,L2CH2_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11100061,L2CH2_Vlv47Ctrl,U4, ,0,L2CH2_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11100063,L2CH2_Vlv49Ctrl,U4, ,0,L2CH2_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11100064,L2CH2_Vlv50Ctrl,U4, ,0,L2CH2_Vlv50Ctrl, Valve Status MV1 CO2W
+11100065,L2CH2_Vlv51Ctrl,U4, ,0,L2CH2_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11100066,L2CH2_Vlv52Ctrl,U4, ,0,L2CH2_Vlv52Ctrl, Valve Status MV1 H2O2
+11100068,L2CH2_Vlv54Ctrl,U4, ,0,L2CH2_Vlv54Ctrl, Valve Status MV1 NH4OH
+11100074,L2CH2_Vlv60Ctrl,U4, ,0,L2CH2_Vlv60Ctrl, Valve Status MV2 CO2W
+11100075,L2CH2_Vlv61Ctrl,U4, ,0,L2CH2_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11100076,L2CH2_Vlv62Ctrl,U4, ,0,L2CH2_Vlv62Ctrl, Valve Status MV2 H2O2
+11100078,L2CH2_Vlv64Ctrl,U4, ,0,L2CH2_Vlv64Ctrl, Valve Status MV2 NH4OH
+11100085,L2CH2_Vlv71Ctrl,U4, ,0,L2CH2_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11100086,L2CH2_Vlv72Ctrl,U4, ,0,L2CH2_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11100087,L2CH2_Vlv73Ctrl,U4, ,0,L2CH2_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11100094,L2CH2_Vlv80Ctrl,U4, ,0,L2CH2_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11100097,L2CH2_Vlv83Ctrl,U4, ,0,L2CH2_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11100098,L2CH2_Vlv84Ctrl,U4, ,0,L2CH2_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11100099,L2CH2_Vlv85Ctrl,U4, ,0,L2CH2_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11100100,L2CH2_Vlv86Ctrl,U4, ,0,L2CH2_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11100102,L2CH2_Vlv88Ctrl,U4, ,0,L2CH2_Vlv88Ctrl, Valve Status SBV S3 IPA
+11100108,L2CH2_Vlv94Ctrl,U4, ,0,L2CH2_Vlv94Ctrl, Valve Status MaSV CO2W
+11100110,L2CH2_Vlv96Ctrl,U4, ,0,L2CH2_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11100112,L2CH2_Vlv2FlwPV,F4,L/Min,0,L2CH2_Vlv2FlwPV,流量读取 BS N2
+11100123,L2CH2_Vlv13FlwPV,F4,mL/Min,0,L2CH2_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11100124,L2CH2_Vlv14FlwPV,F4,mL/Min,0,L2CH2_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11100132,L2CH2_Vlv22FlwPV,F4,mL/Min,0,L2CH2_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11100133,L2CH2_Vlv23FlwPV,F4,L/Min,0,L2CH2_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11100141,L2CH2_Vlv31FlwPV,F4,mL/Min,0,L2CH2_Vlv31FlwPV,流量读取 SPV S3 IPA
+11100143,L2CH2_Vlv33FlwPV,F4,mL/Min,0,L2CH2_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11100151,L2CH2_Vlv41FlwPV,F4,mL/Min,0,L2CH2_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11100152,L2CH2_Vlv42FlwPV,F4,mL/Min,0,L2CH2_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11100153,L2CH2_Vlv43FlwPV,F4,mL/Min,0,L2CH2_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11100154,L2CH2_Vlv44FlwPV,F4,mL/Min,0,L2CH2_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11100157,L2CH2_Vlv47FlwPV,F4,mL/Min,0,L2CH2_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11100160,L2CH2_Vlv50FlwPV,F4,mL/Min,0,L2CH2_Vlv50FlwPV,流量读取 MV1 CO2W
+11100161,L2CH2_Vlv51FlwPV,F4,mL/Min,0,L2CH2_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11100162,L2CH2_Vlv52FlwPV,F4,mL/Min,0,L2CH2_Vlv52FlwPV,流量读取 MV1 H2O2
+11100164,L2CH2_Vlv54FlwPV,F4,mL/Min,0,L2CH2_Vlv54FlwPV,流量读取 MV1 NH4OH
+11100170,L2CH2_Vlv60FlwPV,F4,mL/Min,0,L2CH2_Vlv60FlwPV,流量读取 MV2 CO2W
+11100171,L2CH2_Vlv61FlwPV,F4,mL/Min,0,L2CH2_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11100172,L2CH2_Vlv62FlwPV,F4,mL/Min,0,L2CH2_Vlv62FlwPV,流量读取 MV2 H2O2
+11100174,L2CH2_Vlv64FlwPV,F4,mL/Min,0,L2CH2_Vlv64FlwPV,流量读取 MV2 NH4OH
+11100206,L2CH2_Vlv96FlwPV,F4,mL/Min,0,L2CH2_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11100207,L2CH2_Ana1FlwPV,F4,Mpa,0,L2CH2_Ana1FlwPV,实时流量 Unit CDA PG
+11100208,L2CH2_Ana2FlwPV,F4,Mpa,0,L2CH2_Ana2FlwPV,实时流量 Unit N2 PG
+11100209,L2CH2_Ana3FlwPV,F4,L/Min,0,L2CH2_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11100210,L2CH2_Ana4FlwPV,F4,L/Min,0,L2CH2_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11100211,L2CH2_Ana5FlwPV,F4,L/Min,0,L2CH2_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11100212,L2CH2_Ana6FlwPV,F4,PA,0,L2CH2_Ana6FlwPV,实时流量 Ch Inner PG
+11100213,L2CH2_Ana7FlwPV,F4,L/Min,0,L2CH2_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11100214,L2CH2_Ana8FlwPV,F4,PA,0,L2CH2_Ana8FlwPV,实时流量 Exh PG
+11100216,L2CH2_Ana10FlwPV,F4,℃,0,L2CH2_Ana10FlwPV,实时流量 Drain Tank Temp
+11100217,L2CH2_Ana11FlwPV,F4,KPA,0,L2CH2_Ana11FlwPV,实时流量 Spin Eject PG
+11100222,FFU.L2CH2_SpeedRead,U4, ,0,FFU.L2CH2_SpeedRead,
+11100223,FFU.L2CH2_SpeedSet,U4, ,0,FFU.L2CH2_SpeedSet,
+11100224,L2CH2_FDCRunTotalTime,F4, ,0,L2CH2_FDCRunTotalTime,
+11100225,L2CH2_FDCRunSPMTime,F4, ,0,L2CH2_FDCRunSPMTime,
+11110001,L2CH3_Arm1VerCtrl,U4, ,0,L2CH3_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11110002,L2CH3_Arm2VerCtrl,U4, ,0,L2CH3_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11110003,L2CH3_Arm3VerCtrl,U4, ,0,L2CH3_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11110004,L2CH3_Arm1HorPosID,U4, ,0,L2CH3_Arm1HorPosID,Arm1运动状态
+11110005,L2CH3_Arm2HorPosID,U4, ,0,L2CH3_Arm2HorPosID,Arm2运动状态
+11110006,L2CH3_Arm3HorPosID,U4, ,0,L2CH3_Arm3HorPosID,Arm3运动状态
+11110007,L2CH3_Cup1PosID,U4, ,0,L2CH3_Cup1PosID,Cup1运动位置
+11110008,L2CH3_Cup2PosID,U4, ,0,L2CH3_Cup2PosID,Cup2运动位置
+11110009,L2CH3_Cup3PosID,U4, ,0,L2CH3_Cup3PosID,Cup3运动位置
+11110010,L2CH3_ShutterVerCtrl,U4, ,0,L2CH3_ShutterVerCtrl,Shutter垂直运动位置
+11110011,L2CH3_ShutterHorCtrl,U4, ,0,L2CH3_ShutterHorCtrl,Shutter水平运动位置
+11110012,L2CH3_SpinCurRpm,F4, ,0,L2CH3_SpinCurRpm,SpinHome 当前转速 Real
+11110013,L2CH3_RecipeStepNum,U4, ,0,L2CH3_RecipeStepNum,
+11110014,L2CH3_Recipe_Max_Step,U4, ,0,L2CH3_Recipe_Max_Step,
+11110015,L2CH3_Vlv1Ctrl,U4, ,0,L2CH3_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11110016,L2CH3_Vlv2Ctrl,U4, ,0,L2CH3_Vlv2Ctrl, Valve Status BS N2
+11110019,L2CH3_Vlv5Ctrl,U4, ,0,L2CH3_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11110020,L2CH3_Vlv6Ctrl,U4, ,0,L2CH3_Vlv6Ctrl, Valve Status Shutter Purge N2
+11110022,L2CH3_Vlv8Ctrl,U4, ,0,L2CH3_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11110027,L2CH3_Vlv13Ctrl,U4, ,0,L2CH3_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11110028,L2CH3_Vlv14Ctrl,U4, ,0,L2CH3_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11110035,L2CH3_Vlv21Ctrl,U4, ,0,L2CH3_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11110036,L2CH3_Vlv22Ctrl,U4, ,0,L2CH3_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11110037,L2CH3_Vlv23Ctrl,U4, ,0,L2CH3_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11110045,L2CH3_Vlv31Ctrl,U4, ,0,L2CH3_Vlv31Ctrl, Valve Status SPV S3 IPA
+11110047,L2CH3_Vlv33Ctrl,U4, ,0,L2CH3_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11110048,L2CH3_Vlv34Ctrl,U4, ,0,L2CH3_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11110049,L2CH3_Vlv35Ctrl,U4, ,0,L2CH3_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11110054,L2CH3_Vlv40Ctrl,U4, ,0,L2CH3_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11110055,L2CH3_Vlv41Ctrl,U4, ,0,L2CH3_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11110056,L2CH3_Vlv42Ctrl,U4, ,0,L2CH3_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11110057,L2CH3_Vlv43Ctrl,U4, ,0,L2CH3_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11110058,L2CH3_Vlv44Ctrl,U4, ,0,L2CH3_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11110059,L2CH3_Vlv45Ctrl,U4, ,0,L2CH3_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11110060,L2CH3_Vlv46Ctrl,U4, ,0,L2CH3_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11110061,L2CH3_Vlv47Ctrl,U4, ,0,L2CH3_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11110063,L2CH3_Vlv49Ctrl,U4, ,0,L2CH3_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11110064,L2CH3_Vlv50Ctrl,U4, ,0,L2CH3_Vlv50Ctrl, Valve Status MV1 CO2W
+11110065,L2CH3_Vlv51Ctrl,U4, ,0,L2CH3_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11110066,L2CH3_Vlv52Ctrl,U4, ,0,L2CH3_Vlv52Ctrl, Valve Status MV1 H2O2
+11110068,L2CH3_Vlv54Ctrl,U4, ,0,L2CH3_Vlv54Ctrl, Valve Status MV1 NH4OH
+11110074,L2CH3_Vlv60Ctrl,U4, ,0,L2CH3_Vlv60Ctrl, Valve Status MV2 CO2W
+11110075,L2CH3_Vlv61Ctrl,U4, ,0,L2CH3_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11110076,L2CH3_Vlv62Ctrl,U4, ,0,L2CH3_Vlv62Ctrl, Valve Status MV2 H2O2
+11110078,L2CH3_Vlv64Ctrl,U4, ,0,L2CH3_Vlv64Ctrl, Valve Status MV2 NH4OH
+11110085,L2CH3_Vlv71Ctrl,U4, ,0,L2CH3_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11110086,L2CH3_Vlv72Ctrl,U4, ,0,L2CH3_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11110087,L2CH3_Vlv73Ctrl,U4, ,0,L2CH3_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11110094,L2CH3_Vlv80Ctrl,U4, ,0,L2CH3_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11110097,L2CH3_Vlv83Ctrl,U4, ,0,L2CH3_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11110098,L2CH3_Vlv84Ctrl,U4, ,0,L2CH3_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11110099,L2CH3_Vlv85Ctrl,U4, ,0,L2CH3_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11110100,L2CH3_Vlv86Ctrl,U4, ,0,L2CH3_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11110102,L2CH3_Vlv88Ctrl,U4, ,0,L2CH3_Vlv88Ctrl, Valve Status SBV S3 IPA
+11110108,L2CH3_Vlv94Ctrl,U4, ,0,L2CH3_Vlv94Ctrl, Valve Status MaSV CO2W
+11110110,L2CH3_Vlv96Ctrl,U4, ,0,L2CH3_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11110112,L2CH3_Vlv2FlwPV,F4,L/Min,0,L2CH3_Vlv2FlwPV,流量读取 BS N2
+11110123,L2CH3_Vlv13FlwPV,F4,mL/Min,0,L2CH3_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11110124,L2CH3_Vlv14FlwPV,F4,mL/Min,0,L2CH3_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11110132,L2CH3_Vlv22FlwPV,F4,mL/Min,0,L2CH3_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11110133,L2CH3_Vlv23FlwPV,F4,L/Min,0,L2CH3_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11110141,L2CH3_Vlv31FlwPV,F4,mL/Min,0,L2CH3_Vlv31FlwPV,流量读取 SPV S3 IPA
+11110143,L2CH3_Vlv33FlwPV,F4,mL/Min,0,L2CH3_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11110151,L2CH3_Vlv41FlwPV,F4,mL/Min,0,L2CH3_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11110152,L2CH3_Vlv42FlwPV,F4,mL/Min,0,L2CH3_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11110153,L2CH3_Vlv43FlwPV,F4,mL/Min,0,L2CH3_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11110154,L2CH3_Vlv44FlwPV,F4,mL/Min,0,L2CH3_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11110157,L2CH3_Vlv47FlwPV,F4,mL/Min,0,L2CH3_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11110160,L2CH3_Vlv50FlwPV,F4,mL/Min,0,L2CH3_Vlv50FlwPV,流量读取 MV1 CO2W
+11110161,L2CH3_Vlv51FlwPV,F4,mL/Min,0,L2CH3_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11110162,L2CH3_Vlv52FlwPV,F4,mL/Min,0,L2CH3_Vlv52FlwPV,流量读取 MV1 H2O2
+11110164,L2CH3_Vlv54FlwPV,F4,mL/Min,0,L2CH3_Vlv54FlwPV,流量读取 MV1 NH4OH
+11110170,L2CH3_Vlv60FlwPV,F4,mL/Min,0,L2CH3_Vlv60FlwPV,流量读取 MV2 CO2W
+11110171,L2CH3_Vlv61FlwPV,F4,mL/Min,0,L2CH3_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11110172,L2CH3_Vlv62FlwPV,F4,mL/Min,0,L2CH3_Vlv62FlwPV,流量读取 MV2 H2O2
+11110174,L2CH3_Vlv64FlwPV,F4,mL/Min,0,L2CH3_Vlv64FlwPV,流量读取 MV2 NH4OH
+11110206,L2CH3_Vlv96FlwPV,F4,mL/Min,0,L2CH3_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11110207,L2CH3_Ana1FlwPV,F4,Mpa,0,L2CH3_Ana1FlwPV,实时流量 Unit CDA PG
+11110208,L2CH3_Ana2FlwPV,F4,Mpa,0,L2CH3_Ana2FlwPV,实时流量 Unit N2 PG
+11110209,L2CH3_Ana3FlwPV,F4,L/Min,0,L2CH3_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11110210,L2CH3_Ana4FlwPV,F4,L/Min,0,L2CH3_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11110211,L2CH3_Ana5FlwPV,F4,L/Min,0,L2CH3_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11110212,L2CH3_Ana6FlwPV,F4,PA,0,L2CH3_Ana6FlwPV,实时流量 Ch Inner PG
+11110213,L2CH3_Ana7FlwPV,F4,L/Min,0,L2CH3_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11110214,L2CH3_Ana8FlwPV,F4,PA,0,L2CH3_Ana8FlwPV,实时流量 Exh PG
+11110216,L2CH3_Ana10FlwPV,F4,℃,0,L2CH3_Ana10FlwPV,实时流量 Drain Tank Temp
+11110217,L2CH3_Ana11FlwPV,F4,KPA,0,L2CH3_Ana11FlwPV,实时流量 Spin Eject PG
+11110222,FFU.L2CH3_SpeedRead,U4, ,0,FFU.L2CH3_SpeedRead,
+11110223,FFU.L2CH3_SpeedSet,U4, ,0,FFU.L2CH3_SpeedSet,
+11110224,L2CH3_FDCRunTotalTime,F4, ,0,L2CH3_FDCRunTotalTime,
+11110225,L2CH3_FDCRunSPMTime,F4, ,0,L2CH3_FDCRunSPMTime,
+11130001,R2CH1_Arm1VerCtrl,U4, ,0,R2CH1_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11130002,R2CH1_Arm2VerCtrl,U4, ,0,R2CH1_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11130003,R2CH1_Arm3VerCtrl,U4, ,0,R2CH1_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11130004,R2CH1_Arm1HorPosID,U4, ,0,R2CH1_Arm1HorPosID,Arm1运动状态
+11130005,R2CH1_Arm2HorPosID,U4, ,0,R2CH1_Arm2HorPosID,Arm2运动状态
+11130006,R2CH1_Arm3HorPosID,U4, ,0,R2CH1_Arm3HorPosID,Arm3运动状态
+11130007,R2CH1_Cup1PosID,U4, ,0,R2CH1_Cup1PosID,Cup1运动位置
+11130008,R2CH1_Cup2PosID,U4, ,0,R2CH1_Cup2PosID,Cup2运动位置
+11130009,R2CH1_Cup3PosID,U4, ,0,R2CH1_Cup3PosID,Cup3运动位置
+11130010,R2CH1_ShutterVerCtrl,U4, ,0,R2CH1_ShutterVerCtrl,Shutter垂直运动位置
+11130011,R2CH1_ShutterHorCtrl,U4, ,0,R2CH1_ShutterHorCtrl,Shutter水平运动位置
+11130012,R2CH1_SpinCurRpm,F4, ,0,R2CH1_SpinCurRpm,SpinHome 当前转速 Real
+11130013,R2CH1_RecipeStepNum,U4, ,0,R2CH1_RecipeStepNum,
+11130014,R2CH1_Recipe_Max_Step,U4, ,0,R2CH1_Recipe_Max_Step,
+11130015,R2CH1_Vlv1Ctrl,U4, ,0,R2CH1_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11130016,R2CH1_Vlv2Ctrl,U4, ,0,R2CH1_Vlv2Ctrl, Valve Status BS N2
+11130019,R2CH1_Vlv5Ctrl,U4, ,0,R2CH1_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11130020,R2CH1_Vlv6Ctrl,U4, ,0,R2CH1_Vlv6Ctrl, Valve Status Shutter Purge N2
+11130022,R2CH1_Vlv8Ctrl,U4, ,0,R2CH1_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11130027,R2CH1_Vlv13Ctrl,U4, ,0,R2CH1_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11130028,R2CH1_Vlv14Ctrl,U4, ,0,R2CH1_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11130035,R2CH1_Vlv21Ctrl,U4, ,0,R2CH1_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11130036,R2CH1_Vlv22Ctrl,U4, ,0,R2CH1_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11130037,R2CH1_Vlv23Ctrl,U4, ,0,R2CH1_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11130045,R2CH1_Vlv31Ctrl,U4, ,0,R2CH1_Vlv31Ctrl, Valve Status SPV S3 IPA
+11130047,R2CH1_Vlv33Ctrl,U4, ,0,R2CH1_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11130048,R2CH1_Vlv34Ctrl,U4, ,0,R2CH1_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11130049,R2CH1_Vlv35Ctrl,U4, ,0,R2CH1_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11130054,R2CH1_Vlv40Ctrl,U4, ,0,R2CH1_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11130055,R2CH1_Vlv41Ctrl,U4, ,0,R2CH1_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11130056,R2CH1_Vlv42Ctrl,U4, ,0,R2CH1_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11130057,R2CH1_Vlv43Ctrl,U4, ,0,R2CH1_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11130058,R2CH1_Vlv44Ctrl,U4, ,0,R2CH1_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11130059,R2CH1_Vlv45Ctrl,U4, ,0,R2CH1_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11130060,R2CH1_Vlv46Ctrl,U4, ,0,R2CH1_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11130061,R2CH1_Vlv47Ctrl,U4, ,0,R2CH1_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11130063,R2CH1_Vlv49Ctrl,U4, ,0,R2CH1_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11130064,R2CH1_Vlv50Ctrl,U4, ,0,R2CH1_Vlv50Ctrl, Valve Status MV1 CO2W
+11130065,R2CH1_Vlv51Ctrl,U4, ,0,R2CH1_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11130066,R2CH1_Vlv52Ctrl,U4, ,0,R2CH1_Vlv52Ctrl, Valve Status MV1 H2O2
+11130068,R2CH1_Vlv54Ctrl,U4, ,0,R2CH1_Vlv54Ctrl, Valve Status MV1 NH4OH
+11130074,R2CH1_Vlv60Ctrl,U4, ,0,R2CH1_Vlv60Ctrl, Valve Status MV2 CO2W
+11130075,R2CH1_Vlv61Ctrl,U4, ,0,R2CH1_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11130076,R2CH1_Vlv62Ctrl,U4, ,0,R2CH1_Vlv62Ctrl, Valve Status MV2 H2O2
+11130078,R2CH1_Vlv64Ctrl,U4, ,0,R2CH1_Vlv64Ctrl, Valve Status MV2 NH4OH
+11130085,R2CH1_Vlv71Ctrl,U4, ,0,R2CH1_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11130086,R2CH1_Vlv72Ctrl,U4, ,0,R2CH1_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11130087,R2CH1_Vlv73Ctrl,U4, ,0,R2CH1_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11130094,R2CH1_Vlv80Ctrl,U4, ,0,R2CH1_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11130097,R2CH1_Vlv83Ctrl,U4, ,0,R2CH1_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11130098,R2CH1_Vlv84Ctrl,U4, ,0,R2CH1_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11130099,R2CH1_Vlv85Ctrl,U4, ,0,R2CH1_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11130100,R2CH1_Vlv86Ctrl,U4, ,0,R2CH1_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11130102,R2CH1_Vlv88Ctrl,U4, ,0,R2CH1_Vlv88Ctrl, Valve Status SBV S3 IPA
+11130108,R2CH1_Vlv94Ctrl,U4, ,0,R2CH1_Vlv94Ctrl, Valve Status MaSV CO2W
+11130110,R2CH1_Vlv96Ctrl,U4, ,0,R2CH1_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11130112,R2CH1_Vlv2FlwPV,F4,L/Min,0,R2CH1_Vlv2FlwPV,流量读取 BS N2
+11130123,R2CH1_Vlv13FlwPV,F4,mL/Min,0,R2CH1_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11130124,R2CH1_Vlv14FlwPV,F4,mL/Min,0,R2CH1_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11130132,R2CH1_Vlv22FlwPV,F4,mL/Min,0,R2CH1_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11130133,R2CH1_Vlv23FlwPV,F4,L/Min,0,R2CH1_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11130141,R2CH1_Vlv31FlwPV,F4,mL/Min,0,R2CH1_Vlv31FlwPV,流量读取 SPV S3 IPA
+11130143,R2CH1_Vlv33FlwPV,F4,mL/Min,0,R2CH1_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11130151,R2CH1_Vlv41FlwPV,F4,mL/Min,0,R2CH1_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11130152,R2CH1_Vlv42FlwPV,F4,mL/Min,0,R2CH1_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11130153,R2CH1_Vlv43FlwPV,F4,mL/Min,0,R2CH1_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11130154,R2CH1_Vlv44FlwPV,F4,mL/Min,0,R2CH1_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11130157,R2CH1_Vlv47FlwPV,F4,mL/Min,0,R2CH1_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11130160,R2CH1_Vlv50FlwPV,F4,mL/Min,0,R2CH1_Vlv50FlwPV,流量读取 MV1 CO2W
+11130161,R2CH1_Vlv51FlwPV,F4,mL/Min,0,R2CH1_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11130162,R2CH1_Vlv52FlwPV,F4,mL/Min,0,R2CH1_Vlv52FlwPV,流量读取 MV1 H2O2
+11130164,R2CH1_Vlv54FlwPV,F4,mL/Min,0,R2CH1_Vlv54FlwPV,流量读取 MV1 NH4OH
+11130170,R2CH1_Vlv60FlwPV,F4,mL/Min,0,R2CH1_Vlv60FlwPV,流量读取 MV2 CO2W
+11130171,R2CH1_Vlv61FlwPV,F4,mL/Min,0,R2CH1_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11130172,R2CH1_Vlv62FlwPV,F4,mL/Min,0,R2CH1_Vlv62FlwPV,流量读取 MV2 H2O2
+11130174,R2CH1_Vlv64FlwPV,F4,mL/Min,0,R2CH1_Vlv64FlwPV,流量读取 MV2 NH4OH
+11130206,R2CH1_Vlv96FlwPV,F4,mL/Min,0,R2CH1_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11130207,R2CH1_Ana1FlwPV,F4,Mpa,0,R2CH1_Ana1FlwPV,实时流量 Unit CDA PG
+11130208,R2CH1_Ana2FlwPV,F4,Mpa,0,R2CH1_Ana2FlwPV,实时流量 Unit N2 PG
+11130209,R2CH1_Ana3FlwPV,F4,L/Min,0,R2CH1_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11130210,R2CH1_Ana4FlwPV,F4,L/Min,0,R2CH1_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11130211,R2CH1_Ana5FlwPV,F4,L/Min,0,R2CH1_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11130212,R2CH1_Ana6FlwPV,F4,PA,0,R2CH1_Ana6FlwPV,实时流量 Ch Inner PG
+11130213,R2CH1_Ana7FlwPV,F4,L/Min,0,R2CH1_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11130214,R2CH1_Ana8FlwPV,F4,PA,0,R2CH1_Ana8FlwPV,实时流量 Exh PG
+11130216,R2CH1_Ana10FlwPV,F4,℃,0,R2CH1_Ana10FlwPV,实时流量 Drain Tank Temp
+11130217,R2CH1_Ana11FlwPV,F4,KPA,0,R2CH1_Ana11FlwPV,实时流量 Spin Eject PG
+11130222,FFU.R2CH1_SpeedRead,U4, ,0,FFU.R2CH1_SpeedRead,
+11130223,FFU.R2CH1_SpeedSet,U4, ,0,FFU.R2CH1_SpeedSet,
+11130224,R2CH1_FDCRunTotalTime,F4, ,0,R2CH1_FDCRunTotalTime,
+11130225,R2CH1_FDCRunSPMTime,F4, ,0,R2CH1_FDCRunSPMTime,
+11140001,R2CH2_Arm1VerCtrl,U4, ,0,R2CH2_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11140002,R2CH2_Arm2VerCtrl,U4, ,0,R2CH2_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11140003,R2CH2_Arm3VerCtrl,U4, ,0,R2CH2_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11140004,R2CH2_Arm1HorPosID,U4, ,0,R2CH2_Arm1HorPosID,Arm1运动状态
+11140005,R2CH2_Arm2HorPosID,U4, ,0,R2CH2_Arm2HorPosID,Arm2运动状态
+11140006,R2CH2_Arm3HorPosID,U4, ,0,R2CH2_Arm3HorPosID,Arm3运动状态
+11140007,R2CH2_Cup1PosID,U4, ,0,R2CH2_Cup1PosID,Cup1运动位置
+11140008,R2CH2_Cup2PosID,U4, ,0,R2CH2_Cup2PosID,Cup2运动位置
+11140009,R2CH2_Cup3PosID,U4, ,0,R2CH2_Cup3PosID,Cup3运动位置
+11140010,R2CH2_ShutterVerCtrl,U4, ,0,R2CH2_ShutterVerCtrl,Shutter垂直运动位置
+11140011,R2CH2_ShutterHorCtrl,U4, ,0,R2CH2_ShutterHorCtrl,Shutter水平运动位置
+11140012,R2CH2_SpinCurRpm,F4, ,0,R2CH2_SpinCurRpm,SpinHome 当前转速 Real
+11140013,R2CH2_RecipeStepNum,U4, ,0,R2CH2_RecipeStepNum,
+11140014,R2CH2_Recipe_Max_Step,U4, ,0,R2CH2_Recipe_Max_Step,
+11140015,R2CH2_Vlv1Ctrl,U4, ,0,R2CH2_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11140016,R2CH2_Vlv2Ctrl,U4, ,0,R2CH2_Vlv2Ctrl, Valve Status BS N2
+11140019,R2CH2_Vlv5Ctrl,U4, ,0,R2CH2_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11140020,R2CH2_Vlv6Ctrl,U4, ,0,R2CH2_Vlv6Ctrl, Valve Status Shutter Purge N2
+11140022,R2CH2_Vlv8Ctrl,U4, ,0,R2CH2_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11140027,R2CH2_Vlv13Ctrl,U4, ,0,R2CH2_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11140028,R2CH2_Vlv14Ctrl,U4, ,0,R2CH2_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11140035,R2CH2_Vlv21Ctrl,U4, ,0,R2CH2_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11140036,R2CH2_Vlv22Ctrl,U4, ,0,R2CH2_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11140037,R2CH2_Vlv23Ctrl,U4, ,0,R2CH2_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11140045,R2CH2_Vlv31Ctrl,U4, ,0,R2CH2_Vlv31Ctrl, Valve Status SPV S3 IPA
+11140047,R2CH2_Vlv33Ctrl,U4, ,0,R2CH2_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11140048,R2CH2_Vlv34Ctrl,U4, ,0,R2CH2_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11140049,R2CH2_Vlv35Ctrl,U4, ,0,R2CH2_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11140054,R2CH2_Vlv40Ctrl,U4, ,0,R2CH2_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11140055,R2CH2_Vlv41Ctrl,U4, ,0,R2CH2_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11140056,R2CH2_Vlv42Ctrl,U4, ,0,R2CH2_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11140057,R2CH2_Vlv43Ctrl,U4, ,0,R2CH2_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11140058,R2CH2_Vlv44Ctrl,U4, ,0,R2CH2_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11140059,R2CH2_Vlv45Ctrl,U4, ,0,R2CH2_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11140060,R2CH2_Vlv46Ctrl,U4, ,0,R2CH2_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11140061,R2CH2_Vlv47Ctrl,U4, ,0,R2CH2_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11140063,R2CH2_Vlv49Ctrl,U4, ,0,R2CH2_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11140064,R2CH2_Vlv50Ctrl,U4, ,0,R2CH2_Vlv50Ctrl, Valve Status MV1 CO2W
+11140065,R2CH2_Vlv51Ctrl,U4, ,0,R2CH2_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11140066,R2CH2_Vlv52Ctrl,U4, ,0,R2CH2_Vlv52Ctrl, Valve Status MV1 H2O2
+11140068,R2CH2_Vlv54Ctrl,U4, ,0,R2CH2_Vlv54Ctrl, Valve Status MV1 NH4OH
+11140074,R2CH2_Vlv60Ctrl,U4, ,0,R2CH2_Vlv60Ctrl, Valve Status MV2 CO2W
+11140075,R2CH2_Vlv61Ctrl,U4, ,0,R2CH2_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11140076,R2CH2_Vlv62Ctrl,U4, ,0,R2CH2_Vlv62Ctrl, Valve Status MV2 H2O2
+11140078,R2CH2_Vlv64Ctrl,U4, ,0,R2CH2_Vlv64Ctrl, Valve Status MV2 NH4OH
+11140085,R2CH2_Vlv71Ctrl,U4, ,0,R2CH2_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11140086,R2CH2_Vlv72Ctrl,U4, ,0,R2CH2_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11140087,R2CH2_Vlv73Ctrl,U4, ,0,R2CH2_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11140094,R2CH2_Vlv80Ctrl,U4, ,0,R2CH2_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11140097,R2CH2_Vlv83Ctrl,U4, ,0,R2CH2_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11140098,R2CH2_Vlv84Ctrl,U4, ,0,R2CH2_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11140099,R2CH2_Vlv85Ctrl,U4, ,0,R2CH2_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11140100,R2CH2_Vlv86Ctrl,U4, ,0,R2CH2_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11140102,R2CH2_Vlv88Ctrl,U4, ,0,R2CH2_Vlv88Ctrl, Valve Status SBV S3 IPA
+11140108,R2CH2_Vlv94Ctrl,U4, ,0,R2CH2_Vlv94Ctrl, Valve Status MaSV CO2W
+11140110,R2CH2_Vlv96Ctrl,U4, ,0,R2CH2_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11140112,R2CH2_Vlv2FlwPV,F4,L/Min,0,R2CH2_Vlv2FlwPV,流量读取 BS N2
+11140123,R2CH2_Vlv13FlwPV,F4,mL/Min,0,R2CH2_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11140124,R2CH2_Vlv14FlwPV,F4,mL/Min,0,R2CH2_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11140132,R2CH2_Vlv22FlwPV,F4,mL/Min,0,R2CH2_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11140133,R2CH2_Vlv23FlwPV,F4,L/Min,0,R2CH2_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11140141,R2CH2_Vlv31FlwPV,F4,mL/Min,0,R2CH2_Vlv31FlwPV,流量读取 SPV S3 IPA
+11140143,R2CH2_Vlv33FlwPV,F4,mL/Min,0,R2CH2_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11140151,R2CH2_Vlv41FlwPV,F4,mL/Min,0,R2CH2_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11140152,R2CH2_Vlv42FlwPV,F4,mL/Min,0,R2CH2_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11140153,R2CH2_Vlv43FlwPV,F4,mL/Min,0,R2CH2_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11140154,R2CH2_Vlv44FlwPV,F4,mL/Min,0,R2CH2_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11140157,R2CH2_Vlv47FlwPV,F4,mL/Min,0,R2CH2_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11140160,R2CH2_Vlv50FlwPV,F4,mL/Min,0,R2CH2_Vlv50FlwPV,流量读取 MV1 CO2W
+11140161,R2CH2_Vlv51FlwPV,F4,mL/Min,0,R2CH2_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11140162,R2CH2_Vlv52FlwPV,F4,mL/Min,0,R2CH2_Vlv52FlwPV,流量读取 MV1 H2O2
+11140164,R2CH2_Vlv54FlwPV,F4,mL/Min,0,R2CH2_Vlv54FlwPV,流量读取 MV1 NH4OH
+11140170,R2CH2_Vlv60FlwPV,F4,mL/Min,0,R2CH2_Vlv60FlwPV,流量读取 MV2 CO2W
+11140171,R2CH2_Vlv61FlwPV,F4,mL/Min,0,R2CH2_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11140172,R2CH2_Vlv62FlwPV,F4,mL/Min,0,R2CH2_Vlv62FlwPV,流量读取 MV2 H2O2
+11140174,R2CH2_Vlv64FlwPV,F4,mL/Min,0,R2CH2_Vlv64FlwPV,流量读取 MV2 NH4OH
+11140206,R2CH2_Vlv96FlwPV,F4,mL/Min,0,R2CH2_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11140207,R2CH2_Ana1FlwPV,F4,Mpa,0,R2CH2_Ana1FlwPV,实时流量 Unit CDA PG
+11140208,R2CH2_Ana2FlwPV,F4,Mpa,0,R2CH2_Ana2FlwPV,实时流量 Unit N2 PG
+11140209,R2CH2_Ana3FlwPV,F4,L/Min,0,R2CH2_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11140210,R2CH2_Ana4FlwPV,F4,L/Min,0,R2CH2_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11140211,R2CH2_Ana5FlwPV,F4,L/Min,0,R2CH2_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11140212,R2CH2_Ana6FlwPV,F4,PA,0,R2CH2_Ana6FlwPV,实时流量 Ch Inner PG
+11140213,R2CH2_Ana7FlwPV,F4,L/Min,0,R2CH2_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11140214,R2CH2_Ana8FlwPV,F4,PA,0,R2CH2_Ana8FlwPV,实时流量 Exh PG
+11140216,R2CH2_Ana10FlwPV,F4,℃,0,R2CH2_Ana10FlwPV,实时流量 Drain Tank Temp
+11140217,R2CH2_Ana11FlwPV,F4,KPA,0,R2CH2_Ana11FlwPV,实时流量 Spin Eject PG
+11140222,FFU.R2CH2_SpeedRead,U4, ,0,FFU.R2CH2_SpeedRead,
+11140223,FFU.R2CH2_SpeedSet,U4, ,0,FFU.R2CH2_SpeedSet,
+11140224,R2CH2_FDCRunTotalTime,F4, ,0,R2CH2_FDCRunTotalTime,
+11140225,R2CH2_FDCRunSPMTime,F4, ,0,R2CH2_FDCRunSPMTime,
+11150001,R2CH3_Arm1VerCtrl,U4, ,0,R2CH3_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11150002,R2CH3_Arm2VerCtrl,U4, ,0,R2CH3_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11150003,R2CH3_Arm3VerCtrl,U4, ,0,R2CH3_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11150004,R2CH3_Arm1HorPosID,U4, ,0,R2CH3_Arm1HorPosID,Arm1运动状态
+11150005,R2CH3_Arm2HorPosID,U4, ,0,R2CH3_Arm2HorPosID,Arm2运动状态
+11150006,R2CH3_Arm3HorPosID,U4, ,0,R2CH3_Arm3HorPosID,Arm3运动状态
+11150007,R2CH3_Cup1PosID,U4, ,0,R2CH3_Cup1PosID,Cup1运动位置
+11150008,R2CH3_Cup2PosID,U4, ,0,R2CH3_Cup2PosID,Cup2运动位置
+11150009,R2CH3_Cup3PosID,U4, ,0,R2CH3_Cup3PosID,Cup3运动位置
+11150010,R2CH3_ShutterVerCtrl,U4, ,0,R2CH3_ShutterVerCtrl,Shutter垂直运动位置
+11150011,R2CH3_ShutterHorCtrl,U4, ,0,R2CH3_ShutterHorCtrl,Shutter水平运动位置
+11150012,R2CH3_SpinCurRpm,F4, ,0,R2CH3_SpinCurRpm,SpinHome 当前转速 Real
+11150013,R2CH3_RecipeStepNum,U4, ,0,R2CH3_RecipeStepNum,
+11150014,R2CH3_Recipe_Max_Step,U4, ,0,R2CH3_Recipe_Max_Step,
+11150015,R2CH3_Vlv1Ctrl,U4, ,0,R2CH3_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11150016,R2CH3_Vlv2Ctrl,U4, ,0,R2CH3_Vlv2Ctrl, Valve Status BS N2
+11150019,R2CH3_Vlv5Ctrl,U4, ,0,R2CH3_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11150020,R2CH3_Vlv6Ctrl,U4, ,0,R2CH3_Vlv6Ctrl, Valve Status Shutter Purge N2
+11150022,R2CH3_Vlv8Ctrl,U4, ,0,R2CH3_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11150027,R2CH3_Vlv13Ctrl,U4, ,0,R2CH3_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11150028,R2CH3_Vlv14Ctrl,U4, ,0,R2CH3_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11150035,R2CH3_Vlv21Ctrl,U4, ,0,R2CH3_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11150036,R2CH3_Vlv22Ctrl,U4, ,0,R2CH3_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11150037,R2CH3_Vlv23Ctrl,U4, ,0,R2CH3_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11150045,R2CH3_Vlv31Ctrl,U4, ,0,R2CH3_Vlv31Ctrl, Valve Status SPV S3 IPA
+11150047,R2CH3_Vlv33Ctrl,U4, ,0,R2CH3_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11150048,R2CH3_Vlv34Ctrl,U4, ,0,R2CH3_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11150049,R2CH3_Vlv35Ctrl,U4, ,0,R2CH3_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11150054,R2CH3_Vlv40Ctrl,U4, ,0,R2CH3_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11150055,R2CH3_Vlv41Ctrl,U4, ,0,R2CH3_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11150056,R2CH3_Vlv42Ctrl,U4, ,0,R2CH3_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11150057,R2CH3_Vlv43Ctrl,U4, ,0,R2CH3_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11150058,R2CH3_Vlv44Ctrl,U4, ,0,R2CH3_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11150059,R2CH3_Vlv45Ctrl,U4, ,0,R2CH3_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11150060,R2CH3_Vlv46Ctrl,U4, ,0,R2CH3_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11150061,R2CH3_Vlv47Ctrl,U4, ,0,R2CH3_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11150063,R2CH3_Vlv49Ctrl,U4, ,0,R2CH3_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11150064,R2CH3_Vlv50Ctrl,U4, ,0,R2CH3_Vlv50Ctrl, Valve Status MV1 CO2W
+11150065,R2CH3_Vlv51Ctrl,U4, ,0,R2CH3_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11150066,R2CH3_Vlv52Ctrl,U4, ,0,R2CH3_Vlv52Ctrl, Valve Status MV1 H2O2
+11150068,R2CH3_Vlv54Ctrl,U4, ,0,R2CH3_Vlv54Ctrl, Valve Status MV1 NH4OH
+11150074,R2CH3_Vlv60Ctrl,U4, ,0,R2CH3_Vlv60Ctrl, Valve Status MV2 CO2W
+11150075,R2CH3_Vlv61Ctrl,U4, ,0,R2CH3_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11150076,R2CH3_Vlv62Ctrl,U4, ,0,R2CH3_Vlv62Ctrl, Valve Status MV2 H2O2
+11150078,R2CH3_Vlv64Ctrl,U4, ,0,R2CH3_Vlv64Ctrl, Valve Status MV2 NH4OH
+11150085,R2CH3_Vlv71Ctrl,U4, ,0,R2CH3_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11150086,R2CH3_Vlv72Ctrl,U4, ,0,R2CH3_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11150087,R2CH3_Vlv73Ctrl,U4, ,0,R2CH3_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11150094,R2CH3_Vlv80Ctrl,U4, ,0,R2CH3_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11150097,R2CH3_Vlv83Ctrl,U4, ,0,R2CH3_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11150098,R2CH3_Vlv84Ctrl,U4, ,0,R2CH3_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11150099,R2CH3_Vlv85Ctrl,U4, ,0,R2CH3_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11150100,R2CH3_Vlv86Ctrl,U4, ,0,R2CH3_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11150102,R2CH3_Vlv88Ctrl,U4, ,0,R2CH3_Vlv88Ctrl, Valve Status SBV S3 IPA
+11150108,R2CH3_Vlv94Ctrl,U4, ,0,R2CH3_Vlv94Ctrl, Valve Status MaSV CO2W
+11150110,R2CH3_Vlv96Ctrl,U4, ,0,R2CH3_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11150112,R2CH3_Vlv2FlwPV,F4,L/Min,0,R2CH3_Vlv2FlwPV,流量读取 BS N2
+11150123,R2CH3_Vlv13FlwPV,F4,mL/Min,0,R2CH3_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11150124,R2CH3_Vlv14FlwPV,F4,mL/Min,0,R2CH3_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11150132,R2CH3_Vlv22FlwPV,F4,mL/Min,0,R2CH3_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11150133,R2CH3_Vlv23FlwPV,F4,L/Min,0,R2CH3_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11150141,R2CH3_Vlv31FlwPV,F4,mL/Min,0,R2CH3_Vlv31FlwPV,流量读取 SPV S3 IPA
+11150143,R2CH3_Vlv33FlwPV,F4,mL/Min,0,R2CH3_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11150151,R2CH3_Vlv41FlwPV,F4,mL/Min,0,R2CH3_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11150152,R2CH3_Vlv42FlwPV,F4,mL/Min,0,R2CH3_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11150153,R2CH3_Vlv43FlwPV,F4,mL/Min,0,R2CH3_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11150154,R2CH3_Vlv44FlwPV,F4,mL/Min,0,R2CH3_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11150157,R2CH3_Vlv47FlwPV,F4,mL/Min,0,R2CH3_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11150160,R2CH3_Vlv50FlwPV,F4,mL/Min,0,R2CH3_Vlv50FlwPV,流量读取 MV1 CO2W
+11150161,R2CH3_Vlv51FlwPV,F4,mL/Min,0,R2CH3_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11150162,R2CH3_Vlv52FlwPV,F4,mL/Min,0,R2CH3_Vlv52FlwPV,流量读取 MV1 H2O2
+11150164,R2CH3_Vlv54FlwPV,F4,mL/Min,0,R2CH3_Vlv54FlwPV,流量读取 MV1 NH4OH
+11150170,R2CH3_Vlv60FlwPV,F4,mL/Min,0,R2CH3_Vlv60FlwPV,流量读取 MV2 CO2W
+11150171,R2CH3_Vlv61FlwPV,F4,mL/Min,0,R2CH3_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11150172,R2CH3_Vlv62FlwPV,F4,mL/Min,0,R2CH3_Vlv62FlwPV,流量读取 MV2 H2O2
+11150174,R2CH3_Vlv64FlwPV,F4,mL/Min,0,R2CH3_Vlv64FlwPV,流量读取 MV2 NH4OH
+11150206,R2CH3_Vlv96FlwPV,F4,mL/Min,0,R2CH3_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11150207,R2CH3_Ana1FlwPV,F4,Mpa,0,R2CH3_Ana1FlwPV,实时流量 Unit CDA PG
+11150208,R2CH3_Ana2FlwPV,F4,Mpa,0,R2CH3_Ana2FlwPV,实时流量 Unit N2 PG
+11150209,R2CH3_Ana3FlwPV,F4,L/Min,0,R2CH3_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11150210,R2CH3_Ana4FlwPV,F4,L/Min,0,R2CH3_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11150211,R2CH3_Ana5FlwPV,F4,L/Min,0,R2CH3_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11150212,R2CH3_Ana6FlwPV,F4,PA,0,R2CH3_Ana6FlwPV,实时流量 Ch Inner PG
+11150213,R2CH3_Ana7FlwPV,F4,L/Min,0,R2CH3_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11150214,R2CH3_Ana8FlwPV,F4,PA,0,R2CH3_Ana8FlwPV,实时流量 Exh PG
+11150216,R2CH3_Ana10FlwPV,F4,℃,0,R2CH3_Ana10FlwPV,实时流量 Drain Tank Temp
+11150217,R2CH3_Ana11FlwPV,F4,KPA,0,R2CH3_Ana11FlwPV,实时流量 Spin Eject PG
+11150222,FFU.R2CH3_SpeedRead,U4, ,0,FFU.R2CH3_SpeedRead,
+11150223,FFU.R2CH3_SpeedSet,U4, ,0,FFU.R2CH3_SpeedSet,
+11150224,R2CH3_FDCRunTotalTime,F4, ,0,R2CH3_FDCRunTotalTime,
+11150225,R2CH3_FDCRunSPMTime,F4, ,0,R2CH3_FDCRunSPMTime,
+11170001,L3CH1_Arm1VerCtrl,U4, ,0,L3CH1_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11170002,L3CH1_Arm2VerCtrl,U4, ,0,L3CH1_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11170003,L3CH1_Arm3VerCtrl,U4, ,0,L3CH1_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11170004,L3CH1_Arm1HorPosID,U4, ,0,L3CH1_Arm1HorPosID,Arm1运动状态
+11170005,L3CH1_Arm2HorPosID,U4, ,0,L3CH1_Arm2HorPosID,Arm2运动状态
+11170006,L3CH1_Arm3HorPosID,U4, ,0,L3CH1_Arm3HorPosID,Arm3运动状态
+11170007,L3CH1_Cup1PosID,U4, ,0,L3CH1_Cup1PosID,Cup1运动位置
+11170008,L3CH1_Cup2PosID,U4, ,0,L3CH1_Cup2PosID,Cup2运动位置
+11170009,L3CH1_Cup3PosID,U4, ,0,L3CH1_Cup3PosID,Cup3运动位置
+11170010,L3CH1_ShutterVerCtrl,U4, ,0,L3CH1_ShutterVerCtrl,Shutter垂直运动位置
+11170011,L3CH1_ShutterHorCtrl,U4, ,0,L3CH1_ShutterHorCtrl,Shutter水平运动位置
+11170012,L3CH1_SpinCurRpm,F4, ,0,L3CH1_SpinCurRpm,SpinHome 当前转速 Real
+11170013,L3CH1_RecipeStepNum,U4, ,0,L3CH1_RecipeStepNum,
+11170014,L3CH1_Recipe_Max_Step,U4, ,0,L3CH1_Recipe_Max_Step,
+11170015,L3CH1_Vlv1Ctrl,U4, ,0,L3CH1_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11170016,L3CH1_Vlv2Ctrl,U4, ,0,L3CH1_Vlv2Ctrl, Valve Status BS N2
+11170019,L3CH1_Vlv5Ctrl,U4, ,0,L3CH1_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11170020,L3CH1_Vlv6Ctrl,U4, ,0,L3CH1_Vlv6Ctrl, Valve Status Shutter Purge N2
+11170022,L3CH1_Vlv8Ctrl,U4, ,0,L3CH1_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11170027,L3CH1_Vlv13Ctrl,U4, ,0,L3CH1_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11170028,L3CH1_Vlv14Ctrl,U4, ,0,L3CH1_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11170035,L3CH1_Vlv21Ctrl,U4, ,0,L3CH1_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11170036,L3CH1_Vlv22Ctrl,U4, ,0,L3CH1_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11170037,L3CH1_Vlv23Ctrl,U4, ,0,L3CH1_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11170045,L3CH1_Vlv31Ctrl,U4, ,0,L3CH1_Vlv31Ctrl, Valve Status SPV S3 IPA
+11170047,L3CH1_Vlv33Ctrl,U4, ,0,L3CH1_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11170048,L3CH1_Vlv34Ctrl,U4, ,0,L3CH1_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11170049,L3CH1_Vlv35Ctrl,U4, ,0,L3CH1_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11170054,L3CH1_Vlv40Ctrl,U4, ,0,L3CH1_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11170055,L3CH1_Vlv41Ctrl,U4, ,0,L3CH1_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11170056,L3CH1_Vlv42Ctrl,U4, ,0,L3CH1_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11170057,L3CH1_Vlv43Ctrl,U4, ,0,L3CH1_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11170058,L3CH1_Vlv44Ctrl,U4, ,0,L3CH1_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11170059,L3CH1_Vlv45Ctrl,U4, ,0,L3CH1_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11170060,L3CH1_Vlv46Ctrl,U4, ,0,L3CH1_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11170061,L3CH1_Vlv47Ctrl,U4, ,0,L3CH1_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11170063,L3CH1_Vlv49Ctrl,U4, ,0,L3CH1_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11170064,L3CH1_Vlv50Ctrl,U4, ,0,L3CH1_Vlv50Ctrl, Valve Status MV1 CO2W
+11170065,L3CH1_Vlv51Ctrl,U4, ,0,L3CH1_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11170066,L3CH1_Vlv52Ctrl,U4, ,0,L3CH1_Vlv52Ctrl, Valve Status MV1 H2O2
+11170068,L3CH1_Vlv54Ctrl,U4, ,0,L3CH1_Vlv54Ctrl, Valve Status MV1 NH4OH
+11170074,L3CH1_Vlv60Ctrl,U4, ,0,L3CH1_Vlv60Ctrl, Valve Status MV2 CO2W
+11170075,L3CH1_Vlv61Ctrl,U4, ,0,L3CH1_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11170076,L3CH1_Vlv62Ctrl,U4, ,0,L3CH1_Vlv62Ctrl, Valve Status MV2 H2O2
+11170078,L3CH1_Vlv64Ctrl,U4, ,0,L3CH1_Vlv64Ctrl, Valve Status MV2 NH4OH
+11170085,L3CH1_Vlv71Ctrl,U4, ,0,L3CH1_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11170086,L3CH1_Vlv72Ctrl,U4, ,0,L3CH1_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11170087,L3CH1_Vlv73Ctrl,U4, ,0,L3CH1_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11170094,L3CH1_Vlv80Ctrl,U4, ,0,L3CH1_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11170097,L3CH1_Vlv83Ctrl,U4, ,0,L3CH1_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11170098,L3CH1_Vlv84Ctrl,U4, ,0,L3CH1_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11170099,L3CH1_Vlv85Ctrl,U4, ,0,L3CH1_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11170100,L3CH1_Vlv86Ctrl,U4, ,0,L3CH1_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11170102,L3CH1_Vlv88Ctrl,U4, ,0,L3CH1_Vlv88Ctrl, Valve Status SBV S3 IPA
+11170108,L3CH1_Vlv94Ctrl,U4, ,0,L3CH1_Vlv94Ctrl, Valve Status MaSV CO2W
+11170110,L3CH1_Vlv96Ctrl,U4, ,0,L3CH1_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11170112,L3CH1_Vlv2FlwPV,F4,L/Min,0,L3CH1_Vlv2FlwPV,流量读取 BS N2
+11170123,L3CH1_Vlv13FlwPV,F4,mL/Min,0,L3CH1_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11170124,L3CH1_Vlv14FlwPV,F4,mL/Min,0,L3CH1_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11170132,L3CH1_Vlv22FlwPV,F4,mL/Min,0,L3CH1_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11170133,L3CH1_Vlv23FlwPV,F4,L/Min,0,L3CH1_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11170141,L3CH1_Vlv31FlwPV,F4,mL/Min,0,L3CH1_Vlv31FlwPV,流量读取 SPV S3 IPA
+11170143,L3CH1_Vlv33FlwPV,F4,mL/Min,0,L3CH1_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11170151,L3CH1_Vlv41FlwPV,F4,mL/Min,0,L3CH1_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11170152,L3CH1_Vlv42FlwPV,F4,mL/Min,0,L3CH1_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11170153,L3CH1_Vlv43FlwPV,F4,mL/Min,0,L3CH1_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11170154,L3CH1_Vlv44FlwPV,F4,mL/Min,0,L3CH1_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11170157,L3CH1_Vlv47FlwPV,F4,mL/Min,0,L3CH1_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11170160,L3CH1_Vlv50FlwPV,F4,mL/Min,0,L3CH1_Vlv50FlwPV,流量读取 MV1 CO2W
+11170161,L3CH1_Vlv51FlwPV,F4,mL/Min,0,L3CH1_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11170162,L3CH1_Vlv52FlwPV,F4,mL/Min,0,L3CH1_Vlv52FlwPV,流量读取 MV1 H2O2
+11170164,L3CH1_Vlv54FlwPV,F4,mL/Min,0,L3CH1_Vlv54FlwPV,流量读取 MV1 NH4OH
+11170170,L3CH1_Vlv60FlwPV,F4,mL/Min,0,L3CH1_Vlv60FlwPV,流量读取 MV2 CO2W
+11170171,L3CH1_Vlv61FlwPV,F4,mL/Min,0,L3CH1_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11170172,L3CH1_Vlv62FlwPV,F4,mL/Min,0,L3CH1_Vlv62FlwPV,流量读取 MV2 H2O2
+11170174,L3CH1_Vlv64FlwPV,F4,mL/Min,0,L3CH1_Vlv64FlwPV,流量读取 MV2 NH4OH
+11170206,L3CH1_Vlv96FlwPV,F4,mL/Min,0,L3CH1_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11170207,L3CH1_Ana1FlwPV,F4,Mpa,0,L3CH1_Ana1FlwPV,实时流量 Unit CDA PG
+11170208,L3CH1_Ana2FlwPV,F4,Mpa,0,L3CH1_Ana2FlwPV,实时流量 Unit N2 PG
+11170209,L3CH1_Ana3FlwPV,F4,L/Min,0,L3CH1_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11170210,L3CH1_Ana4FlwPV,F4,L/Min,0,L3CH1_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11170211,L3CH1_Ana5FlwPV,F4,L/Min,0,L3CH1_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11170212,L3CH1_Ana6FlwPV,F4,PA,0,L3CH1_Ana6FlwPV,实时流量 Ch Inner PG
+11170213,L3CH1_Ana7FlwPV,F4,L/Min,0,L3CH1_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11170214,L3CH1_Ana8FlwPV,F4,PA,0,L3CH1_Ana8FlwPV,实时流量 Exh PG
+11170216,L3CH1_Ana10FlwPV,F4,℃,0,L3CH1_Ana10FlwPV,实时流量 Drain Tank Temp
+11170217,L3CH1_Ana11FlwPV,F4,KPA,0,L3CH1_Ana11FlwPV,实时流量 Spin Eject PG
+11170222,FFU.L3CH1_SpeedRead,U4, ,0,FFU.L3CH1_SpeedRead,
+11170223,FFU.L3CH1_SpeedSet,U4, ,0,FFU.L3CH1_SpeedSet,
+11170224,L3CH1_FDCRunTotalTime,F4, ,0,L3CH1_FDCRunTotalTime,
+11170225,L3CH1_FDCRunSPMTime,F4, ,0,L3CH1_FDCRunSPMTime,
+11180001,L3CH2_Arm1VerCtrl,U4, ,0,L3CH2_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11180002,L3CH2_Arm2VerCtrl,U4, ,0,L3CH2_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11180003,L3CH2_Arm3VerCtrl,U4, ,0,L3CH2_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11180004,L3CH2_Arm1HorPosID,U4, ,0,L3CH2_Arm1HorPosID,Arm1运动状态
+11180005,L3CH2_Arm2HorPosID,U4, ,0,L3CH2_Arm2HorPosID,Arm2运动状态
+11180006,L3CH2_Arm3HorPosID,U4, ,0,L3CH2_Arm3HorPosID,Arm3运动状态
+11180007,L3CH2_Cup1PosID,U4, ,0,L3CH2_Cup1PosID,Cup1运动位置
+11180008,L3CH2_Cup2PosID,U4, ,0,L3CH2_Cup2PosID,Cup2运动位置
+11180009,L3CH2_Cup3PosID,U4, ,0,L3CH2_Cup3PosID,Cup3运动位置
+11180010,L3CH2_ShutterVerCtrl,U4, ,0,L3CH2_ShutterVerCtrl,Shutter垂直运动位置
+11180011,L3CH2_ShutterHorCtrl,U4, ,0,L3CH2_ShutterHorCtrl,Shutter水平运动位置
+11180012,L3CH2_SpinCurRpm,F4, ,0,L3CH2_SpinCurRpm,SpinHome 当前转速 Real
+11180013,L3CH2_RecipeStepNum,U4, ,0,L3CH2_RecipeStepNum,
+11180014,L3CH2_Recipe_Max_Step,U4, ,0,L3CH2_Recipe_Max_Step,
+11180015,L3CH2_Vlv1Ctrl,U4, ,0,L3CH2_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11180016,L3CH2_Vlv2Ctrl,U4, ,0,L3CH2_Vlv2Ctrl, Valve Status BS N2
+11180019,L3CH2_Vlv5Ctrl,U4, ,0,L3CH2_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11180020,L3CH2_Vlv6Ctrl,U4, ,0,L3CH2_Vlv6Ctrl, Valve Status Shutter Purge N2
+11180022,L3CH2_Vlv8Ctrl,U4, ,0,L3CH2_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11180027,L3CH2_Vlv13Ctrl,U4, ,0,L3CH2_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11180028,L3CH2_Vlv14Ctrl,U4, ,0,L3CH2_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11180035,L3CH2_Vlv21Ctrl,U4, ,0,L3CH2_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11180036,L3CH2_Vlv22Ctrl,U4, ,0,L3CH2_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11180037,L3CH2_Vlv23Ctrl,U4, ,0,L3CH2_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11180045,L3CH2_Vlv31Ctrl,U4, ,0,L3CH2_Vlv31Ctrl, Valve Status SPV S3 IPA
+11180047,L3CH2_Vlv33Ctrl,U4, ,0,L3CH2_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11180048,L3CH2_Vlv34Ctrl,U4, ,0,L3CH2_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11180049,L3CH2_Vlv35Ctrl,U4, ,0,L3CH2_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11180054,L3CH2_Vlv40Ctrl,U4, ,0,L3CH2_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11180055,L3CH2_Vlv41Ctrl,U4, ,0,L3CH2_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11180056,L3CH2_Vlv42Ctrl,U4, ,0,L3CH2_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11180057,L3CH2_Vlv43Ctrl,U4, ,0,L3CH2_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11180058,L3CH2_Vlv44Ctrl,U4, ,0,L3CH2_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11180059,L3CH2_Vlv45Ctrl,U4, ,0,L3CH2_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11180060,L3CH2_Vlv46Ctrl,U4, ,0,L3CH2_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11180061,L3CH2_Vlv47Ctrl,U4, ,0,L3CH2_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11180063,L3CH2_Vlv49Ctrl,U4, ,0,L3CH2_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11180064,L3CH2_Vlv50Ctrl,U4, ,0,L3CH2_Vlv50Ctrl, Valve Status MV1 CO2W
+11180065,L3CH2_Vlv51Ctrl,U4, ,0,L3CH2_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11180066,L3CH2_Vlv52Ctrl,U4, ,0,L3CH2_Vlv52Ctrl, Valve Status MV1 H2O2
+11180068,L3CH2_Vlv54Ctrl,U4, ,0,L3CH2_Vlv54Ctrl, Valve Status MV1 NH4OH
+11180074,L3CH2_Vlv60Ctrl,U4, ,0,L3CH2_Vlv60Ctrl, Valve Status MV2 CO2W
+11180075,L3CH2_Vlv61Ctrl,U4, ,0,L3CH2_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11180076,L3CH2_Vlv62Ctrl,U4, ,0,L3CH2_Vlv62Ctrl, Valve Status MV2 H2O2
+11180078,L3CH2_Vlv64Ctrl,U4, ,0,L3CH2_Vlv64Ctrl, Valve Status MV2 NH4OH
+11180085,L3CH2_Vlv71Ctrl,U4, ,0,L3CH2_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11180086,L3CH2_Vlv72Ctrl,U4, ,0,L3CH2_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11180087,L3CH2_Vlv73Ctrl,U4, ,0,L3CH2_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11180094,L3CH2_Vlv80Ctrl,U4, ,0,L3CH2_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11180097,L3CH2_Vlv83Ctrl,U4, ,0,L3CH2_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11180098,L3CH2_Vlv84Ctrl,U4, ,0,L3CH2_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11180099,L3CH2_Vlv85Ctrl,U4, ,0,L3CH2_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11180100,L3CH2_Vlv86Ctrl,U4, ,0,L3CH2_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11180102,L3CH2_Vlv88Ctrl,U4, ,0,L3CH2_Vlv88Ctrl, Valve Status SBV S3 IPA
+11180108,L3CH2_Vlv94Ctrl,U4, ,0,L3CH2_Vlv94Ctrl, Valve Status MaSV CO2W
+11180110,L3CH2_Vlv96Ctrl,U4, ,0,L3CH2_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11180112,L3CH2_Vlv2FlwPV,F4,L/Min,0,L3CH2_Vlv2FlwPV,流量读取 BS N2
+11180123,L3CH2_Vlv13FlwPV,F4,mL/Min,0,L3CH2_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11180124,L3CH2_Vlv14FlwPV,F4,mL/Min,0,L3CH2_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11180132,L3CH2_Vlv22FlwPV,F4,mL/Min,0,L3CH2_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11180133,L3CH2_Vlv23FlwPV,F4,L/Min,0,L3CH2_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11180141,L3CH2_Vlv31FlwPV,F4,mL/Min,0,L3CH2_Vlv31FlwPV,流量读取 SPV S3 IPA
+11180143,L3CH2_Vlv33FlwPV,F4,mL/Min,0,L3CH2_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11180151,L3CH2_Vlv41FlwPV,F4,mL/Min,0,L3CH2_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11180152,L3CH2_Vlv42FlwPV,F4,mL/Min,0,L3CH2_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11180153,L3CH2_Vlv43FlwPV,F4,mL/Min,0,L3CH2_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11180154,L3CH2_Vlv44FlwPV,F4,mL/Min,0,L3CH2_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11180157,L3CH2_Vlv47FlwPV,F4,mL/Min,0,L3CH2_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11180160,L3CH2_Vlv50FlwPV,F4,mL/Min,0,L3CH2_Vlv50FlwPV,流量读取 MV1 CO2W
+11180161,L3CH2_Vlv51FlwPV,F4,mL/Min,0,L3CH2_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11180162,L3CH2_Vlv52FlwPV,F4,mL/Min,0,L3CH2_Vlv52FlwPV,流量读取 MV1 H2O2
+11180164,L3CH2_Vlv54FlwPV,F4,mL/Min,0,L3CH2_Vlv54FlwPV,流量读取 MV1 NH4OH
+11180170,L3CH2_Vlv60FlwPV,F4,mL/Min,0,L3CH2_Vlv60FlwPV,流量读取 MV2 CO2W
+11180171,L3CH2_Vlv61FlwPV,F4,mL/Min,0,L3CH2_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11180172,L3CH2_Vlv62FlwPV,F4,mL/Min,0,L3CH2_Vlv62FlwPV,流量读取 MV2 H2O2
+11180174,L3CH2_Vlv64FlwPV,F4,mL/Min,0,L3CH2_Vlv64FlwPV,流量读取 MV2 NH4OH
+11180206,L3CH2_Vlv96FlwPV,F4,mL/Min,0,L3CH2_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11180207,L3CH2_Ana1FlwPV,F4,Mpa,0,L3CH2_Ana1FlwPV,实时流量 Unit CDA PG
+11180208,L3CH2_Ana2FlwPV,F4,Mpa,0,L3CH2_Ana2FlwPV,实时流量 Unit N2 PG
+11180209,L3CH2_Ana3FlwPV,F4,L/Min,0,L3CH2_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11180210,L3CH2_Ana4FlwPV,F4,L/Min,0,L3CH2_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11180211,L3CH2_Ana5FlwPV,F4,L/Min,0,L3CH2_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11180212,L3CH2_Ana6FlwPV,F4,PA,0,L3CH2_Ana6FlwPV,实时流量 Ch Inner PG
+11180213,L3CH2_Ana7FlwPV,F4,L/Min,0,L3CH2_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11180214,L3CH2_Ana8FlwPV,F4,PA,0,L3CH2_Ana8FlwPV,实时流量 Exh PG
+11180216,L3CH2_Ana10FlwPV,F4,℃,0,L3CH2_Ana10FlwPV,实时流量 Drain Tank Temp
+11180217,L3CH2_Ana11FlwPV,F4,KPA,0,L3CH2_Ana11FlwPV,实时流量 Spin Eject PG
+11180222,FFU.L3CH2_SpeedRead,U4, ,0,FFU.L3CH2_SpeedRead,
+11180223,FFU.L3CH2_SpeedSet,U4, ,0,FFU.L3CH2_SpeedSet,
+11180224,L3CH2_FDCRunTotalTime,F4, ,0,L3CH2_FDCRunTotalTime,
+11180225,L3CH2_FDCRunSPMTime,F4, ,0,L3CH2_FDCRunSPMTime,
+11190001,L3CH3_Arm1VerCtrl,U4, ,0,L3CH3_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11190002,L3CH3_Arm2VerCtrl,U4, ,0,L3CH3_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11190003,L3CH3_Arm3VerCtrl,U4, ,0,L3CH3_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11190004,L3CH3_Arm1HorPosID,U4, ,0,L3CH3_Arm1HorPosID,Arm1运动状态
+11190005,L3CH3_Arm2HorPosID,U4, ,0,L3CH3_Arm2HorPosID,Arm2运动状态
+11190006,L3CH3_Arm3HorPosID,U4, ,0,L3CH3_Arm3HorPosID,Arm3运动状态
+11190007,L3CH3_Cup1PosID,U4, ,0,L3CH3_Cup1PosID,Cup1运动位置
+11190008,L3CH3_Cup2PosID,U4, ,0,L3CH3_Cup2PosID,Cup2运动位置
+11190009,L3CH3_Cup3PosID,U4, ,0,L3CH3_Cup3PosID,Cup3运动位置
+11190010,L3CH3_ShutterVerCtrl,U4, ,0,L3CH3_ShutterVerCtrl,Shutter垂直运动位置
+11190011,L3CH3_ShutterHorCtrl,U4, ,0,L3CH3_ShutterHorCtrl,Shutter水平运动位置
+11190012,L3CH3_SpinCurRpm,F4, ,0,L3CH3_SpinCurRpm,SpinHome 当前转速 Real
+11190013,L3CH3_RecipeStepNum,U4, ,0,L3CH3_RecipeStepNum,
+11190014,L3CH3_Recipe_Max_Step,U4, ,0,L3CH3_Recipe_Max_Step,
+11190015,L3CH3_Vlv1Ctrl,U4, ,0,L3CH3_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11190016,L3CH3_Vlv2Ctrl,U4, ,0,L3CH3_Vlv2Ctrl, Valve Status BS N2
+11190019,L3CH3_Vlv5Ctrl,U4, ,0,L3CH3_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11190020,L3CH3_Vlv6Ctrl,U4, ,0,L3CH3_Vlv6Ctrl, Valve Status Shutter Purge N2
+11190022,L3CH3_Vlv8Ctrl,U4, ,0,L3CH3_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11190027,L3CH3_Vlv13Ctrl,U4, ,0,L3CH3_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11190028,L3CH3_Vlv14Ctrl,U4, ,0,L3CH3_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11190035,L3CH3_Vlv21Ctrl,U4, ,0,L3CH3_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11190036,L3CH3_Vlv22Ctrl,U4, ,0,L3CH3_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11190037,L3CH3_Vlv23Ctrl,U4, ,0,L3CH3_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11190045,L3CH3_Vlv31Ctrl,U4, ,0,L3CH3_Vlv31Ctrl, Valve Status SPV S3 IPA
+11190047,L3CH3_Vlv33Ctrl,U4, ,0,L3CH3_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11190048,L3CH3_Vlv34Ctrl,U4, ,0,L3CH3_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11190049,L3CH3_Vlv35Ctrl,U4, ,0,L3CH3_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11190054,L3CH3_Vlv40Ctrl,U4, ,0,L3CH3_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11190055,L3CH3_Vlv41Ctrl,U4, ,0,L3CH3_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11190056,L3CH3_Vlv42Ctrl,U4, ,0,L3CH3_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11190057,L3CH3_Vlv43Ctrl,U4, ,0,L3CH3_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11190058,L3CH3_Vlv44Ctrl,U4, ,0,L3CH3_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11190059,L3CH3_Vlv45Ctrl,U4, ,0,L3CH3_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11190060,L3CH3_Vlv46Ctrl,U4, ,0,L3CH3_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11190061,L3CH3_Vlv47Ctrl,U4, ,0,L3CH3_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11190063,L3CH3_Vlv49Ctrl,U4, ,0,L3CH3_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11190064,L3CH3_Vlv50Ctrl,U4, ,0,L3CH3_Vlv50Ctrl, Valve Status MV1 CO2W
+11190065,L3CH3_Vlv51Ctrl,U4, ,0,L3CH3_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11190066,L3CH3_Vlv52Ctrl,U4, ,0,L3CH3_Vlv52Ctrl, Valve Status MV1 H2O2
+11190068,L3CH3_Vlv54Ctrl,U4, ,0,L3CH3_Vlv54Ctrl, Valve Status MV1 NH4OH
+11190074,L3CH3_Vlv60Ctrl,U4, ,0,L3CH3_Vlv60Ctrl, Valve Status MV2 CO2W
+11190075,L3CH3_Vlv61Ctrl,U4, ,0,L3CH3_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11190076,L3CH3_Vlv62Ctrl,U4, ,0,L3CH3_Vlv62Ctrl, Valve Status MV2 H2O2
+11190078,L3CH3_Vlv64Ctrl,U4, ,0,L3CH3_Vlv64Ctrl, Valve Status MV2 NH4OH
+11190085,L3CH3_Vlv71Ctrl,U4, ,0,L3CH3_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11190086,L3CH3_Vlv72Ctrl,U4, ,0,L3CH3_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11190087,L3CH3_Vlv73Ctrl,U4, ,0,L3CH3_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11190094,L3CH3_Vlv80Ctrl,U4, ,0,L3CH3_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11190097,L3CH3_Vlv83Ctrl,U4, ,0,L3CH3_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11190098,L3CH3_Vlv84Ctrl,U4, ,0,L3CH3_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11190099,L3CH3_Vlv85Ctrl,U4, ,0,L3CH3_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11190100,L3CH3_Vlv86Ctrl,U4, ,0,L3CH3_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11190102,L3CH3_Vlv88Ctrl,U4, ,0,L3CH3_Vlv88Ctrl, Valve Status SBV S3 IPA
+11190108,L3CH3_Vlv94Ctrl,U4, ,0,L3CH3_Vlv94Ctrl, Valve Status MaSV CO2W
+11190110,L3CH3_Vlv96Ctrl,U4, ,0,L3CH3_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11190112,L3CH3_Vlv2FlwPV,F4,L/Min,0,L3CH3_Vlv2FlwPV,流量读取 BS N2
+11190123,L3CH3_Vlv13FlwPV,F4,mL/Min,0,L3CH3_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11190124,L3CH3_Vlv14FlwPV,F4,mL/Min,0,L3CH3_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11190132,L3CH3_Vlv22FlwPV,F4,mL/Min,0,L3CH3_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11190133,L3CH3_Vlv23FlwPV,F4,L/Min,0,L3CH3_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11190141,L3CH3_Vlv31FlwPV,F4,mL/Min,0,L3CH3_Vlv31FlwPV,流量读取 SPV S3 IPA
+11190143,L3CH3_Vlv33FlwPV,F4,mL/Min,0,L3CH3_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11190151,L3CH3_Vlv41FlwPV,F4,mL/Min,0,L3CH3_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11190152,L3CH3_Vlv42FlwPV,F4,mL/Min,0,L3CH3_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11190153,L3CH3_Vlv43FlwPV,F4,mL/Min,0,L3CH3_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11190154,L3CH3_Vlv44FlwPV,F4,mL/Min,0,L3CH3_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11190157,L3CH3_Vlv47FlwPV,F4,mL/Min,0,L3CH3_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11190160,L3CH3_Vlv50FlwPV,F4,mL/Min,0,L3CH3_Vlv50FlwPV,流量读取 MV1 CO2W
+11190161,L3CH3_Vlv51FlwPV,F4,mL/Min,0,L3CH3_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11190162,L3CH3_Vlv52FlwPV,F4,mL/Min,0,L3CH3_Vlv52FlwPV,流量读取 MV1 H2O2
+11190164,L3CH3_Vlv54FlwPV,F4,mL/Min,0,L3CH3_Vlv54FlwPV,流量读取 MV1 NH4OH
+11190170,L3CH3_Vlv60FlwPV,F4,mL/Min,0,L3CH3_Vlv60FlwPV,流量读取 MV2 CO2W
+11190171,L3CH3_Vlv61FlwPV,F4,mL/Min,0,L3CH3_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11190172,L3CH3_Vlv62FlwPV,F4,mL/Min,0,L3CH3_Vlv62FlwPV,流量读取 MV2 H2O2
+11190174,L3CH3_Vlv64FlwPV,F4,mL/Min,0,L3CH3_Vlv64FlwPV,流量读取 MV2 NH4OH
+11190206,L3CH3_Vlv96FlwPV,F4,mL/Min,0,L3CH3_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11190207,L3CH3_Ana1FlwPV,F4,Mpa,0,L3CH3_Ana1FlwPV,实时流量 Unit CDA PG
+11190208,L3CH3_Ana2FlwPV,F4,Mpa,0,L3CH3_Ana2FlwPV,实时流量 Unit N2 PG
+11190209,L3CH3_Ana3FlwPV,F4,L/Min,0,L3CH3_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11190210,L3CH3_Ana4FlwPV,F4,L/Min,0,L3CH3_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11190211,L3CH3_Ana5FlwPV,F4,L/Min,0,L3CH3_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11190212,L3CH3_Ana6FlwPV,F4,PA,0,L3CH3_Ana6FlwPV,实时流量 Ch Inner PG
+11190213,L3CH3_Ana7FlwPV,F4,L/Min,0,L3CH3_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11190214,L3CH3_Ana8FlwPV,F4,PA,0,L3CH3_Ana8FlwPV,实时流量 Exh PG
+11190216,L3CH3_Ana10FlwPV,F4,℃,0,L3CH3_Ana10FlwPV,实时流量 Drain Tank Temp
+11190217,L3CH3_Ana11FlwPV,F4,KPA,0,L3CH3_Ana11FlwPV,实时流量 Spin Eject PG
+11190222,FFU.L3CH3_SpeedRead,U4, ,0,FFU.L3CH3_SpeedRead,
+11190223,FFU.L3CH3_SpeedSet,U4, ,0,FFU.L3CH3_SpeedSet,
+11190224,L3CH3_FDCRunTotalTime,F4, ,0,L3CH3_FDCRunTotalTime,
+11190225,L3CH3_FDCRunSPMTime,F4, ,0,L3CH3_FDCRunSPMTime,
+11210001,R3CH1_Arm1VerCtrl,U4, ,0,R3CH1_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11210002,R3CH1_Arm2VerCtrl,U4, ,0,R3CH1_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11210003,R3CH1_Arm3VerCtrl,U4, ,0,R3CH1_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11210004,R3CH1_Arm1HorPosID,U4, ,0,R3CH1_Arm1HorPosID,Arm1运动状态
+11210005,R3CH1_Arm2HorPosID,U4, ,0,R3CH1_Arm2HorPosID,Arm2运动状态
+11210006,R3CH1_Arm3HorPosID,U4, ,0,R3CH1_Arm3HorPosID,Arm3运动状态
+11210007,R3CH1_Cup1PosID,U4, ,0,R3CH1_Cup1PosID,Cup1运动位置
+11210008,R3CH1_Cup2PosID,U4, ,0,R3CH1_Cup2PosID,Cup2运动位置
+11210009,R3CH1_Cup3PosID,U4, ,0,R3CH1_Cup3PosID,Cup3运动位置
+11210010,R3CH1_ShutterVerCtrl,U4, ,0,R3CH1_ShutterVerCtrl,Shutter垂直运动位置
+11210011,R3CH1_ShutterHorCtrl,U4, ,0,R3CH1_ShutterHorCtrl,Shutter水平运动位置
+11210012,R3CH1_SpinCurRpm,F4, ,0,R3CH1_SpinCurRpm,SpinHome 当前转速 Real
+11210013,R3CH1_RecipeStepNum,U4, ,0,R3CH1_RecipeStepNum,
+11210014,R3CH1_Recipe_Max_Step,U4, ,0,R3CH1_Recipe_Max_Step,
+11210015,R3CH1_Vlv1Ctrl,U4, ,0,R3CH1_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11210016,R3CH1_Vlv2Ctrl,U4, ,0,R3CH1_Vlv2Ctrl, Valve Status BS N2
+11210019,R3CH1_Vlv5Ctrl,U4, ,0,R3CH1_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11210020,R3CH1_Vlv6Ctrl,U4, ,0,R3CH1_Vlv6Ctrl, Valve Status Shutter Purge N2
+11210022,R3CH1_Vlv8Ctrl,U4, ,0,R3CH1_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11210027,R3CH1_Vlv13Ctrl,U4, ,0,R3CH1_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11210028,R3CH1_Vlv14Ctrl,U4, ,0,R3CH1_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11210035,R3CH1_Vlv21Ctrl,U4, ,0,R3CH1_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11210036,R3CH1_Vlv22Ctrl,U4, ,0,R3CH1_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11210037,R3CH1_Vlv23Ctrl,U4, ,0,R3CH1_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11210045,R3CH1_Vlv31Ctrl,U4, ,0,R3CH1_Vlv31Ctrl, Valve Status SPV S3 IPA
+11210047,R3CH1_Vlv33Ctrl,U4, ,0,R3CH1_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11210048,R3CH1_Vlv34Ctrl,U4, ,0,R3CH1_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11210049,R3CH1_Vlv35Ctrl,U4, ,0,R3CH1_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11210054,R3CH1_Vlv40Ctrl,U4, ,0,R3CH1_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11210055,R3CH1_Vlv41Ctrl,U4, ,0,R3CH1_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11210056,R3CH1_Vlv42Ctrl,U4, ,0,R3CH1_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11210057,R3CH1_Vlv43Ctrl,U4, ,0,R3CH1_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11210058,R3CH1_Vlv44Ctrl,U4, ,0,R3CH1_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11210059,R3CH1_Vlv45Ctrl,U4, ,0,R3CH1_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11210060,R3CH1_Vlv46Ctrl,U4, ,0,R3CH1_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11210061,R3CH1_Vlv47Ctrl,U4, ,0,R3CH1_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11210063,R3CH1_Vlv49Ctrl,U4, ,0,R3CH1_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11210064,R3CH1_Vlv50Ctrl,U4, ,0,R3CH1_Vlv50Ctrl, Valve Status MV1 CO2W
+11210065,R3CH1_Vlv51Ctrl,U4, ,0,R3CH1_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11210066,R3CH1_Vlv52Ctrl,U4, ,0,R3CH1_Vlv52Ctrl, Valve Status MV1 H2O2
+11210068,R3CH1_Vlv54Ctrl,U4, ,0,R3CH1_Vlv54Ctrl, Valve Status MV1 NH4OH
+11210074,R3CH1_Vlv60Ctrl,U4, ,0,R3CH1_Vlv60Ctrl, Valve Status MV2 CO2W
+11210075,R3CH1_Vlv61Ctrl,U4, ,0,R3CH1_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11210076,R3CH1_Vlv62Ctrl,U4, ,0,R3CH1_Vlv62Ctrl, Valve Status MV2 H2O2
+11210078,R3CH1_Vlv64Ctrl,U4, ,0,R3CH1_Vlv64Ctrl, Valve Status MV2 NH4OH
+11210085,R3CH1_Vlv71Ctrl,U4, ,0,R3CH1_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11210086,R3CH1_Vlv72Ctrl,U4, ,0,R3CH1_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11210087,R3CH1_Vlv73Ctrl,U4, ,0,R3CH1_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11210094,R3CH1_Vlv80Ctrl,U4, ,0,R3CH1_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11210097,R3CH1_Vlv83Ctrl,U4, ,0,R3CH1_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11210098,R3CH1_Vlv84Ctrl,U4, ,0,R3CH1_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11210099,R3CH1_Vlv85Ctrl,U4, ,0,R3CH1_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11210100,R3CH1_Vlv86Ctrl,U4, ,0,R3CH1_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11210102,R3CH1_Vlv88Ctrl,U4, ,0,R3CH1_Vlv88Ctrl, Valve Status SBV S3 IPA
+11210108,R3CH1_Vlv94Ctrl,U4, ,0,R3CH1_Vlv94Ctrl, Valve Status MaSV CO2W
+11210110,R3CH1_Vlv96Ctrl,U4, ,0,R3CH1_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11210112,R3CH1_Vlv2FlwPV,F4,L/Min,0,R3CH1_Vlv2FlwPV,流量读取 BS N2
+11210123,R3CH1_Vlv13FlwPV,F4,mL/Min,0,R3CH1_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11210124,R3CH1_Vlv14FlwPV,F4,mL/Min,0,R3CH1_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11210132,R3CH1_Vlv22FlwPV,F4,mL/Min,0,R3CH1_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11210133,R3CH1_Vlv23FlwPV,F4,L/Min,0,R3CH1_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11210141,R3CH1_Vlv31FlwPV,F4,mL/Min,0,R3CH1_Vlv31FlwPV,流量读取 SPV S3 IPA
+11210143,R3CH1_Vlv33FlwPV,F4,mL/Min,0,R3CH1_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11210151,R3CH1_Vlv41FlwPV,F4,mL/Min,0,R3CH1_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11210152,R3CH1_Vlv42FlwPV,F4,mL/Min,0,R3CH1_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11210153,R3CH1_Vlv43FlwPV,F4,mL/Min,0,R3CH1_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11210154,R3CH1_Vlv44FlwPV,F4,mL/Min,0,R3CH1_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11210157,R3CH1_Vlv47FlwPV,F4,mL/Min,0,R3CH1_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11210160,R3CH1_Vlv50FlwPV,F4,mL/Min,0,R3CH1_Vlv50FlwPV,流量读取 MV1 CO2W
+11210161,R3CH1_Vlv51FlwPV,F4,mL/Min,0,R3CH1_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11210162,R3CH1_Vlv52FlwPV,F4,mL/Min,0,R3CH1_Vlv52FlwPV,流量读取 MV1 H2O2
+11210164,R3CH1_Vlv54FlwPV,F4,mL/Min,0,R3CH1_Vlv54FlwPV,流量读取 MV1 NH4OH
+11210170,R3CH1_Vlv60FlwPV,F4,mL/Min,0,R3CH1_Vlv60FlwPV,流量读取 MV2 CO2W
+11210171,R3CH1_Vlv61FlwPV,F4,mL/Min,0,R3CH1_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11210172,R3CH1_Vlv62FlwPV,F4,mL/Min,0,R3CH1_Vlv62FlwPV,流量读取 MV2 H2O2
+11210174,R3CH1_Vlv64FlwPV,F4,mL/Min,0,R3CH1_Vlv64FlwPV,流量读取 MV2 NH4OH
+11210206,R3CH1_Vlv96FlwPV,F4,mL/Min,0,R3CH1_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11210207,R3CH1_Ana1FlwPV,F4,Mpa,0,R3CH1_Ana1FlwPV,实时流量 Unit CDA PG
+11210208,R3CH1_Ana2FlwPV,F4,Mpa,0,R3CH1_Ana2FlwPV,实时流量 Unit N2 PG
+11210209,R3CH1_Ana3FlwPV,F4,L/Min,0,R3CH1_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11210210,R3CH1_Ana4FlwPV,F4,L/Min,0,R3CH1_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11210211,R3CH1_Ana5FlwPV,F4,L/Min,0,R3CH1_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11210212,R3CH1_Ana6FlwPV,F4,PA,0,R3CH1_Ana6FlwPV,实时流量 Ch Inner PG
+11210213,R3CH1_Ana7FlwPV,F4,L/Min,0,R3CH1_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11210214,R3CH1_Ana8FlwPV,F4,PA,0,R3CH1_Ana8FlwPV,实时流量 Exh PG
+11210216,R3CH1_Ana10FlwPV,F4,℃,0,R3CH1_Ana10FlwPV,实时流量 Drain Tank Temp
+11210217,R3CH1_Ana11FlwPV,F4,KPA,0,R3CH1_Ana11FlwPV,实时流量 Spin Eject PG
+11210222,FFU.R3CH1_SpeedRead,U4, ,0,FFU.R3CH1_SpeedRead,
+11210223,FFU.R3CH1_SpeedSet,U4, ,0,FFU.R3CH1_SpeedSet,
+11210224,R3CH1_FDCRunTotalTime,F4, ,0,R3CH1_FDCRunTotalTime,
+11210225,R3CH1_FDCRunSPMTime,F4, ,0,R3CH1_FDCRunSPMTime,
+11220001,R3CH2_Arm1VerCtrl,U4, ,0,R3CH2_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11220002,R3CH2_Arm2VerCtrl,U4, ,0,R3CH2_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11220003,R3CH2_Arm3VerCtrl,U4, ,0,R3CH2_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11220004,R3CH2_Arm1HorPosID,U4, ,0,R3CH2_Arm1HorPosID,Arm1运动状态
+11220005,R3CH2_Arm2HorPosID,U4, ,0,R3CH2_Arm2HorPosID,Arm2运动状态
+11220006,R3CH2_Arm3HorPosID,U4, ,0,R3CH2_Arm3HorPosID,Arm3运动状态
+11220007,R3CH2_Cup1PosID,U4, ,0,R3CH2_Cup1PosID,Cup1运动位置
+11220008,R3CH2_Cup2PosID,U4, ,0,R3CH2_Cup2PosID,Cup2运动位置
+11220009,R3CH2_Cup3PosID,U4, ,0,R3CH2_Cup3PosID,Cup3运动位置
+11220010,R3CH2_ShutterVerCtrl,U4, ,0,R3CH2_ShutterVerCtrl,Shutter垂直运动位置
+11220011,R3CH2_ShutterHorCtrl,U4, ,0,R3CH2_ShutterHorCtrl,Shutter水平运动位置
+11220012,R3CH2_SpinCurRpm,F4, ,0,R3CH2_SpinCurRpm,SpinHome 当前转速 Real
+11220013,R3CH2_RecipeStepNum,U4, ,0,R3CH2_RecipeStepNum,
+11220014,R3CH2_Recipe_Max_Step,U4, ,0,R3CH2_Recipe_Max_Step,
+11220015,R3CH2_Vlv1Ctrl,U4, ,0,R3CH2_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11220016,R3CH2_Vlv2Ctrl,U4, ,0,R3CH2_Vlv2Ctrl, Valve Status BS N2
+11220019,R3CH2_Vlv5Ctrl,U4, ,0,R3CH2_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11220020,R3CH2_Vlv6Ctrl,U4, ,0,R3CH2_Vlv6Ctrl, Valve Status Shutter Purge N2
+11220022,R3CH2_Vlv8Ctrl,U4, ,0,R3CH2_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11220027,R3CH2_Vlv13Ctrl,U4, ,0,R3CH2_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11220028,R3CH2_Vlv14Ctrl,U4, ,0,R3CH2_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11220035,R3CH2_Vlv21Ctrl,U4, ,0,R3CH2_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11220036,R3CH2_Vlv22Ctrl,U4, ,0,R3CH2_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11220037,R3CH2_Vlv23Ctrl,U4, ,0,R3CH2_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11220045,R3CH2_Vlv31Ctrl,U4, ,0,R3CH2_Vlv31Ctrl, Valve Status SPV S3 IPA
+11220047,R3CH2_Vlv33Ctrl,U4, ,0,R3CH2_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11220048,R3CH2_Vlv34Ctrl,U4, ,0,R3CH2_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11220049,R3CH2_Vlv35Ctrl,U4, ,0,R3CH2_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11220054,R3CH2_Vlv40Ctrl,U4, ,0,R3CH2_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11220055,R3CH2_Vlv41Ctrl,U4, ,0,R3CH2_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11220056,R3CH2_Vlv42Ctrl,U4, ,0,R3CH2_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11220057,R3CH2_Vlv43Ctrl,U4, ,0,R3CH2_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11220058,R3CH2_Vlv44Ctrl,U4, ,0,R3CH2_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11220059,R3CH2_Vlv45Ctrl,U4, ,0,R3CH2_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11220060,R3CH2_Vlv46Ctrl,U4, ,0,R3CH2_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11220061,R3CH2_Vlv47Ctrl,U4, ,0,R3CH2_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11220063,R3CH2_Vlv49Ctrl,U4, ,0,R3CH2_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11220064,R3CH2_Vlv50Ctrl,U4, ,0,R3CH2_Vlv50Ctrl, Valve Status MV1 CO2W
+11220065,R3CH2_Vlv51Ctrl,U4, ,0,R3CH2_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11220066,R3CH2_Vlv52Ctrl,U4, ,0,R3CH2_Vlv52Ctrl, Valve Status MV1 H2O2
+11220068,R3CH2_Vlv54Ctrl,U4, ,0,R3CH2_Vlv54Ctrl, Valve Status MV1 NH4OH
+11220074,R3CH2_Vlv60Ctrl,U4, ,0,R3CH2_Vlv60Ctrl, Valve Status MV2 CO2W
+11220075,R3CH2_Vlv61Ctrl,U4, ,0,R3CH2_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11220076,R3CH2_Vlv62Ctrl,U4, ,0,R3CH2_Vlv62Ctrl, Valve Status MV2 H2O2
+11220078,R3CH2_Vlv64Ctrl,U4, ,0,R3CH2_Vlv64Ctrl, Valve Status MV2 NH4OH
+11220085,R3CH2_Vlv71Ctrl,U4, ,0,R3CH2_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11220086,R3CH2_Vlv72Ctrl,U4, ,0,R3CH2_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11220087,R3CH2_Vlv73Ctrl,U4, ,0,R3CH2_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11220094,R3CH2_Vlv80Ctrl,U4, ,0,R3CH2_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11220097,R3CH2_Vlv83Ctrl,U4, ,0,R3CH2_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11220098,R3CH2_Vlv84Ctrl,U4, ,0,R3CH2_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11220099,R3CH2_Vlv85Ctrl,U4, ,0,R3CH2_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11220100,R3CH2_Vlv86Ctrl,U4, ,0,R3CH2_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11220102,R3CH2_Vlv88Ctrl,U4, ,0,R3CH2_Vlv88Ctrl, Valve Status SBV S3 IPA
+11220108,R3CH2_Vlv94Ctrl,U4, ,0,R3CH2_Vlv94Ctrl, Valve Status MaSV CO2W
+11220110,R3CH2_Vlv96Ctrl,U4, ,0,R3CH2_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11220112,R3CH2_Vlv2FlwPV,F4,L/Min,0,R3CH2_Vlv2FlwPV,流量读取 BS N2
+11220123,R3CH2_Vlv13FlwPV,F4,mL/Min,0,R3CH2_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11220124,R3CH2_Vlv14FlwPV,F4,mL/Min,0,R3CH2_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11220132,R3CH2_Vlv22FlwPV,F4,mL/Min,0,R3CH2_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11220133,R3CH2_Vlv23FlwPV,F4,L/Min,0,R3CH2_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11220141,R3CH2_Vlv31FlwPV,F4,mL/Min,0,R3CH2_Vlv31FlwPV,流量读取 SPV S3 IPA
+11220143,R3CH2_Vlv33FlwPV,F4,mL/Min,0,R3CH2_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11220151,R3CH2_Vlv41FlwPV,F4,mL/Min,0,R3CH2_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11220152,R3CH2_Vlv42FlwPV,F4,mL/Min,0,R3CH2_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11220153,R3CH2_Vlv43FlwPV,F4,mL/Min,0,R3CH2_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11220154,R3CH2_Vlv44FlwPV,F4,mL/Min,0,R3CH2_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11220157,R3CH2_Vlv47FlwPV,F4,mL/Min,0,R3CH2_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11220160,R3CH2_Vlv50FlwPV,F4,mL/Min,0,R3CH2_Vlv50FlwPV,流量读取 MV1 CO2W
+11220161,R3CH2_Vlv51FlwPV,F4,mL/Min,0,R3CH2_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11220162,R3CH2_Vlv52FlwPV,F4,mL/Min,0,R3CH2_Vlv52FlwPV,流量读取 MV1 H2O2
+11220164,R3CH2_Vlv54FlwPV,F4,mL/Min,0,R3CH2_Vlv54FlwPV,流量读取 MV1 NH4OH
+11220170,R3CH2_Vlv60FlwPV,F4,mL/Min,0,R3CH2_Vlv60FlwPV,流量读取 MV2 CO2W
+11220171,R3CH2_Vlv61FlwPV,F4,mL/Min,0,R3CH2_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11220172,R3CH2_Vlv62FlwPV,F4,mL/Min,0,R3CH2_Vlv62FlwPV,流量读取 MV2 H2O2
+11220174,R3CH2_Vlv64FlwPV,F4,mL/Min,0,R3CH2_Vlv64FlwPV,流量读取 MV2 NH4OH
+11220206,R3CH2_Vlv96FlwPV,F4,mL/Min,0,R3CH2_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11220207,R3CH2_Ana1FlwPV,F4,Mpa,0,R3CH2_Ana1FlwPV,实时流量 Unit CDA PG
+11220208,R3CH2_Ana2FlwPV,F4,Mpa,0,R3CH2_Ana2FlwPV,实时流量 Unit N2 PG
+11220209,R3CH2_Ana3FlwPV,F4,L/Min,0,R3CH2_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11220210,R3CH2_Ana4FlwPV,F4,L/Min,0,R3CH2_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11220211,R3CH2_Ana5FlwPV,F4,L/Min,0,R3CH2_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11220212,R3CH2_Ana6FlwPV,F4,PA,0,R3CH2_Ana6FlwPV,实时流量 Ch Inner PG
+11220213,R3CH2_Ana7FlwPV,F4,L/Min,0,R3CH2_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11220214,R3CH2_Ana8FlwPV,F4,PA,0,R3CH2_Ana8FlwPV,实时流量 Exh PG
+11220216,R3CH2_Ana10FlwPV,F4,℃,0,R3CH2_Ana10FlwPV,实时流量 Drain Tank Temp
+11220217,R3CH2_Ana11FlwPV,F4,KPA,0,R3CH2_Ana11FlwPV,实时流量 Spin Eject PG
+11220222,FFU.R3CH2_SpeedRead,U4, ,0,FFU.R3CH2_SpeedRead,
+11220223,FFU.R3CH2_SpeedSet,U4, ,0,FFU.R3CH2_SpeedSet,
+11220224,R3CH2_FDCRunTotalTime,F4, ,0,R3CH2_FDCRunTotalTime,
+11220225,R3CH2_FDCRunSPMTime,F4, ,0,R3CH2_FDCRunSPMTime,
+11230001,R3CH3_Arm1VerCtrl,U4, ,0,R3CH3_Arm1VerCtrl,Arm动作控制  1-Up 2-Down
+11230002,R3CH3_Arm2VerCtrl,U4, ,0,R3CH3_Arm2VerCtrl,Arm动作控制  1-Up 2-Down
+11230003,R3CH3_Arm3VerCtrl,U4, ,0,R3CH3_Arm3VerCtrl,Arm动作控制  1-Up 2-Down
+11230004,R3CH3_Arm1HorPosID,U4, ,0,R3CH3_Arm1HorPosID,Arm1运动状态
+11230005,R3CH3_Arm2HorPosID,U4, ,0,R3CH3_Arm2HorPosID,Arm2运动状态
+11230006,R3CH3_Arm3HorPosID,U4, ,0,R3CH3_Arm3HorPosID,Arm3运动状态
+11230007,R3CH3_Cup1PosID,U4, ,0,R3CH3_Cup1PosID,Cup1运动位置
+11230008,R3CH3_Cup2PosID,U4, ,0,R3CH3_Cup2PosID,Cup2运动位置
+11230009,R3CH3_Cup3PosID,U4, ,0,R3CH3_Cup3PosID,Cup3运动位置
+11230010,R3CH3_ShutterVerCtrl,U4, ,0,R3CH3_ShutterVerCtrl,Shutter垂直运动位置
+11230011,R3CH3_ShutterHorCtrl,U4, ,0,R3CH3_ShutterHorCtrl,Shutter水平运动位置
+11230012,R3CH3_SpinCurRpm,F4, ,0,R3CH3_SpinCurRpm,SpinHome 当前转速 Real
+11230013,R3CH3_RecipeStepNum,U4, ,0,R3CH3_RecipeStepNum,
+11230014,R3CH3_Recipe_Max_Step,U4, ,0,R3CH3_Recipe_Max_Step,
+11230015,R3CH3_Vlv1Ctrl,U4, ,0,R3CH3_Vlv1Ctrl, Valve Status MV2 BS Noz ALL
+11230016,R3CH3_Vlv2Ctrl,U4, ,0,R3CH3_Vlv2Ctrl, Valve Status BS N2
+11230019,R3CH3_Vlv5Ctrl,U4, ,0,R3CH3_Vlv5Ctrl, Valve Status S2 ARM Noz Tip N2
+11230020,R3CH3_Vlv6Ctrl,U4, ,0,R3CH3_Vlv6Ctrl, Valve Status Shutter Purge N2
+11230022,R3CH3_Vlv8Ctrl,U4, ,0,R3CH3_Vlv8Ctrl, Valve Status S1 Arm Noz Tip N2
+11230027,R3CH3_Vlv13Ctrl,U4, ,0,R3CH3_Vlv13Ctrl, Valve Status MV3 S1 1 H2O2
+11230028,R3CH3_Vlv14Ctrl,U4, ,0,R3CH3_Vlv14Ctrl, Valve Status MV3 S1 1 H2SO4
+11230035,R3CH3_Vlv21Ctrl,U4, ,0,R3CH3_Vlv21Ctrl, Valve Status MV1 S2 1 SC1 CO2W
+11230036,R3CH3_Vlv22Ctrl,U4, ,0,R3CH3_Vlv22Ctrl, Valve Status MV1 S2 2 NSN SC1 CO2W
+11230037,R3CH3_Vlv23Ctrl,U4, ,0,R3CH3_Vlv23Ctrl, Valve Status NSN S2 2 N2
+11230045,R3CH3_Vlv31Ctrl,U4, ,0,R3CH3_Vlv31Ctrl, Valve Status SPV S3 IPA
+11230047,R3CH3_Vlv33Ctrl,U4, ,0,R3CH3_Vlv33Ctrl, Valve Status NP Noz S3 Cen N2
+11230048,R3CH3_Vlv34Ctrl,U4, ,0,R3CH3_Vlv34Ctrl, Valve Status NP Noz S3 Edge N2
+11230049,R3CH3_Vlv35Ctrl,U4, ,0,R3CH3_Vlv35Ctrl, Valve Status NP Noz S3 ASS N2
+11230054,R3CH3_Vlv40Ctrl,U4, ,0,R3CH3_Vlv40Ctrl, Valve Status Ch EXH Duct Rinse CO2W
+11230055,R3CH3_Vlv41Ctrl,U4, ,0,R3CH3_Vlv41Ctrl, Valve Status Chuck Pin Rinse CO2W
+11230056,R3CH3_Vlv42Ctrl,U4, ,0,R3CH3_Vlv42Ctrl, Valve Status Fixed Noz Rinse CO2W
+11230057,R3CH3_Vlv43Ctrl,U4, ,0,R3CH3_Vlv43Ctrl, Valve Status Fixed Cup Rinse CO2W
+11230058,R3CH3_Vlv44Ctrl,U4, ,0,R3CH3_Vlv44Ctrl, Valve Status Ch EXH Rinse CO2W
+11230059,R3CH3_Vlv45Ctrl,U4, ,0,R3CH3_Vlv45Ctrl, Valve Status S2 Arm Noz Rinse CO2W
+11230060,R3CH3_Vlv46Ctrl,U4, ,0,R3CH3_Vlv46Ctrl, Valve Status Ch Wall Rinse CO2W
+11230061,R3CH3_Vlv47Ctrl,U4, ,0,R3CH3_Vlv47Ctrl, Valve Status Drain Tank Rinse CO2W
+11230063,R3CH3_Vlv49Ctrl,U4, ,0,R3CH3_Vlv49Ctrl, Valve Status S1 Arm Noz Rinse CO2W
+11230064,R3CH3_Vlv50Ctrl,U4, ,0,R3CH3_Vlv50Ctrl, Valve Status MV1 CO2W
+11230065,R3CH3_Vlv51Ctrl,U4, ,0,R3CH3_Vlv51Ctrl, Valve Status MV1 HDI3 HDI1/2 DI
+11230066,R3CH3_Vlv52Ctrl,U4, ,0,R3CH3_Vlv52Ctrl, Valve Status MV1 H2O2
+11230068,R3CH3_Vlv54Ctrl,U4, ,0,R3CH3_Vlv54Ctrl, Valve Status MV1 NH4OH
+11230074,R3CH3_Vlv60Ctrl,U4, ,0,R3CH3_Vlv60Ctrl, Valve Status MV2 CO2W
+11230075,R3CH3_Vlv61Ctrl,U4, ,0,R3CH3_Vlv61Ctrl, Valve Status MV2 HDI3 HDI1/2 DI
+11230076,R3CH3_Vlv62Ctrl,U4, ,0,R3CH3_Vlv62Ctrl, Valve Status MV2 H2O2
+11230078,R3CH3_Vlv64Ctrl,U4, ,0,R3CH3_Vlv64Ctrl, Valve Status MV2 NH4OH
+11230085,R3CH3_Vlv71Ctrl,U4, ,0,R3CH3_Vlv71Ctrl, Valve Status SWV Tray1 HDI1/2
+11230086,R3CH3_Vlv72Ctrl,U4, ,0,R3CH3_Vlv72Ctrl, Valve Status SWV Tray1 HDI3
+11230087,R3CH3_Vlv73Ctrl,U4, ,0,R3CH3_Vlv73Ctrl, Valve Status SWV Tray1 DI
+11230094,R3CH3_Vlv80Ctrl,U4, ,0,R3CH3_Vlv80Ctrl, Valve Status MV2 SBV ALL
+11230097,R3CH3_Vlv83Ctrl,U4, ,0,R3CH3_Vlv83Ctrl, Valve Status MV3 SBV S1 1 SPM
+11230098,R3CH3_Vlv84Ctrl,U4, ,0,R3CH3_Vlv84Ctrl, Valve Status SBV S2 1 SC1 CO2W
+11230099,R3CH3_Vlv85Ctrl,U4, ,0,R3CH3_Vlv85Ctrl, Valve Status MV2 Pre Disp ALL
+11230100,R3CH3_Vlv86Ctrl,U4, ,0,R3CH3_Vlv86Ctrl, Valve Status MV1 Pre Disp ALL
+11230102,R3CH3_Vlv88Ctrl,U4, ,0,R3CH3_Vlv88Ctrl, Valve Status SBV S3 IPA
+11230108,R3CH3_Vlv94Ctrl,U4, ,0,R3CH3_Vlv94Ctrl, Valve Status MaSV CO2W
+11230110,R3CH3_Vlv96Ctrl,U4, ,0,R3CH3_Vlv96Ctrl, Valve Status Return Value S1 1 H2SO4
+11230112,R3CH3_Vlv2FlwPV,F4,L/Min,0,R3CH3_Vlv2FlwPV,流量读取 BS N2
+11230123,R3CH3_Vlv13FlwPV,F4,mL/Min,0,R3CH3_Vlv13FlwPV,流量读取 MV3 S1 1 H2O2
+11230124,R3CH3_Vlv14FlwPV,F4,mL/Min,0,R3CH3_Vlv14FlwPV,流量读取 MV3 S1 1 H2SO4
+11230132,R3CH3_Vlv22FlwPV,F4,mL/Min,0,R3CH3_Vlv22FlwPV,流量读取 MV1 S2 2 NSN SC1 CO2W
+11230133,R3CH3_Vlv23FlwPV,F4,L/Min,0,R3CH3_Vlv23FlwPV,流量读取 NSN S2 2 N2
+11230141,R3CH3_Vlv31FlwPV,F4,mL/Min,0,R3CH3_Vlv31FlwPV,流量读取 SPV S3 IPA
+11230143,R3CH3_Vlv33FlwPV,F4,mL/Min,0,R3CH3_Vlv33FlwPV,流量读取 NP Noz S3 Cen N2
+11230151,R3CH3_Vlv41FlwPV,F4,mL/Min,0,R3CH3_Vlv41FlwPV,流量读取 Chuck Pin Rinse CO2W
+11230152,R3CH3_Vlv42FlwPV,F4,mL/Min,0,R3CH3_Vlv42FlwPV,流量读取 Fixed Noz Rinse CO2W
+11230153,R3CH3_Vlv43FlwPV,F4,mL/Min,0,R3CH3_Vlv43FlwPV,流量读取 Fixed Cup Rinse CO2W
+11230154,R3CH3_Vlv44FlwPV,F4,mL/Min,0,R3CH3_Vlv44FlwPV,流量读取 Ch EXH Rinse CO2W
+11230157,R3CH3_Vlv47FlwPV,F4,mL/Min,0,R3CH3_Vlv47FlwPV,流量读取 Drain Tank Rinse CO2W
+11230160,R3CH3_Vlv50FlwPV,F4,mL/Min,0,R3CH3_Vlv50FlwPV,流量读取 MV1 CO2W
+11230161,R3CH3_Vlv51FlwPV,F4,mL/Min,0,R3CH3_Vlv51FlwPV,流量读取 MV1 HDI3 HDI1/2 DI
+11230162,R3CH3_Vlv52FlwPV,F4,mL/Min,0,R3CH3_Vlv52FlwPV,流量读取 MV1 H2O2
+11230164,R3CH3_Vlv54FlwPV,F4,mL/Min,0,R3CH3_Vlv54FlwPV,流量读取 MV1 NH4OH
+11230170,R3CH3_Vlv60FlwPV,F4,mL/Min,0,R3CH3_Vlv60FlwPV,流量读取 MV2 CO2W
+11230171,R3CH3_Vlv61FlwPV,F4,mL/Min,0,R3CH3_Vlv61FlwPV,流量读取 MV2 HDI3 HDI1/2 DI
+11230172,R3CH3_Vlv62FlwPV,F4,mL/Min,0,R3CH3_Vlv62FlwPV,流量读取 MV2 H2O2
+11230174,R3CH3_Vlv64FlwPV,F4,mL/Min,0,R3CH3_Vlv64FlwPV,流量读取 MV2 NH4OH
+11230206,R3CH3_Vlv96FlwPV,F4,mL/Min,0,R3CH3_Vlv96FlwPV,流量读取 Return Value S1 1 H2SO4
+11230207,R3CH3_Ana1FlwPV,F4,Mpa,0,R3CH3_Ana1FlwPV,实时流量 Unit CDA PG
+11230208,R3CH3_Ana2FlwPV,F4,Mpa,0,R3CH3_Ana2FlwPV,实时流量 Unit N2 PG
+11230209,R3CH3_Ana3FlwPV,F4,L/Min,0,R3CH3_Ana3FlwPV,实时流量 NP Noz S3 ASS N2 FL
+11230210,R3CH3_Ana4FlwPV,F4,L/Min,0,R3CH3_Ana4FlwPV,实时流量 NP Noz S3 Edge N2 FL
+11230211,R3CH3_Ana5FlwPV,F4,L/Min,0,R3CH3_Ana5FlwPV,实时流量 Spin Seal N2 FL
+11230212,R3CH3_Ana6FlwPV,F4,PA,0,R3CH3_Ana6FlwPV,实时流量 Ch Inner PG
+11230213,R3CH3_Ana7FlwPV,F4,L/Min,0,R3CH3_Ana7FlwPV,实时流量 Spin Base Air Purge FL
+11230214,R3CH3_Ana8FlwPV,F4,PA,0,R3CH3_Ana8FlwPV,实时流量 Exh PG
+11230216,R3CH3_Ana10FlwPV,F4,℃,0,R3CH3_Ana10FlwPV,实时流量 Drain Tank Temp
+11230217,R3CH3_Ana11FlwPV,F4,KPA,0,R3CH3_Ana11FlwPV,实时流量 Spin Eject PG
+11230222,FFU.R3CH3_SpeedRead,U4, ,0,FFU.R3CH3_SpeedRead,
+11230223,FFU.R3CH3_SpeedSet,U4, ,0,FFU.R3CH3_SpeedSet,
+11230224,R3CH3_FDCRunTotalTime,F4, ,0,R3CH3_FDCRunTotalTime,
+11230225,R3CH3_FDCRunSPMTime,F4, ,0,R3CH3_FDCRunSPMTime,
+13010001,CC1.L2_SetPressure,F4,Mpa,0,CC1.L2_SetPressure,
+13010002,CC1.R2_SetPressure,F4,Mpa,0,CC1.R2_SetPressure,
+13010003,CC1.L3_SetPressure,F4,Mpa,0,CC1.L3_SetPressure,
+13010004,CC1.R3_SetPressure,F4,Mpa,0,CC1.R3_SetPressure,
+13010005,CC1.L2_CurPressure,F4,Mpa,0,CC1.L2_CurPressure,
+13010006,CC1.R2_CurPressure,F4,Mpa,0,CC1.R2_CurPressure,
+13010007,CC1.L3_CurPressure,F4,Mpa,0,CC1.L3_CurPressure,
+13010008,CC1.R3_CurPressure,F4,Mpa,0,CC1.R3_CurPressure,
+13010009,CC1.LifeTime,U4,Min,0,CC1.LifeTime,
+13010010,CC1.LifeTimeUp,U4,Min,0,CC1.LifeTimeUp,
+13010011,CC1.WaferCount,U4,,0,CC1.WaferCount,
+13010012,CC1.WaferCountUp,U4,,0,CC1.WaferCountUp,
+13010013,CC1.Temp1,F4,℃,0,CC1.Temp1,
+13010018,CC1.L2Temp,F4,℃,0,CC1.L2Temp,
+13010019,CC1.R2Temp,F4,℃,0,CC1.R2Temp,
+13010020,CC1.L3Temp,F4,℃,0,CC1.L3Temp,
+13010021,CC1.R3Temp,F4,℃,0,CC1.R3Temp,
+13020009,CC2.LifeTime,U4,Min,0,CC2.LifeTime,
+13020010,CC2.LifeTimeUp,U4,Min,0,CC2.LifeTimeUp,
+13020011,CC2.WaferCount,U4,,0,CC2.WaferCount,
+13020012,CC2.WaferCountUp,U4,,0,CC2.WaferCountUp,
+13030009,CC3.LifeTime,U4,Min,0,CC3.LifeTime,
+13030010,CC3.LifeTimeUp,U4,Min,0,CC3.LifeTimeUp,
+13030011,CC3.WaferCount,U4,,0,CC3.WaferCount,
+13030012,CC3.WaferCountUp,U4,,0,CC3.WaferCountUp,
+13050001,CC5.L2_SetPressure,F4,Mpa,0,CC5.L2_SetPressure,
+13050002,CC5.R2_SetPressure,F4,Mpa,0,CC5.R2_SetPressure,
+13050003,CC5.L3_SetPressure,F4,Mpa,0,CC5.L3_SetPressure,
+13050004,CC5.R3_SetPressure,F4,Mpa,0,CC5.R3_SetPressure,
+13050005,CC5.L2_CurPressure,F4,Mpa,0,CC5.L2_CurPressure,
+13050006,CC5.R2_CurPressure,F4,Mpa,0,CC5.R2_CurPressure,
+13050007,CC5.L3_CurPressure,F4,Mpa,0,CC5.L3_CurPressure,
+13050008,CC5.R3_CurPressure,F4,Mpa,0,CC5.R3_CurPressure,
+13060001,CC6.L2_SetPressure,F4,Mpa,0,CC6.L2_SetPressure,
+13060002,CC6.R2_SetPressure,F4,Mpa,0,CC6.R2_SetPressure,
+13060003,CC6.L3_SetPressure,F4,Mpa,0,CC6.L3_SetPressure,
+13060004,CC6.R3_SetPressure,F4,Mpa,0,CC6.R3_SetPressure,
+13060005,CC6.L2_CurPressure,F4,Mpa,0,CC6.L2_CurPressure,
+13060006,CC6.R2_CurPressure,F4,Mpa,0,CC6.R2_CurPressure,
+13060007,CC6.L3_CurPressure,F4,Mpa,0,CC6.L3_CurPressure,
+13060008,CC6.R3_CurPressure,F4,Mpa,0,CC6.R3_CurPressure,
+13090009,CC9.LifeTime,U4,Min,0,CC9.LifeTime,
+13090010,CC9.LifeTimeUp,U4,Min,0,CC9.LifeTimeUp,
+13090011,CC9.WaferCount,U4,,0,CC9.WaferCount,
+13090012,CC9.WaferCountUp,U4,,0,CC9.WaferCountUp,
+13090013,CC9.Temp1,F4,℃,0,CC9.Temp1,
+13090018,CC9.L2Temp,F4,℃,0,CC9.L2Temp,
+13090019,CC9.R2Temp,F4,℃,0,CC9.R2Temp,
+13090020,CC9.L3Temp,F4,℃,0,CC9.L3Temp,
+13090021,CC9.R3Temp,F4,℃,0,CC9.R3Temp,
+13110001,CC11.L2_SetPressure,F4,Mpa,0,CC11.L2_SetPressure,
+13110002,CC11.R2_SetPressure,F4,Mpa,0,CC11.R2_SetPressure,
+13110003,CC11.L3_SetPressure,F4,Mpa,0,CC11.L3_SetPressure,
+13110004,CC11.R3_SetPressure,F4,Mpa,0,CC11.R3_SetPressure,
+13110005,CC11.L2_CurPressure,F4,Mpa,0,CC11.L2_CurPressure,
+13110006,CC11.R2_CurPressure,F4,Mpa,0,CC11.R2_CurPressure,
+13110007,CC11.L3_CurPressure,F4,Mpa,0,CC11.L3_CurPressure,
+13110008,CC11.R3_CurPressure,F4,Mpa,0,CC11.R3_CurPressure,
+13110013,CC11.Temp1,F4,℃,0,CC11.Temp1,
+13110018,CC11.L2Temp,F4,℃,0,CC11.L2Temp,
+13110019,CC11.R2Temp,F4,℃,0,CC11.R2Temp,
+13130013,CC13.Temp1,F4,℃,0,CC13.Temp1,
+13140007,CC14.L3_CurPressure,F4,Mpa,0,CC14.L3_CurPressure,
+13140008,CC14.R3_CurPressure,F4,Mpa,0,CC14.R3_CurPressure,
+13140013,CC14.Temp1,F4,℃,0,CC14.Temp1,
+13140020,CC14.L3Temp,F4,℃,0,CC14.L3Temp,
+13140021,CC14.R3Temp,F4,℃,0,CC14.R3Temp,
+13210001,CC21.L2_SetPressure,F4,Mpa,0,CC21.L2_SetPressure,
+13210002,CC21.R2_SetPressure,F4,Mpa,0,CC21.R2_SetPressure,
+13210003,CC21.L3_SetPressure,F4,Mpa,0,CC21.L3_SetPressure,
+13210004,CC21.R3_SetPressure,F4,Mpa,0,CC21.R3_SetPressure,
+13210005,CC21.L2_CurPressure,F4,Mpa,0,CC21.L2_CurPressure,
+13210006,CC21.R2_CurPressure,F4,Mpa,0,CC21.R2_CurPressure,
+13210007,CC21.L3_CurPressure,F4,Mpa,0,CC21.L3_CurPressure,
+13210008,CC21.R3_CurPressure,F4,Mpa,0,CC21.R3_CurPressure,
+13210013,CC21.Temp1,F4,℃,0,CC21.Temp1,
+13210018,CC21.L2Temp,F4,℃,0,CC21.L2Temp,
+13210019,CC21.R2Temp,F4,℃,0,CC21.R2Temp,
+13210020,CC21.L3Temp,F4,℃,0,CC21.L3Temp,
+13210021,CC21.R3Temp,F4,℃,0,CC21.R3Temp,
+300000000,H2SO4_Exh_EL_PG,F4,,0,H2SO4_Exh_EL_PG,
+300000001,H2SO4_Main_CDA_PG,F4,,0,H2SO4_Main_CDA_PG,
+300000002,H2SO4_L2/R2_Pump_Sv_CDA_PG,F4,,0,H2SO4_L2/R2_Pump_Sv_CDA_PG,
+300000003,H2SO4_L3/R3_Pump_Sv_CDA_PG,F4,,0,H2SO4_L3/R3_Pump_Sv_CDA_PG,
+300000004,H2SO4_Sv&Purge_CDA_PG,F4,,0,H2SO4_Sv&Purge_CDA_PG,
+300000005,H2SO4_Sv_CDA_PG,F4,,0,H2SO4_Sv_CDA_PG,
+300000006,H2SO4_PT_He1_OC,F4,,0,H2SO4_PT_He1_OC,
+300000007,H2SO4_PT_He1_PM,F4,,0,H2SO4_PT_He1_PM,
+300000008,H2SO4_PT_He1_Liquid_Temp,F4,,0,H2SO4_PT_He1_Liquid_Temp,
+300000009,H2SO4_PT_He2_OC,F4,,0,H2SO4_PT_He2_OC,
+300000010,H2SO4_PT_He2_PM,F4,,0,H2SO4_PT_He2_PM,
+300000011,H2SO4_PT_He2_Liquid_Temp,F4,,0,H2SO4_PT_He2_Liquid_Temp,
+300000012,H2SO4_PT_He2_Liquid_Over_Temp,F4,,0,H2SO4_PT_He2_Liquid_Over_Temp,
+300000013,H2SO4_F2L_H2SO4_PS,F4,,0,H2SO4_F2L_H2SO4_PS,
+300000014,H2SO4_F2R_H2SO4_PS,F4,,0,H2SO4_F2R_H2SO4_PS,
+300000015,H2SO4_F3L_H2SO4_PS,F4,,0,H2SO4_F3L_H2SO4_PS,
+300000016,H2SO4_F3R_H2SO4_PS,F4,,0,H2SO4_F3R_H2SO4_PS,
+300000017,H2SO4_F2L_H2SO4_ELP_Reg,F4,,0,H2SO4_F2L_H2SO4_ELP_Reg,
+300000018,H2SO4_F2R_H2SO4_ELP_Reg,F4,,0,H2SO4_F2R_H2SO4_ELP_Reg,
+300000019,H2SO4_F3L_H2SO4_ELP_Reg,F4,,0,H2SO4_F3L_H2SO4_ELP_Reg,
+300000020,H2SO4_F3R_H2SO4_ELP_Reg,F4,,0,H2SO4_F3R_H2SO4_ELP_Reg,
+300000021,H2SO4_F2L_H2SO4_Temp_Sns,F4,,0,H2SO4_F2L_H2SO4_Temp_Sns,
+300000022,H2SO4_F2R_H2SO4_Temp_Sns,F4,,0,H2SO4_F2R_H2SO4_Temp_Sns,
+300000023,H2SO4_F3L_H2SO4_Temp_Sns,F4,,0,H2SO4_F3L_H2SO4_Temp_Sns,
+300000024,H2SO4_F3R_H2SO4_Temp_Sns,F4,,0,H2SO4_F3R_H2SO4_Temp_Sns,
+300000025,DMS_NH4OH_Exh_AEX_EL_PG,F4,,0,DMS_NH4OH_Exh_AEX_EL_PG,
+300000026,DMS_NH4OH_Main_CDA_PG,F4,,0,DMS_NH4OH_Main_CDA_PG,
+300000027,DMS_NH4OH_Sv&ELP_Reg_CDA_PG,F4,,0,DMS_NH4OH_Sv&ELP_Reg_CDA_PG,
+300000028,DMS_NH4OH_Sv_CDA_PG,F4,,0,DMS_NH4OH_Sv_CDA_PG,
+300000029,DMS_NH4OH_ELP_Reg_CDA_PG,F4,,0,DMS_NH4OH_ELP_Reg_CDA_PG,
+300000030,DMS_NH4OH_Main_Reg_CDA_PG,F4,,0,DMS_NH4OH_Main_Reg_CDA_PG,
+300000031,DMS_NH4OH_NH4OH_Pump_Sv_CDA_PG,F4,,0,DMS_NH4OH_NH4OH_Pump_Sv_CDA_PG,
+300000032,DMS_NH4OH_NH4OH_Reg_CDA_PG,F4,,0,DMS_NH4OH_NH4OH_Reg_CDA_PG,
+300000033,DMS_NH4OH_H2O2_Pump_Sv_CDA_PG,F4,,0,DMS_NH4OH_H2O2_Pump_Sv_CDA_PG,
+300000034,DMS_NH4OH_H2O2_Reg_CDA_PG,F4,,0,DMS_NH4OH_H2O2_Reg_CDA_PG,
+300000035,DMS_NH4OH_Main_DIW_PS,F4,,0,DMS_NH4OH_Main_DIW_PS,
+300000036,DMS_NH4OH_NH4OH_PS,F4,,0,DMS_NH4OH_NH4OH_PS,
+300000037,DMS_NH4OH_NH4OH_ELP_Reg_NH4OH,F4,,0,DMS_NH4OH_NH4OH_ELP_Reg_NH4OH,
+300000038,DMS_NH4OH_H2O2_PS,F4,,0,DMS_NH4OH_H2O2_PS,
+300000039,DMS_NH4OH_H2O2_ELP_Reg_H2O2,F4,,0,DMS_NH4OH_H2O2_ELP_Reg_H2O2,
+300000040,DMS_H2O2_Exh_AEX_EL_PG,F4,,0,DMS_H2O2_Exh_AEX_EL_PG,
+300000041,DMS_H2O2_Main_CDA_PG,F4,,0,DMS_H2O2_Main_CDA_PG,
+300000042,DMS_H2O2_Sv&ELP_Reg_CDA_PG,F4,,0,DMS_H2O2_Sv&ELP_Reg_CDA_PG,
+300000043,DMS_H2O2_Sv_CDA_PG,F4,,0,DMS_H2O2_Sv_CDA_PG,
+300000044,DMS_H2O2_ELP_Reg_CDA_PG,F4,,0,DMS_H2O2_ELP_Reg_CDA_PG,
+300000045,DMS_H2O2_Main_Reg_CDA_PG,F4,,0,DMS_H2O2_Main_Reg_CDA_PG,
+300000046,DMS_H2O2_NH4OH_Pump_Sv_CDA_PG,F4,,0,DMS_H2O2_NH4OH_Pump_Sv_CDA_PG,
+300000047,DMS_H2O2_NH4OH_Reg_CDA_PG,F4,,0,DMS_H2O2_NH4OH_Reg_CDA_PG,
+300000048,DMS_H2O2_H2O2_Pump_Sv_CDA_PG,F4,,0,DMS_H2O2_H2O2_Pump_Sv_CDA_PG,
+300000049,DMS_H2O2_H2O2_Reg_CDA_PG,F4,,0,DMS_H2O2_H2O2_Reg_CDA_PG,
+300000050,DMS_H2O2_Main_DIW_PS,F4,,0,DMS_H2O2_Main_DIW_PS,
+300000051,DMS_H2O2_NH4OH_PS,F4,,0,DMS_H2O2_NH4OH_PS,
+300000052,DMS_H2O2_NH4OH_ELP_Reg_NH4OH,F4,,0,DMS_H2O2_NH4OH_ELP_Reg_NH4OH,
+300000053,DMS_H2O2_H2O2_PS,F4,,0,DMS_H2O2_H2O2_PS,
+300000054,DMS_H2O2_H2O2_ELP_Reg_H2O2,F4,,0,DMS_H2O2_H2O2_ELP_Reg_H2O2,
+300000055,EFLOW_Main_CO2_PG,F4,,0,EFLOW_Main_CO2_PG,
+300000056,EFLOW_L2/R2_CO2_Water_PS,F4,,0,EFLOW_L2/R2_CO2_Water_PS,
+300000057,EFLOW_L3/R3_CO2_Water_PS,F4,,0,EFLOW_L3/R3_CO2_Water_PS,
+300000058,EFLOW_E_FLOW_L2/R2_Res_Sns,F4,,0,EFLOW_E_FLOW_L2/R2_Res_Sns,
+300000059,EFLOW_E_FLOW_L3/R3_Res_Sns,F4,,0,EFLOW_E_FLOW_L3/R3_Res_Sns,
+300000060,EFLOW_L2/R2_Pump_Speed,F4,,0,EFLOW_L2/R2_Pump_Speed,
+300000061,EFLOW_L3/R3_Pump_Speed,F4,,0,EFLOW_L3/R3_Pump_Speed,
+300000062,EFLOW_Exh_EL_PG,F4,,0,EFLOW_Exh_EL_PG,
+300000063,EFLOW_F2L_CO2W_PS,F4,,0,EFLOW_F2L_CO2W_PS,
+300000064,EFLOW_F2R_CO2W_PS,F4,,0,EFLOW_F2R_CO2W_PS,
+300000065,EFLOW_F3L_CO2W_PS,F4,,0,EFLOW_F3L_CO2W_PS,
+300000066,EFLOW_F3R_CO2W_PS,F4,,0,EFLOW_F3R_CO2W_PS,
+300000067,EFLOW_F2L_CO2W_ELP_Reg,F4,,0,EFLOW_F2L_CO2W_ELP_Reg,
+300000068,EFLOW_F2R_CO2W_ELP_Reg,F4,,0,EFLOW_F2R_CO2W_ELP_Reg,
+300000069,EFLOW_F3L_CO2W_ELP_Reg,F4,,0,EFLOW_F3L_CO2W_ELP_Reg,
+300000070,EFLOW_F3R_CO2W_ELP_Reg,F4,,0,EFLOW_F3R_CO2W_ELP_Reg,
+300000071,FILTER_Main_CDA_PG,F4,,0,FILTER_Main_CDA_PG,
+300000072,FILTER_E_FLOW_L2/R2_1st_DIW_PS,F4,,0,FILTER_E_FLOW_L2/R2_1st_DIW_PS,
+300000073,FILTER_E_FLOW_L2/R2_2nd_DIW_PS,F4,,0,FILTER_E_FLOW_L2/R2_2nd_DIW_PS,
+300000074,FILTER_E_FLOW_L3/R3_1st_DIW_PS,F4,,0,FILTER_E_FLOW_L3/R3_1st_DIW_PS,
+300000075,FILTER_E_FLOW_L3/R3_2nd_DIW_PS,F4,,0,FILTER_E_FLOW_L3/R3_2nd_DIW_PS,
+300000076,FILTER_L2/R2_1st_DIW_PS,F4,,0,FILTER_L2/R2_1st_DIW_PS,
+300000077,FILTER_L2/R2_2nd_DIW_PS,F4,,0,FILTER_L2/R2_2nd_DIW_PS,
+300000078,FILTER_L3/R3_1st_DIW_PS,F4,,0,FILTER_L3/R3_1st_DIW_PS,
+300000079,FILTER_L3/R3_2nd_DIW_PS,F4,,0,FILTER_L3/R3_2nd_DIW_PS,
+300000080,FILTER_DMS&H2SO4_DIW_PS,F4,,0,FILTER_DMS&H2SO4_DIW_PS,
+300000081,FILTER_F2L_DIW_ELP_Reg,F4,,0,FILTER_F2L_DIW_ELP_Reg,
+300000082,FILTER_F2R_DIW_ELP_Reg,F4,,0,FILTER_F2R_DIW_ELP_Reg,
+300000083,FILTER_F3L_DIW_ELP_Reg,F4,,0,FILTER_F3L_DIW_ELP_Reg,
+300000084,FILTER_F3R_DIW_ELP_Reg,F4,,0,FILTER_F3R_DIW_ELP_Reg,
+300000085,FILTER_F2L_DIW_PS,F4,,0,FILTER_F2L_DIW_PS,
+300000086,FILTER_F2R_DIW_PS,F4,,0,FILTER_F2R_DIW_PS,
+300000087,FILTER_F3L_DIW_PS,F4,,0,FILTER_F3L_DIW_PS,
+300000088,FILTER_F3R_DIW_PS,F4,,0,FILTER_F3R_DIW_PS,
+300000089,IPA_Main_CDA_PG,F4,,0,IPA_Main_CDA_PG,
+300000090,IPA_Main_N2_PG,F4,,0,IPA_Main_N2_PG,
+300000091,IPA_PT_N2_PG,F4,,0,IPA_PT_N2_PG,
+300000092,IPA_He_N2_PG,F4,,0,IPA_He_N2_PG,
+300000093,IPA_N2_BOX_N2_PG,F4,,0,IPA_N2_BOX_N2_PG,
+300000094,IPA_MNV_N2_PG,F4,,0,IPA_MNV_N2_PG,
+300000095,IPA_He_N2_Purge_PG1,F4,,0,IPA_He_N2_Purge_PG1,
+300000096,IPA_He_N2_Purge_PG2,F4,,0,IPA_He_N2_Purge_PG2,
+300000097,IPA_Exh_EL_PG,F4,,0,IPA_Exh_EL_PG,
+300000098,IPA_L2_IPA_Fl,F4,,0,IPA_L2_IPA_Fl,
+300000099,IPA_R2_IPA_Fl,F4,,0,IPA_R2_IPA_Fl,
+300000100,IPA_L3_IPA_Fl,F4,,0,IPA_L3_IPA_Fl,
+300000101,IPA_R3_IPA_Fl,F4,,0,IPA_R3_IPA_Fl,
+300000102,IPA_He_Sp_PCW_FL,F4,,0,IPA_He_Sp_PCW_FL,
+300000103,IPA_He_Liquid_Temp,F4,,0,IPA_He_Liquid_Temp,
+300000104,IPA_He_Liquid_Over_Temp,F4,,0,IPA_He_Liquid_Over_Temp,
+300000105,IPA_F2L_IPA_Temp_Sns,F4,,0,IPA_F2L_IPA_Temp_Sns,
+300000106,IPA_F2R_IPA_Temp_Sns,F4,,0,IPA_F2R_IPA_Temp_Sns,
+300000107,IPA_F3L_IPA_Temp_Sns,F4,,0,IPA_F3L_IPA_Temp_Sns,
+300000108,IPA_F3R_IPA_Temp_Sns,F4,,0,IPA_F3R_IPA_Temp_Sns,
+300000109,IPA_Pump_Speed,F4,,0,IPA_Pump_Speed,
+300000110,HOTDIW_HDIW_CDA_PG,F4,,0,HOTDIW_HDIW_CDA_PG,
+300000111,HOTDIW_He_DIW_Temp,F4,,0,HOTDIW_He_DIW_Temp,
+300000112,HOTDIW_He_DIW_FL,F4,,0,HOTDIW_He_DIW_FL,
+300000113,HOTDIW_F2L_HDIW_PS,F4,,0,HOTDIW_F2L_HDIW_PS,
+300000114,HOTDIW_F2R_HDIW_PS,F4,,0,HOTDIW_F2R_HDIW_PS,
+300000115,HOTDIW_F2L_HDIW_ELP_Reg,F4,,0,HOTDIW_F2L_HDIW_ELP_Reg,
+300000116,HOTDIW_F2R_HDIW_ELP_Reg,F4,,0,HOTDIW_F2R_HDIW_ELP_Reg,
+300000117,HOTDIW_F2L_Hot_DIW_Temp_Sns,F4,,0,HOTDIW_F2L_Hot_DIW_Temp_Sns,
+300000118,HOTDIW_F2R_Hot_DIW_Temp_Sns,F4,,0,HOTDIW_F2R_Hot_DIW_Temp_Sns,
+300000119,COOL_Sv_CDA_PG,F4,,0,COOL_Sv_CDA_PG,
+300000120,COOL_Chem_Pump_Sv_CDA_PG,F4,,0,COOL_Chem_Pump_Sv_CDA_PG,
+300000121,COOL_TA_CI_Chem_Reg_CDA_PG,F4,,0,COOL_TA_CI_Chem_Reg_CDA_PG,
+300000122,COOL_Cooler_PCW_Reg_CDA_PG,F4,,0,COOL_Cooler_PCW_Reg_CDA_PG,
+300000123,COOL_Tank_level_Sns_1st_CDA_PG,F4,,0,COOL_Tank_level_Sns_1st_CDA_PG,
+300000124,COOL_Tank_level_Sns_2nd_CDA_PG,F4,,0,COOL_Tank_level_Sns_2nd_CDA_PG,
+300000125,COOL_Tank_Chem_CDA_PG,F4,,0,COOL_Tank_Chem_CDA_PG,
+300000126,COOL_Exh_EL_PG,F4,,0,COOL_Exh_EL_PG,
+300000127,COOL_Cooler_Drain_Chem_1st_Temp,F4,,0,COOL_Cooler_Drain_Chem_1st_Temp,
+300000128,COOL_Cooler_Drain_Chem_2nd_Temp,F4,,0,COOL_Cooler_Drain_Chem_2nd_Temp,
+300000129,COOL_TA_Chem_Temp,F4,,0,COOL_TA_Chem_Temp,
+300000130,COOL_TA_Sp_PCW_PS,F4,,0,COOL_TA_Sp_PCW_PS,
+300000131,COOL_Cooler_Return_PCW_PS,F4,,0,COOL_Cooler_Return_PCW_PS,
+300000132,COOL_Cooler_Vent_PS,F4,,0,COOL_Cooler_Vent_PS,
+300000133,COOL_Cooler_Return_PCW_Temp,F4,,0,COOL_Cooler_Return_PCW_Temp,
+300000134,COOL_TA_Return_PCW_FL,F4,,0,COOL_TA_Return_PCW_FL,
+300000135,COOL_Cooler_Return_PCW_FL,F4,,0,COOL_Cooler_Return_PCW_FL,
+300000136,COOL_TA_1st_Level_Sensor,F4,,0,COOL_TA_1st_Level_Sensor,
+300000137,COOL_PCW_Pump_Speed,F4,,0,COOL_PCW_Pump_Speed,
+300000138,COOL_TA_2nd_Level_Sensor,F4,,0,COOL_TA_2nd_Level_Sensor,
+300000139,HOTDIW2_HDIW_CDA_PG,F4,,0,HOTDIW2_HDIW_CDA_PG,
+300000140,HOTDIW2_He_DIW_Temp,F4,,0,HOTDIW2_He_DIW_Temp,
+300000141,HOTDIW2_He_DIW_FL,F4,,0,HOTDIW2_He_DIW_FL,
+300000142,HOTDIW2_F3L_HDIW_PS,F4,,0,HOTDIW2_F3L_HDIW_PS,
+300000143,HOTDIW2_F3R_HDIW_PS,F4,,0,HOTDIW2_F3R_HDIW_PS,
+300000144,HOTDIW2_F3L_HDIW_ELP_Reg,F4,,0,HOTDIW2_F3L_HDIW_ELP_Reg,
+300000145,HOTDIW2_F3R_HDIW_ELP_Reg,F4,,0,HOTDIW2_F3R_HDIW_ELP_Reg,
+300000146,HOTDIW2_F3L_Hot_DIW_Temp_Sns,F4,,0,HOTDIW2_F3L_Hot_DIW_Temp_Sns,
+300000147,HOTDIW2_F3R_Hot_DIW_Temp_Sns,F4,,0,HOTDIW2_F3R_Hot_DIW_Temp_Sns,
+300000148,HOTDIW3_HDIW_CDA_PG,F4,,0,HOTDIW3_HDIW_CDA_PG,
+300000149,HOTDIW3_He_DIW_Temp,F4,,0,HOTDIW3_He_DIW_Temp,
+300000150,HOTDIW3_He_DIW_FL,F4,,0,HOTDIW3_He_DIW_FL,
+300000151,HOTDIW3_F2L_HDIW_PS,F4,,0,HOTDIW3_F2L_HDIW_PS,
+300000152,HOTDIW3_F2R_HDIW_PS,F4,,0,HOTDIW3_F2R_HDIW_PS,
+300000153,HOTDIW3_F3L_HDIW_PS,F4,,0,HOTDIW3_F3L_HDIW_PS,
+300000154,HOTDIW3_F3R_HDIW_PS,F4,,0,HOTDIW3_F3R_HDIW_PS,
+300000155,HOTDIW3_F2L_HDIW_ELP_Reg,F4,,0,HOTDIW3_F2L_HDIW_ELP_Reg,
+300000156,HOTDIW3_F2R_HDIW_ELP_Reg,F4,,0,HOTDIW3_F2R_HDIW_ELP_Reg,
+300000157,HOTDIW3_F3L_HDIW_ELP_Reg,F4,,0,HOTDIW3_F3L_HDIW_ELP_Reg,
+300000158,HOTDIW3_F3R_HDIW_ELP_Reg,F4,,0,HOTDIW3_F3R_HDIW_ELP_Reg,
+300000159,HOTDIW3_F2L_Hot_DIW_Temp_Sns,F4,,0,HOTDIW3_F2L_Hot_DIW_Temp_Sns,
+300000160,HOTDIW3_F2R_Hot_DIW_Temp_Sns,F4,,0,HOTDIW3_F2R_Hot_DIW_Temp_Sns,
+300000161,HOTDIW3_F3L_Hot_DIW_Temp_Sns,F4,,0,HOTDIW3_F3L_Hot_DIW_Temp_Sns,
+300000162,HOTDIW3_F3R_Hot_DIW_Temp_Sns,F4,,0,HOTDIW3_F3R_Hot_DIW_Temp_Sns,

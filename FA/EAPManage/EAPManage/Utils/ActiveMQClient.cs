@@ -127,11 +127,11 @@ namespace EAPManage.Utils
         }
 
         // 异步发送方法
-        public async Task<T> SendRequestAsync<T>(string messageBody) where T : class
+        public async Task<T> SendRequestAsync<T>(string messageBody, TimeSpan? requestTimeout = null) where T : class
         {
             if (_session == null || _producer == null)
                 return default;
-            TimeSpan timeout = TimeSpan.FromSeconds(30);
+            TimeSpan timeout = requestTimeout ?? TimeSpan.FromSeconds(30);
             var correlationId = Guid.NewGuid().ToString();
             var message = _session.CreateTextMessage(messageBody);
             var tcs = new TaskCompletionSource<IMessage>();

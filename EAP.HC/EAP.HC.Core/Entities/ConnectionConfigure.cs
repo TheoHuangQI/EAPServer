@@ -76,6 +76,12 @@ namespace EAP.HC.Core.Entities
         public bool AutoReconnect { get; set; } = true;
 
         /// <summary>
+        /// Whether this device should have an active HSMS connection.
+        /// Older configuration files omit this property and default to enabled.
+        /// </summary>
+        public bool Enabled { get; set; } = true;
+
+        /// <summary>
         /// 配置合法性检查
         /// </summary>
         /// <exception cref="ArgumentException"></exception>

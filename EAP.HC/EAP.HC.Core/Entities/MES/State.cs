@@ -17,11 +17,15 @@ namespace EAP.HC.Core.Entities.MES
 
         public EQPState EQPState { get; set; }
 
+        public long ConnectionVersion { get; set; }
+
         public ControlState ControlState { get; set; }
 
         public List<AccessMode> AccessModes { get; set; }
 
         public List<TransferStatus> TransferStatuses { get; set; }
+
+
     }
 
     public enum EQPState

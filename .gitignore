@@ -1,0 +1,22 @@
+# Build output
+bin/
+obj/
+Debug/
+Release/
+OutExe/
+
+# Visual Studio and IDE state
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Node dependencies
+node_modules/
+
+# Local scratch
+.continue/
+.tmp_verify/
+/FA/EAPManage/EAPManage/bin/Debug/net6.0/EAP.db

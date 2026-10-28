@@ -1,5 +1,6 @@
 using EAP.HC.Core.Entities;
 using EAP.HC.Core.Entities.MES;
+using System.Collections.Concurrent;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,8 +26,10 @@ namespace EAP.HC.Core
             {
                 Current.EqpInfos = new Dictionary<string, EqpInfo>();
                 Current.MesBatchInfos = new Dictionary<string, MESLotInfoDownloadReply>();
+                Current.TransferBatchInfos = new ConcurrentDictionary<string, MESLotInfoDownloadReply>();
                 Current.CJQuendList = new Dictionary<string, Dictionary<string,int>>();
                 Current.LoopProcessState = new Dictionary<string, Dictionary<int, int>>();
+                Current.TransferJobStates = new ConcurrentDictionary<string, TransferJobState>();
                 //读配置文件
             }
             catch (Exception)
@@ -45,6 +48,7 @@ namespace EAP.HC.Core
         /// MES lot 信息
         /// </summary>
         public Dictionary<string, MESLotInfoDownloadReply> MesBatchInfos { get; set; }
+        public ConcurrentDictionary<string, MESLotInfoDownloadReply> TransferBatchInfos { get; set; }
         public Dictionary<string,Dictionary<string,int>> CJQuendList { get; set; }
 
                 /// <summary>
@@ -53,5 +57,8 @@ namespace EAP.HC.Core
         /// value: 0 = 正常运行, 1 = 停止, 2 = 暂停
         /// </summary>
         public Dictionary<string, Dictionary<int, int>> LoopProcessState { get; set; }
+
+        /// <summary>Transfer runtime state keyed by equipment and source LP.</summary>
+        public ConcurrentDictionary<string, TransferJobState> TransferJobStates { get; set; }
     }
 }

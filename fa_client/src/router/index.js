@@ -13,6 +13,7 @@ const Exception = () => import('@/views/Equipment/Exception.vue');
 const RunHistory = () => import('@/views/Equipment/RunHistory.vue');
 const DataRule = () => import('@/views/DataCollection/DataRule/Index.vue');
 const DataHistory = () => import('@/views/DataCollection/DataHistory/Index.vue');
+const FdcConsole = () => import('@/views/DataCollection/FdcConsole.vue');
 const TestItem = () => import('@/views/Test/TestItem/Index.vue');
 const TestItemBatch = () => import('@/views/Test/TestItemBatch/Index.vue');
 const TestTemplate = () => import('@/views/Test/TestTemplate/Index.vue');
@@ -73,6 +74,11 @@ const routes = [
         path: '/DataHistory',
         name: 'DataHistory',
         component: DataHistory
+      },
+      {
+        path: '/FdcConsole',
+        name: 'FdcConsole',
+        component: FdcConsole
       },
       {
         path: '/EqpList',

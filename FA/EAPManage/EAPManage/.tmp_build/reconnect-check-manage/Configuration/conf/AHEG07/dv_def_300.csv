@@ -1,0 +1,74 @@
+vid,dv_key,dv_name,format,default_val,desc
+# predefined DV for FA300
+# NOTICE: user can change vid and dv_name, but DON NOT change predefined dv_key.
+
+#SEMI E87 Carrier Data Variables List
+110,CarrierAccessingStatus,CarrierAccessingStatus,U1,,Status showing whether the equipment has accessed the Substrates in this Carrier.
+111,Capacity,Capacity,U1,,The number of slots in the Carrier.
+112,ContentMap,ContentMap,L,,Identifies the Substrate contained in each Slot of the Carrier.
+113,CarrierID,CarrierID,A,,The Carrier ID. Valid at Carrier-related events.
+114,CarrierIDStatus,CarrierIDStatus,U1,,
+115,LocationID,LocationID,A,,Shows the Carrier Location at which this Carrier is currently located.
+116,SlotMap,SlotMap,L,,Ordered list of slot status as provided by the host.
+117,SlotMapStatus,SlotMapStatus,U1,,
+118,SubstrateCount,SubstrateCount,U1,,The number of wafers currently in the carrier.
+119,Usage,Usage,A,,Indicates the type of material contained in this carrier.
+
+#SEMI E87 LoadPort Data Variables List
+122,PortID,PortID,U1,,Indicates the PortID.
+123,AccessMode,AccessMode,U1,,The current access mode for the Load Port.
+124,PortAssociationState,PortAssociationState,U1,,Indicates whether this Load Port is currently associated with a Carrier.
+125,PortReservationState,PortReservationState,U1,,Indicates whether this Load Port is currently Reserved.
+127,PortTransferState,PortTransferState,U1,,Indicates the current Transfer State of this Load Port.
+128,PortClampState,PortClampState,U1,,Indicates whether the Load Port currently has a Carrier present and clamped.
+
+#SEMI E40 Data Variables List
+195,PauseEvent,PauseEvent,L,,L n=number of collection events
+196,ProcessJobID,ProcessJobID,A,,ProcessJob ID.
+197,PRJobState,PRJobState,U1,,PRSTATE enum.
+198,PRMtlNameList,PRMtlNameList,L,,A list of the material to be processed by this Job.
+199,PRMtlType,PRMtlType,B,,
+200,PRProcessStart,PRProcessStart,BOOL,,The equipment only support Automatic Start.
+201,PRRecipeMethod,PRRecipeMethod,U1,,
+202,RecID,RecID,A,,PPID for this Process Job.
+203,RecVariableList,RecVariableList,L,,
+
+
+# SEMI E94 Data Variables List
+205,CarrierInputSpec,CarrierInputSpec,L,,
+206,CurrentPRJob,CurrentPRJob,L,,
+207,DataCollectionPlan,DataCollectionPlan,A,,
+208,MtrlOutByStatus,MtrlOutByStatus,L,,
+209,MtrlOutSpec,MtrlOutSpec,L,,
+210,PauseEvent,PauseEvent,L,,
+211,PRJobStatusList,PRJobStatusList,L,,
+212,ProcessingCtrlSpec,ProcessingCtrlSpec,L,,
+213,ProcessOrderMgmt,ProcessOrderMgmt,U1,,
+214,StartMethod,StartMethod,BOOL,,
+215,CtrlJobState,CtrlJobState,U1,,
+216,CtrlJobID,CtrlJobID,A,,
+
+# SEMI E90 substrate Data Variables List
+168,AcquiredID,AcquiredID,A,,
+169,BatchLocID,BatchLocID,A,,batch process equipment only
+170,LotID,LotID,A,,
+171,MaterialStatus,MaterialStatus,U1,,
+172,SubstID,SubstID,A,,
+173,SubstIDStatus,SubstIDStatus,U1,,
+174,SubstDestination,SubstDestination,A,,If empty string, then same as source substrate location.
+175,SubstHistory,SubstHistory,L,,
+176,SubstLocID,SubstLocID,A,,
+178,SubstProcState,SubstProcState,U1,,
+179,SubstState,SubstState,U1,,
+180,SubstSource,SubstSource,A,,
+181,SubstType,SubstType,U1,,
+182,SubstUsage,SubstUsage,U1,,
+183,SubstPosInBatch,SubstPosInBatch,A,,
+184,SubstLocSubstID,SubstLocSubstID,A,,
+
+# SEMI E90 substrate location Data Variables List
+185,SubstLocSubstLocID,SubstLocSubstLocID,A,,
+186,SubstLocState,SubstLocState,U1,,
+187,DisableEvents,DisableEvents,BOOL,,
+
+# user defined DVs

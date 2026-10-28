@@ -38,6 +38,29 @@ namespace EAP.HC.Core
                 };
                 switch (replyHeader.MESSAGENAME)
                 {
+                    case "EQUIPMENTCONNECTIONCONTROL":
+                        {
+                            var request = XmlSerialization.DeserializeNodeObj<EquipmentConnectionControl>(message, "Request", "Body");
+                            var response = EAPContext.DeviceConnectionControlHandler == null
+                                ? new EquipmentConnectionControl
+                                {
+                                    EQUIPMENTID = request?.EQUIPMENTID ?? string.Empty,
+                                    ENABLE = request?.ENABLE ?? 0,
+                                    MESSAGE = "Equipment connection control is unavailable."
+                                }
+                                : EAPContext.DeviceConnectionControlHandler(request).GetAwaiter().GetResult();
+                            var reply = new EquipmentConnectionControlReply
+                            {
+                                Header = new MQHeader
+                                {
+                                    MESSAGENAME = replyHeader.MESSAGENAME,
+                                    RESULT = MQResult.SUCCESS.ToString()
+                                },
+                                Body = response
+                            };
+                            mrea.Reply(XmlSerialization.XmlSerialize(reply));
+                            break;
+                        }
                     case "GETPPIDLIST":
                         {
                             EqpPPIDList eqpPPIDList = XmlSerialization.DeserializeNodeObj<EqpPPIDList>(message, "Request", "Body");
@@ -87,18 +110,21 @@ namespace EAP.HC.Core
                         {
                             MQBody mQBody = XmlSerialization.DeserializeNodeObj<MQBody>(message, "Request", "Body");
                             var eqpId = mQBody.EQUIPMENTID;
-                            if (AppCache.Current.EqpInfos.ContainsKey(eqpId))
+                            if (AppCache.Current.EqpInfos != null)
                             {
+                                if (AppCache.Current.EqpInfos.ContainsKey(eqpId))
+                                {
 
-                                res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                                    res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                                }
+                                else
+                                {
+                                    res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                                }
+                                var xmlBody = XmlSerialization.SerializeOnlyBody(mQBody);
+                                var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                                mrea.Reply(xmlMessage);
                             }
-                            else
-                            {
-                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
-                            }
-                            var xmlBody = XmlSerialization.SerializeOnlyBody(mQBody);
-                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
-                            mrea.Reply(xmlMessage);
                             break;
                         }
                     case "ControlStateCheck":
@@ -116,7 +142,9 @@ namespace EAP.HC.Core
                                 args.Header[CItems.Check] = true;
                                 var controlState = SecsBase.ReciveSecsMessage<ControlState>(context, args, "Send_S1F3_Get_ControlState");
                                 mQBody.ControlState = controlState;
-                                res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                                res.mQHeader.RESULT = args.GetResultCode() == "OK"
+                                    ? MQResult.SUCCESS.ToString()
+                                    : MQResult.FAILURE.ToString();
                             }
                             else
                             {
@@ -278,32 +306,55 @@ namespace EAP.HC.Core
                             var portId = stateMsg.PORTID;
                             var state = stateMsg.STATE;
 
-                            if (AppCache.Current.LoopProcessState == null)
-                                AppCache.Current.LoopProcessState = new Dictionary<string, Dictionary<int, int>>();
-
-                            if (eqpId == "*")
+                            var loopProcessStates = AppCache.Current.LoopProcessState
+                                ??= new Dictionary<string, Dictionary<int, int>>();
+                            lock (loopProcessStates)
                             {
-                                foreach (var eqp in AppCache.Current.EqpInfos.Keys.ToList())
+                                if (eqpId == "*")
                                 {
-                                    if (!AppCache.Current.LoopProcessState.ContainsKey(eqp))
-                                        AppCache.Current.LoopProcessState[eqp] = new Dictionary<int, int>();
-
-                                    for (int i = 1; i <= AppCache.Current.EqpInfos[eqp].LoadPort; i++)
+                                    foreach (var eqp in AppCache.Current.EqpInfos.Keys.ToList())
                                     {
-                                        AppCache.Current.LoopProcessState[eqp][i] = state;
+                                        if (!loopProcessStates.ContainsKey(eqp))
+                                            loopProcessStates[eqp] = new Dictionary<int, int>();
+
+                                        for (int i = 1; i <= AppCache.Current.EqpInfos[eqp].LoadPort; i++)
+                                        {
+                                            loopProcessStates[eqp][i] = state;
+                                        }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                if (!AppCache.Current.LoopProcessState.ContainsKey(eqpId))
-                                    AppCache.Current.LoopProcessState[eqpId] = new Dictionary<int, int>();
+                                else
+                                {
+                                    if (!loopProcessStates.ContainsKey(eqpId))
+                                        loopProcessStates[eqpId] = new Dictionary<int, int>();
 
-                                AppCache.Current.LoopProcessState[eqpId][portId] = state;
+                                    loopProcessStates[eqpId][portId] = state;
+                                }
                             }
 
                             var stateText = state == 0 ? "RUNNING" : state == 1 ? "STOPPED" : "PAUSED";
                             Console.WriteLine($"[LoopProcess MQ] eqp={eqpId} port={portId} state={stateText}");
+                            break;
+                        }
+                    case "TRANSFERJOBCONFIG":
+                        {
+                            var config = XmlSerialization.DeserializeNodeObj<TransferJobConfig>(message, "Request", "Body");
+                            if (config?.Ports == null || string.IsNullOrWhiteSpace(config.EQUIPMENTID)
+                                || !AppCache.Current.EqpInfos.TryGetValue(config.EQUIPMENTID, out var eqpInfo))
+                            {
+                                break;
+                            }
+
+                            foreach (var portConfig in config.Ports)
+                            {
+                                if (eqpInfo.PortInfo.TryGetValue(portConfig.PORTID, out var port))
+                                {
+                                    port.JobMode = portConfig.JOBMODE;
+                                    port.TransferRole = portConfig.ROLE;
+                                    port.TransferPartnerPortNo = portConfig.PARTNERPORTID;
+                                }
+                            }
+                            Console.WriteLine($"[TransferJobConfig MQ] eqp={config.EQUIPMENTID} ports={config.Ports.Count}");
                             break;
                         }
                 }

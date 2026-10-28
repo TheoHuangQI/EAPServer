@@ -1,0 +1,1037 @@
+﻿ec_id,ec_name,ec_type,unit,ec_minvalue,ec_maxvalue,ec_defaultvalue,ecs_name
+97,CARR_HOLD_CTRL,A,,,,0,CARR_HOLD_CTRL
+10001,EnvChk,U4,,,,,EnvChk
+10002,GratingOpt,U4,,,,,GratingOpt
+10003,GratingTMO,F4,,,,,GratingTMO
+10004,prntChk,U4,,,,,prntChk
+10005,CTC.LotTimeLimit,U4,,,,,CTC.LotTimeLimit
+10006,Grating_Alm_Level,U4,,,,,Grating_Alm_Level
+10007,CTC.FlowBlockedTime,U4,,,,,CTC.FlowBlockedTime
+10008,EFEM_Ionizer_Check,U4,,,,,EFEM_Ionizer_Check
+10009,F2_Ionizer_Check,U4,,,,,F2_Ionizer_Check
+10010,PC_SafeAlarm_Check,U4,,,,,PC_SafeAlarm_Check
+10011,FACheatMode,U4,,,,,FACheatMode
+20001,LP1_DorOpnClsTMO,U4,,,,,LP1_DorOpnClsTMO
+20002,LP1_EndMapCtrl,U4,,,,,LP1_EndMapCtrl
+20003,LP2_DorOpnClsTMO,U4,,,,,LP2_DorOpnClsTMO
+20004,LP2_EndMapCtrl,U4,,,,,LP2_EndMapCtrl
+20005,LP3_DorOpnClsTMO,U4,,,,,LP3_DorOpnClsTMO
+20006,LP3_EndMapCtrl,U4,,,,,LP3_EndMapCtrl
+20007,LP4_DorOpnClsTMO,U4,,,,,LP4_DorOpnClsTMO
+20008,LP4_EndMapCtrl,U4,,,,,LP4_EndMapCtrl
+20009,LP1.E84TP1Time,U4,,,,,LP1.E84TP1Time
+20010,LP2.E84TP1Time,U4,,,,,LP2.E84TP1Time
+20011,LP3.E84TP1Time,U4,,,,,LP3.E84TP1Time
+20012,LP4.E84TP1Time,U4,,,,,LP4.E84TP1Time
+20013,LP1.E84TP2Time,U4,,,,,LP1.E84TP2Time
+20014,LP2.E84TP2Time,U4,,,,,LP2.E84TP2Time
+20015,LP3.E84TP2Time,U4,,,,,LP3.E84TP2Time
+20016,LP4.E84TP2Time,U4,,,,,LP4.E84TP2Time
+20017,LP1.E84TP3Time,U4,,,,,LP1.E84TP3Time
+20018,LP2.E84TP3Time,U4,,,,,LP2.E84TP3Time
+20019,LP3.E84TP3Time,U4,,,,,LP3.E84TP3Time
+20020,LP4.E84TP3Time,U4,,,,,LP4.E84TP3Time
+20021,LP1.E84TP4Time,U4,,,,,LP1.E84TP4Time
+20022,LP2.E84TP4Time,U4,,,,,LP2.E84TP4Time
+20023,LP3.E84TP4Time,U4,,,,,LP3.E84TP4Time
+20024,LP4.E84TP4Time,U4,,,,,LP4.E84TP4Time
+20025,LP1.E84TP5Time,U4,,,,,LP1.E84TP5Time
+20026,LP2.E84TP5Time,U4,,,,,LP2.E84TP5Time
+20027,LP3.E84TP5Time,U4,,,,,LP3.E84TP5Time
+20028,LP4.E84TP5Time,U4,,,,,LP4.E84TP5Time
+20029,LP1.E84TP6Time,U4,,,,,LP1.E84TP6Time
+20030,LP2.E84TP6Time,U4,,,,,LP2.E84TP6Time
+20031,LP3.E84TP6Time,U4,,,,,LP3.E84TP6Time
+20032,LP4.E84TP6Time,U4,,,,,LP4.E84TP6Time
+20033,LP1_EndClampStatus,U4,,,,,LP1_EndClampStatus
+20034,LP2_EndClampStatus,U4,,,,,LP2_EndClampStatus
+20035,LP3_EndClampStatus,U4,,,,,LP3_EndClampStatus
+20036,LP4_EndClampStatus,U4,,,,,LP4_EndClampStatus
+20037,LP1.E84RETRY_LIMIT,U4,,,,,LP1.E84RETRY_LIMIT
+20038,LP2.E84RETRY_LIMIT,U4,,,,,LP2.E84RETRY_LIMIT
+20039,LP3.E84RETRY_LIMIT,U4,,,,,LP3.E84RETRY_LIMIT
+20040,LP4.E84RETRY_LIMIT,U4,,,,,LP4.E84RETRY_LIMIT
+30001,L2CH1_DrainTankRinseStartTemp,F4,,,,,L2CH1_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30002,L2CH2_DrainTankRinseStartTemp,F4,,,,,L2CH2_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30003,L2CH3_DrainTankRinseStartTemp,F4,,,,,L2CH3_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30004,R2CH1_DrainTankRinseStartTemp,F4,,,,,R2CH1_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30005,R2CH2_DrainTankRinseStartTemp,F4,,,,,R2CH2_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30006,R2CH3_DrainTankRinseStartTemp,F4,,,,,R2CH3_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+30007,L2CH1_DrainTankRinseStopTemp,F4,,,,,L2CH1_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30008,L2CH2_DrainTankRinseStopTemp,F4,,,,,L2CH2_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30009,L2CH3_DrainTankRinseStopTemp,F4,,,,,L2CH3_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30010,R2CH1_DrainTankRinseStopTemp,F4,,,,,R2CH1_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30011,R2CH2_DrainTankRinseStopTemp,F4,,,,,R2CH2_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30012,R2CH3_DrainTankRinseStopTemp,F4,,,,,R2CH3_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+30013,L2CH1_DrainTankRinseTimeOut,F4,,,,,L2CH1_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30014,L2CH2_DrainTankRinseTimeOut,F4,,,,,L2CH2_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30015,L2CH3_DrainTankRinseTimeOut,F4,,,,,L2CH3_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30016,R2CH1_DrainTankRinseTimeOut,F4,,,,,R2CH1_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30017,R2CH2_DrainTankRinseTimeOut,F4,,,,,R2CH2_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30018,R2CH3_DrainTankRinseTimeOut,F4,,,,,R2CH3_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+30019,L2CH1_Vlv2VlvSetFlowWrn,F4,,,,,L2CH1_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30020,L2CH2_Vlv2VlvSetFlowWrn,F4,,,,,L2CH2_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30021,L2CH3_Vlv2VlvSetFlowWrn,F4,,,,,L2CH3_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30022,R2CH1_Vlv2VlvSetFlowWrn,F4,,,,,R2CH1_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30023,R2CH2_Vlv2VlvSetFlowWrn,F4,,,,,R2CH2_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30024,R2CH3_Vlv2VlvSetFlowWrn,F4,,,,,R2CH3_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+30025,L2CH1_Vlv2VlvSetFlowErr,F4,,,,,L2CH1_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30026,L2CH2_Vlv2VlvSetFlowErr,F4,,,,,L2CH2_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30027,L2CH3_Vlv2VlvSetFlowErr,F4,,,,,L2CH3_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30028,R2CH1_Vlv2VlvSetFlowErr,F4,,,,,R2CH1_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30029,R2CH2_Vlv2VlvSetFlowErr,F4,,,,,R2CH2_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30030,R2CH3_Vlv2VlvSetFlowErr,F4,,,,,R2CH3_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+30031,L2CH1_Vlv11VlvSetFlowWrn,F4,,,,,L2CH1_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30032,L2CH2_Vlv11VlvSetFlowWrn,F4,,,,,L2CH2_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30033,L2CH3_Vlv11VlvSetFlowWrn,F4,,,,,L2CH3_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30034,R2CH1_Vlv11VlvSetFlowWrn,F4,,,,,R2CH1_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30035,R2CH2_Vlv11VlvSetFlowWrn,F4,,,,,R2CH2_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30036,R2CH3_Vlv11VlvSetFlowWrn,F4,,,,,R2CH3_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+30037,L2CH1_Vlv11VlvSetFlowErr,F4,,,,,L2CH1_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30038,L2CH2_Vlv11VlvSetFlowErr,F4,,,,,L2CH2_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30039,L2CH3_Vlv11VlvSetFlowErr,F4,,,,,L2CH3_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30040,R2CH1_Vlv11VlvSetFlowErr,F4,,,,,R2CH1_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30041,R2CH2_Vlv11VlvSetFlowErr,F4,,,,,R2CH2_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30042,R2CH3_Vlv11VlvSetFlowErr,F4,,,,,R2CH3_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+30043,L2CH1_Vlv13VlvSetFlowWrn,F4,,,,,L2CH1_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30044,L2CH2_Vlv13VlvSetFlowWrn,F4,,,,,L2CH2_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30045,L2CH3_Vlv13VlvSetFlowWrn,F4,,,,,L2CH3_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30046,R2CH1_Vlv13VlvSetFlowWrn,F4,,,,,R2CH1_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30047,R2CH2_Vlv13VlvSetFlowWrn,F4,,,,,R2CH2_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30048,R2CH3_Vlv13VlvSetFlowWrn,F4,,,,,R2CH3_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+30049,L2CH1_Vlv13VlvSetFlowErr,F4,,,,,L2CH1_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30050,L2CH2_Vlv13VlvSetFlowErr,F4,,,,,L2CH2_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30051,L2CH3_Vlv13VlvSetFlowErr,F4,,,,,L2CH3_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30052,R2CH1_Vlv13VlvSetFlowErr,F4,,,,,R2CH1_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30053,R2CH2_Vlv13VlvSetFlowErr,F4,,,,,R2CH2_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30054,R2CH3_Vlv13VlvSetFlowErr,F4,,,,,R2CH3_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30055,L2CH1_Vlv14VlvSetFlowWrn,F4,,,,,L2CH1_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30056,L2CH2_Vlv14VlvSetFlowWrn,F4,,,,,L2CH2_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30057,L2CH3_Vlv14VlvSetFlowWrn,F4,,,,,L2CH3_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30058,R2CH1_Vlv14VlvSetFlowWrn,F4,,,,,R2CH1_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30059,R2CH2_Vlv14VlvSetFlowWrn,F4,,,,,R2CH2_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30060,R2CH3_Vlv14VlvSetFlowWrn,F4,,,,,R2CH3_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30061,L2CH1_Vlv14VlvSetFlowErr,F4,,,,,L2CH1_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30062,L2CH2_Vlv14VlvSetFlowErr,F4,,,,,L2CH2_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30063,L2CH3_Vlv14VlvSetFlowErr,F4,,,,,L2CH3_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30064,R2CH1_Vlv14VlvSetFlowErr,F4,,,,,R2CH1_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30065,R2CH2_Vlv14VlvSetFlowErr,F4,,,,,R2CH2_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30066,R2CH3_Vlv14VlvSetFlowErr,F4,,,,,R2CH3_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30067,L2CH1_Vlv22VlvSetFlowWrn,F4,,,,,L2CH1_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30068,L2CH2_Vlv22VlvSetFlowWrn,F4,,,,,L2CH2_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30069,L2CH3_Vlv22VlvSetFlowWrn,F4,,,,,L2CH3_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30070,R2CH1_Vlv22VlvSetFlowWrn,F4,,,,,R2CH1_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30071,R2CH2_Vlv22VlvSetFlowWrn,F4,,,,,R2CH2_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30072,R2CH3_Vlv22VlvSetFlowWrn,F4,,,,,R2CH3_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+30073,L2CH1_Vlv22VlvSetFlowErr,F4,,,,,L2CH1_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30074,L2CH2_Vlv22VlvSetFlowErr,F4,,,,,L2CH2_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30075,L2CH3_Vlv22VlvSetFlowErr,F4,,,,,L2CH3_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30076,R2CH1_Vlv22VlvSetFlowErr,F4,,,,,R2CH1_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30077,R2CH2_Vlv22VlvSetFlowErr,F4,,,,,R2CH2_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30078,R2CH3_Vlv22VlvSetFlowErr,F4,,,,,R2CH3_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30079,L2CH1_Vlv23VlvSetFlowWrn,F4,,,,,L2CH1_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30080,L2CH2_Vlv23VlvSetFlowWrn,F4,,,,,L2CH2_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30081,L2CH3_Vlv23VlvSetFlowWrn,F4,,,,,L2CH3_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30082,R2CH1_Vlv23VlvSetFlowWrn,F4,,,,,R2CH1_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30083,R2CH2_Vlv23VlvSetFlowWrn,F4,,,,,R2CH2_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30084,R2CH3_Vlv23VlvSetFlowWrn,F4,,,,,R2CH3_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+30085,L2CH1_Vlv23VlvSetFlowErr,F4,,,,,L2CH1_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30086,L2CH2_Vlv23VlvSetFlowErr,F4,,,,,L2CH2_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30087,L2CH3_Vlv23VlvSetFlowErr,F4,,,,,L2CH3_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30088,R2CH1_Vlv23VlvSetFlowErr,F4,,,,,R2CH1_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30089,R2CH2_Vlv23VlvSetFlowErr,F4,,,,,R2CH2_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30090,R2CH3_Vlv23VlvSetFlowErr,F4,,,,,R2CH3_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+30091,L2CH1_Vlv31VlvSetFlowWrn,F4,,,,,L2CH1_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30092,L2CH2_Vlv31VlvSetFlowWrn,F4,,,,,L2CH2_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30093,L2CH3_Vlv31VlvSetFlowWrn,F4,,,,,L2CH3_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30094,R2CH1_Vlv31VlvSetFlowWrn,F4,,,,,R2CH1_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30095,R2CH2_Vlv31VlvSetFlowWrn,F4,,,,,R2CH2_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30096,R2CH3_Vlv31VlvSetFlowWrn,F4,,,,,R2CH3_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+30097,L2CH1_Vlv31VlvSetFlowErr,F4,,,,,L2CH1_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30098,L2CH2_Vlv31VlvSetFlowErr,F4,,,,,L2CH2_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30099,L2CH3_Vlv31VlvSetFlowErr,F4,,,,,L2CH3_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30100,R2CH1_Vlv31VlvSetFlowErr,F4,,,,,R2CH1_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30101,R2CH2_Vlv31VlvSetFlowErr,F4,,,,,R2CH2_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30102,R2CH3_Vlv31VlvSetFlowErr,F4,,,,,R2CH3_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+30103,L2CH1_Vlv32VlvSetFlowWrn,F4,,,,,L2CH1_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30104,L2CH2_Vlv32VlvSetFlowWrn,F4,,,,,L2CH2_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30105,L2CH3_Vlv32VlvSetFlowWrn,F4,,,,,L2CH3_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30106,R2CH1_Vlv32VlvSetFlowWrn,F4,,,,,R2CH1_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30107,R2CH2_Vlv32VlvSetFlowWrn,F4,,,,,R2CH2_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30108,R2CH3_Vlv32VlvSetFlowWrn,F4,,,,,R2CH3_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+30109,L2CH1_Vlv32VlvSetFlowErr,F4,,,,,L2CH1_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30110,L2CH2_Vlv32VlvSetFlowErr,F4,,,,,L2CH2_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30111,L2CH3_Vlv32VlvSetFlowErr,F4,,,,,L2CH3_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30112,R2CH1_Vlv32VlvSetFlowErr,F4,,,,,R2CH1_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30113,R2CH2_Vlv32VlvSetFlowErr,F4,,,,,R2CH2_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30114,R2CH3_Vlv32VlvSetFlowErr,F4,,,,,R2CH3_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+30115,L2CH1_Vlv33VlvSetFlowWrn,F4,,,,,L2CH1_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30116,L2CH2_Vlv33VlvSetFlowWrn,F4,,,,,L2CH2_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30117,L2CH3_Vlv33VlvSetFlowWrn,F4,,,,,L2CH3_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30118,R2CH1_Vlv33VlvSetFlowWrn,F4,,,,,R2CH1_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30119,R2CH2_Vlv33VlvSetFlowWrn,F4,,,,,R2CH2_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30120,R2CH3_Vlv33VlvSetFlowWrn,F4,,,,,R2CH3_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+30121,L2CH1_Vlv33VlvSetFlowErr,F4,,,,,L2CH1_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30122,L2CH2_Vlv33VlvSetFlowErr,F4,,,,,L2CH2_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30123,L2CH3_Vlv33VlvSetFlowErr,F4,,,,,L2CH3_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30124,R2CH1_Vlv33VlvSetFlowErr,F4,,,,,R2CH1_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30125,R2CH2_Vlv33VlvSetFlowErr,F4,,,,,R2CH2_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30126,R2CH3_Vlv33VlvSetFlowErr,F4,,,,,R2CH3_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+30127,L2CH1_Vlv41VlvSetFlowWrn,F4,,,,,L2CH1_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30128,L2CH2_Vlv41VlvSetFlowWrn,F4,,,,,L2CH2_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30129,L2CH3_Vlv41VlvSetFlowWrn,F4,,,,,L2CH3_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30130,R2CH1_Vlv41VlvSetFlowWrn,F4,,,,,R2CH1_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30131,R2CH2_Vlv41VlvSetFlowWrn,F4,,,,,R2CH2_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30132,R2CH3_Vlv41VlvSetFlowWrn,F4,,,,,R2CH3_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+30133,L2CH1_Vlv41VlvSetFlowErr,F4,,,,,L2CH1_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30134,L2CH2_Vlv41VlvSetFlowErr,F4,,,,,L2CH2_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30135,L2CH3_Vlv41VlvSetFlowErr,F4,,,,,L2CH3_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30136,R2CH1_Vlv41VlvSetFlowErr,F4,,,,,R2CH1_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30137,R2CH2_Vlv41VlvSetFlowErr,F4,,,,,R2CH2_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30138,R2CH3_Vlv41VlvSetFlowErr,F4,,,,,R2CH3_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30139,L2CH1_Vlv42VlvSetFlowWrn,F4,,,,,L2CH1_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30140,L2CH2_Vlv42VlvSetFlowWrn,F4,,,,,L2CH2_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30141,L2CH3_Vlv42VlvSetFlowWrn,F4,,,,,L2CH3_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30142,R2CH1_Vlv42VlvSetFlowWrn,F4,,,,,R2CH1_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30143,R2CH2_Vlv42VlvSetFlowWrn,F4,,,,,R2CH2_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30144,R2CH3_Vlv42VlvSetFlowWrn,F4,,,,,R2CH3_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+30145,L2CH1_Vlv42VlvSetFlowErr,F4,,,,,L2CH1_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30146,L2CH2_Vlv42VlvSetFlowErr,F4,,,,,L2CH2_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30147,L2CH3_Vlv42VlvSetFlowErr,F4,,,,,L2CH3_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30148,R2CH1_Vlv42VlvSetFlowErr,F4,,,,,R2CH1_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30149,R2CH2_Vlv42VlvSetFlowErr,F4,,,,,R2CH2_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30150,R2CH3_Vlv42VlvSetFlowErr,F4,,,,,R2CH3_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30151,L2CH1_Vlv43VlvSetFlowWrn,F4,,,,,L2CH1_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30152,L2CH2_Vlv43VlvSetFlowWrn,F4,,,,,L2CH2_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30153,L2CH3_Vlv43VlvSetFlowWrn,F4,,,,,L2CH3_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30154,R2CH1_Vlv43VlvSetFlowWrn,F4,,,,,R2CH1_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30155,R2CH2_Vlv43VlvSetFlowWrn,F4,,,,,R2CH2_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30156,R2CH3_Vlv43VlvSetFlowWrn,F4,,,,,R2CH3_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+30157,L2CH1_Vlv43VlvSetFlowErr,F4,,,,,L2CH1_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30158,L2CH2_Vlv43VlvSetFlowErr,F4,,,,,L2CH2_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30159,L2CH3_Vlv43VlvSetFlowErr,F4,,,,,L2CH3_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30160,R2CH1_Vlv43VlvSetFlowErr,F4,,,,,R2CH1_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30161,R2CH2_Vlv43VlvSetFlowErr,F4,,,,,R2CH2_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30162,R2CH3_Vlv43VlvSetFlowErr,F4,,,,,R2CH3_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30163,L2CH1_Vlv44VlvSetFlowWrn,F4,,,,,L2CH1_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30164,L2CH2_Vlv44VlvSetFlowWrn,F4,,,,,L2CH2_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30165,L2CH3_Vlv44VlvSetFlowWrn,F4,,,,,L2CH3_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30166,R2CH1_Vlv44VlvSetFlowWrn,F4,,,,,R2CH1_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30167,R2CH2_Vlv44VlvSetFlowWrn,F4,,,,,R2CH2_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30168,R2CH3_Vlv44VlvSetFlowWrn,F4,,,,,R2CH3_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+30169,L2CH1_Vlv44VlvSetFlowErr,F4,,,,,L2CH1_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30170,L2CH2_Vlv44VlvSetFlowErr,F4,,,,,L2CH2_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30171,L2CH3_Vlv44VlvSetFlowErr,F4,,,,,L2CH3_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30172,R2CH1_Vlv44VlvSetFlowErr,F4,,,,,R2CH1_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30173,R2CH2_Vlv44VlvSetFlowErr,F4,,,,,R2CH2_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30174,R2CH3_Vlv44VlvSetFlowErr,F4,,,,,R2CH3_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30175,L2CH1_Vlv47VlvSetFlowWrn,F4,,,,,L2CH1_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30176,L2CH2_Vlv47VlvSetFlowWrn,F4,,,,,L2CH2_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30177,L2CH3_Vlv47VlvSetFlowWrn,F4,,,,,L2CH3_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30178,R2CH1_Vlv47VlvSetFlowWrn,F4,,,,,R2CH1_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30179,R2CH2_Vlv47VlvSetFlowWrn,F4,,,,,R2CH2_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30180,R2CH3_Vlv47VlvSetFlowWrn,F4,,,,,R2CH3_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+30181,L2CH1_Vlv47VlvSetFlowErr,F4,,,,,L2CH1_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30182,L2CH2_Vlv47VlvSetFlowErr,F4,,,,,L2CH2_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30183,L2CH3_Vlv47VlvSetFlowErr,F4,,,,,L2CH3_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30184,R2CH1_Vlv47VlvSetFlowErr,F4,,,,,R2CH1_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30185,R2CH2_Vlv47VlvSetFlowErr,F4,,,,,R2CH2_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30186,R2CH3_Vlv47VlvSetFlowErr,F4,,,,,R2CH3_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+30187,L2CH1_Vlv50VlvSetFlowWrn,F4,,,,,L2CH1_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30188,L2CH2_Vlv50VlvSetFlowWrn,F4,,,,,L2CH2_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30189,L2CH3_Vlv50VlvSetFlowWrn,F4,,,,,L2CH3_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30190,R2CH1_Vlv50VlvSetFlowWrn,F4,,,,,R2CH1_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30191,R2CH2_Vlv50VlvSetFlowWrn,F4,,,,,R2CH2_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30192,R2CH3_Vlv50VlvSetFlowWrn,F4,,,,,R2CH3_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+30193,L2CH1_Vlv50VlvSetFlowErr,F4,,,,,L2CH1_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30194,L2CH2_Vlv50VlvSetFlowErr,F4,,,,,L2CH2_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30195,L2CH3_Vlv50VlvSetFlowErr,F4,,,,,L2CH3_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30196,R2CH1_Vlv50VlvSetFlowErr,F4,,,,,R2CH1_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30197,R2CH2_Vlv50VlvSetFlowErr,F4,,,,,R2CH2_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30198,R2CH3_Vlv50VlvSetFlowErr,F4,,,,,R2CH3_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30199,L2CH1_Vlv51VlvSetFlowWrn,F4,,,,,L2CH1_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30200,L2CH2_Vlv51VlvSetFlowWrn,F4,,,,,L2CH2_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30201,L2CH3_Vlv51VlvSetFlowWrn,F4,,,,,L2CH3_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30202,R2CH1_Vlv51VlvSetFlowWrn,F4,,,,,R2CH1_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30203,R2CH2_Vlv51VlvSetFlowWrn,F4,,,,,R2CH2_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30204,R2CH3_Vlv51VlvSetFlowWrn,F4,,,,,R2CH3_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30205,L2CH1_Vlv51VlvSetFlowErr,F4,,,,,L2CH1_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30206,L2CH2_Vlv51VlvSetFlowErr,F4,,,,,L2CH2_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30207,L2CH3_Vlv51VlvSetFlowErr,F4,,,,,L2CH3_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30208,R2CH1_Vlv51VlvSetFlowErr,F4,,,,,R2CH1_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30209,R2CH2_Vlv51VlvSetFlowErr,F4,,,,,R2CH2_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30210,R2CH3_Vlv51VlvSetFlowErr,F4,,,,,R2CH3_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30211,L2CH1_Vlv52VlvSetFlowWrn,F4,,,,,L2CH1_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30212,L2CH2_Vlv52VlvSetFlowWrn,F4,,,,,L2CH2_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30213,L2CH3_Vlv52VlvSetFlowWrn,F4,,,,,L2CH3_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30214,R2CH1_Vlv52VlvSetFlowWrn,F4,,,,,R2CH1_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30215,R2CH2_Vlv52VlvSetFlowWrn,F4,,,,,R2CH2_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30216,R2CH3_Vlv52VlvSetFlowWrn,F4,,,,,R2CH3_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+30217,L2CH1_Vlv52VlvSetFlowErr,F4,,,,,L2CH1_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30218,L2CH2_Vlv52VlvSetFlowErr,F4,,,,,L2CH2_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30219,L2CH3_Vlv52VlvSetFlowErr,F4,,,,,L2CH3_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30220,R2CH1_Vlv52VlvSetFlowErr,F4,,,,,R2CH1_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30221,R2CH2_Vlv52VlvSetFlowErr,F4,,,,,R2CH2_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30222,R2CH3_Vlv52VlvSetFlowErr,F4,,,,,R2CH3_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30223,L2CH1_Vlv54VlvSetFlowWrn,F4,,,,,L2CH1_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30224,L2CH2_Vlv54VlvSetFlowWrn,F4,,,,,L2CH2_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30225,L2CH3_Vlv54VlvSetFlowWrn,F4,,,,,L2CH3_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30226,R2CH1_Vlv54VlvSetFlowWrn,F4,,,,,R2CH1_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30227,R2CH2_Vlv54VlvSetFlowWrn,F4,,,,,R2CH2_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30228,R2CH3_Vlv54VlvSetFlowWrn,F4,,,,,R2CH3_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+30229,L2CH1_Vlv54VlvSetFlowErr,F4,,,,,L2CH1_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30230,L2CH2_Vlv54VlvSetFlowErr,F4,,,,,L2CH2_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30231,L2CH3_Vlv54VlvSetFlowErr,F4,,,,,L2CH3_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30232,R2CH1_Vlv54VlvSetFlowErr,F4,,,,,R2CH1_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30233,R2CH2_Vlv54VlvSetFlowErr,F4,,,,,R2CH2_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30234,R2CH3_Vlv54VlvSetFlowErr,F4,,,,,R2CH3_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30235,L2CH1_Vlv55VlvSetFlowWrn,F4,,,,,L2CH1_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30236,L2CH2_Vlv55VlvSetFlowWrn,F4,,,,,L2CH2_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30237,L2CH3_Vlv55VlvSetFlowWrn,F4,,,,,L2CH3_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30238,R2CH1_Vlv55VlvSetFlowWrn,F4,,,,,R2CH1_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30239,R2CH2_Vlv55VlvSetFlowWrn,F4,,,,,R2CH2_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30240,R2CH3_Vlv55VlvSetFlowWrn,F4,,,,,R2CH3_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+30241,L2CH1_Vlv55VlvSetFlowErr,F4,,,,,L2CH1_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30242,L2CH2_Vlv55VlvSetFlowErr,F4,,,,,L2CH2_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30243,L2CH3_Vlv55VlvSetFlowErr,F4,,,,,L2CH3_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30244,R2CH1_Vlv55VlvSetFlowErr,F4,,,,,R2CH1_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30245,R2CH2_Vlv55VlvSetFlowErr,F4,,,,,R2CH2_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30246,R2CH3_Vlv55VlvSetFlowErr,F4,,,,,R2CH3_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+30247,L2CH1_Vlv60VlvSetFlowWrn,F4,,,,,L2CH1_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30248,L2CH2_Vlv60VlvSetFlowWrn,F4,,,,,L2CH2_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30249,L2CH3_Vlv60VlvSetFlowWrn,F4,,,,,L2CH3_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30250,R2CH1_Vlv60VlvSetFlowWrn,F4,,,,,R2CH1_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30251,R2CH2_Vlv60VlvSetFlowWrn,F4,,,,,R2CH2_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30252,R2CH3_Vlv60VlvSetFlowWrn,F4,,,,,R2CH3_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+30253,L2CH1_Vlv60VlvSetFlowErr,F4,,,,,L2CH1_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30254,L2CH2_Vlv60VlvSetFlowErr,F4,,,,,L2CH2_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30255,L2CH3_Vlv60VlvSetFlowErr,F4,,,,,L2CH3_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30256,R2CH1_Vlv60VlvSetFlowErr,F4,,,,,R2CH1_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30257,R2CH2_Vlv60VlvSetFlowErr,F4,,,,,R2CH2_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30258,R2CH3_Vlv60VlvSetFlowErr,F4,,,,,R2CH3_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+30259,L2CH1_Vlv61VlvSetFlowWrn,F4,,,,,L2CH1_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30260,L2CH2_Vlv61VlvSetFlowWrn,F4,,,,,L2CH2_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30261,L2CH3_Vlv61VlvSetFlowWrn,F4,,,,,L2CH3_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30262,R2CH1_Vlv61VlvSetFlowWrn,F4,,,,,R2CH1_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30263,R2CH2_Vlv61VlvSetFlowWrn,F4,,,,,R2CH2_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30264,R2CH3_Vlv61VlvSetFlowWrn,F4,,,,,R2CH3_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+30265,L2CH1_Vlv61VlvSetFlowErr,F4,,,,,L2CH1_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30266,L2CH2_Vlv61VlvSetFlowErr,F4,,,,,L2CH2_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30267,L2CH3_Vlv61VlvSetFlowErr,F4,,,,,L2CH3_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30268,R2CH1_Vlv61VlvSetFlowErr,F4,,,,,R2CH1_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30269,R2CH2_Vlv61VlvSetFlowErr,F4,,,,,R2CH2_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30270,R2CH3_Vlv61VlvSetFlowErr,F4,,,,,R2CH3_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+30271,L2CH1_Vlv62VlvSetFlowWrn,F4,,,,,L2CH1_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30272,L2CH2_Vlv62VlvSetFlowWrn,F4,,,,,L2CH2_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30273,L2CH3_Vlv62VlvSetFlowWrn,F4,,,,,L2CH3_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30274,R2CH1_Vlv62VlvSetFlowWrn,F4,,,,,R2CH1_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30275,R2CH2_Vlv62VlvSetFlowWrn,F4,,,,,R2CH2_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30276,R2CH3_Vlv62VlvSetFlowWrn,F4,,,,,R2CH3_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+30277,L2CH1_Vlv62VlvSetFlowErr,F4,,,,,L2CH1_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30278,L2CH2_Vlv62VlvSetFlowErr,F4,,,,,L2CH2_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30279,L2CH3_Vlv62VlvSetFlowErr,F4,,,,,L2CH3_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30280,R2CH1_Vlv62VlvSetFlowErr,F4,,,,,R2CH1_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30281,R2CH2_Vlv62VlvSetFlowErr,F4,,,,,R2CH2_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30282,R2CH3_Vlv62VlvSetFlowErr,F4,,,,,R2CH3_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+30283,L2CH1_Vlv63VlvSetFlowWrn,F4,,,,,L2CH1_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30284,L2CH2_Vlv63VlvSetFlowWrn,F4,,,,,L2CH2_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30285,L2CH3_Vlv63VlvSetFlowWrn,F4,,,,,L2CH3_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30286,R2CH1_Vlv63VlvSetFlowWrn,F4,,,,,R2CH1_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30287,R2CH2_Vlv63VlvSetFlowWrn,F4,,,,,R2CH2_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30288,R2CH3_Vlv63VlvSetFlowWrn,F4,,,,,R2CH3_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+30289,L2CH1_Vlv63VlvSetFlowErr,F4,,,,,L2CH1_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30290,L2CH2_Vlv63VlvSetFlowErr,F4,,,,,L2CH2_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30291,L2CH3_Vlv63VlvSetFlowErr,F4,,,,,L2CH3_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30292,R2CH1_Vlv63VlvSetFlowErr,F4,,,,,R2CH1_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30293,R2CH2_Vlv63VlvSetFlowErr,F4,,,,,R2CH2_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30294,R2CH3_Vlv63VlvSetFlowErr,F4,,,,,R2CH3_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+30295,L2CH1_Vlv64VlvSetFlowWrn,F4,,,,,L2CH1_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30296,L2CH2_Vlv64VlvSetFlowWrn,F4,,,,,L2CH2_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30297,L2CH3_Vlv64VlvSetFlowWrn,F4,,,,,L2CH3_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30298,R2CH1_Vlv64VlvSetFlowWrn,F4,,,,,R2CH1_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30299,R2CH2_Vlv64VlvSetFlowWrn,F4,,,,,R2CH2_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30300,R2CH3_Vlv64VlvSetFlowWrn,F4,,,,,R2CH3_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+30301,L2CH1_Vlv64VlvSetFlowErr,F4,,,,,L2CH1_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30302,L2CH2_Vlv64VlvSetFlowErr,F4,,,,,L2CH2_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30303,L2CH3_Vlv64VlvSetFlowErr,F4,,,,,L2CH3_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30304,R2CH1_Vlv64VlvSetFlowErr,F4,,,,,R2CH1_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30305,R2CH2_Vlv64VlvSetFlowErr,F4,,,,,R2CH2_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30306,R2CH3_Vlv64VlvSetFlowErr,F4,,,,,R2CH3_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+30307,L2CH1_Vlv96VlvSetFlowWrn,F4,,,,,L2CH1_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30308,L2CH2_Vlv96VlvSetFlowWrn,F4,,,,,L2CH2_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30309,L2CH3_Vlv96VlvSetFlowWrn,F4,,,,,L2CH3_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30310,R2CH1_Vlv96VlvSetFlowWrn,F4,,,,,R2CH1_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30311,R2CH2_Vlv96VlvSetFlowWrn,F4,,,,,R2CH2_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30312,R2CH3_Vlv96VlvSetFlowWrn,F4,,,,,R2CH3_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+30313,L2CH1_Vlv96VlvSetFlowErr,F4,,,,,L2CH1_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30314,L2CH2_Vlv96VlvSetFlowErr,F4,,,,,L2CH2_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30315,L2CH3_Vlv96VlvSetFlowErr,F4,,,,,L2CH3_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30316,R2CH1_Vlv96VlvSetFlowErr,F4,,,,,R2CH1_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30317,R2CH2_Vlv96VlvSetFlowErr,F4,,,,,R2CH2_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+30318,R2CH3_Vlv96VlvSetFlowErr,F4,,,,,R2CH3_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+31001,FFU.L2CH1_TargetSpeed,U4,,,,,FFU.L2CH1_TargetSpeed,FFU.L2CH1_TargetSpeed
+31002,FFU.L2CH2_TargetSpeed,U4,,,,,FFU.L2CH2_TargetSpeed,FFU.L2CH2_TargetSpeed
+31003,FFU.L2CH3_TargetSpeed,U4,,,,,FFU.L2CH3_TargetSpeed,FFU.L2CH3_TargetSpeed
+31005,FFU.R2CH1_TargetSpeed,U4,,,,,FFU.R2CH1_TargetSpeed,FFU.R2CH1_TargetSpeed
+31006,FFU.R2CH2_TargetSpeed,U4,,,,,FFU.R2CH2_TargetSpeed,FFU.R2CH2_TargetSpeed
+31007,FFU.R2CH3_TargetSpeed,U4,,,,,FFU.R2CH3_TargetSpeed,FFU.R2CH3_TargetSpeed
+40001,L3CH1_DrainTankRinseStartTemp,F4,,,,,L3CH1_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40002,L3CH2_DrainTankRinseStartTemp,F4,,,,,L3CH2_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40003,L3CH3_DrainTankRinseStartTemp,F4,,,,,L3CH3_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40004,R3CH1_DrainTankRinseStartTemp,F4,,,,,R3CH1_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40005,R3CH2_DrainTankRinseStartTemp,F4,,,,,R3CH2_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40006,R3CH3_DrainTankRinseStartTemp,F4,,,,,R3CH3_DrainTankRinseStartTemp,Drain Tank Rinse Start Temp[degC]
+40007,L3CH1_DrainTankRinseStopTemp,F4,,,,,L3CH1_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40008,L3CH2_DrainTankRinseStopTemp,F4,,,,,L3CH2_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40009,L3CH3_DrainTankRinseStopTemp,F4,,,,,L3CH3_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40010,R3CH1_DrainTankRinseStopTemp,F4,,,,,R3CH1_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40011,R3CH2_DrainTankRinseStopTemp,F4,,,,,R3CH2_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40012,R3CH3_DrainTankRinseStopTemp,F4,,,,,R3CH3_DrainTankRinseStopTemp,Drain Tank Rinse Stop Temp[degC]
+40013,L3CH1_DrainTankRinseTimeOut,F4,,,,,L3CH1_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40014,L3CH2_DrainTankRinseTimeOut,F4,,,,,L3CH2_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40015,L3CH3_DrainTankRinseTimeOut,F4,,,,,L3CH3_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40016,R3CH1_DrainTankRinseTimeOut,F4,,,,,R3CH1_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40017,R3CH2_DrainTankRinseTimeOut,F4,,,,,R3CH2_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40018,R3CH3_DrainTankRinseTimeOut,F4,,,,,R3CH3_DrainTankRinseTimeOut,Drain Tank Rinse TimeOut[s]
+40019,L3CH1_Vlv2VlvSetFlowWrn,F4,,,,,L3CH1_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40020,L3CH2_Vlv2VlvSetFlowWrn,F4,,,,,L3CH2_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40021,L3CH3_Vlv2VlvSetFlowWrn,F4,,,,,L3CH3_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40022,R3CH1_Vlv2VlvSetFlowWrn,F4,,,,,R3CH1_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40023,R3CH2_Vlv2VlvSetFlowWrn,F4,,,,,R3CH2_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40024,R3CH3_Vlv2VlvSetFlowWrn,F4,,,,,R3CH3_Vlv2VlvSetFlowWrn,BS N2 Flow Error Range LL&HH RD± [%]
+40025,L3CH1_Vlv2VlvSetFlowErr,F4,,,,,L3CH1_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40026,L3CH2_Vlv2VlvSetFlowErr,F4,,,,,L3CH2_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40027,L3CH3_Vlv2VlvSetFlowErr,F4,,,,,L3CH3_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40028,R3CH1_Vlv2VlvSetFlowErr,F4,,,,,R3CH1_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40029,R3CH2_Vlv2VlvSetFlowErr,F4,,,,,R3CH2_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40030,R3CH3_Vlv2VlvSetFlowErr,F4,,,,,R3CH3_Vlv2VlvSetFlowErr,BS N2 Flow Error Range LL-E&HH-E RD± [%]
+40031,L3CH1_Vlv11VlvSetFlowWrn,F4,,,,,L3CH1_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40032,L3CH2_Vlv11VlvSetFlowWrn,F4,,,,,L3CH2_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40033,L3CH3_Vlv11VlvSetFlowWrn,F4,,,,,L3CH3_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40034,R3CH1_Vlv11VlvSetFlowWrn,F4,,,,,R3CH1_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40035,R3CH2_Vlv11VlvSetFlowWrn,F4,,,,,R3CH2_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40036,R3CH3_Vlv11VlvSetFlowWrn,F4,,,,,R3CH3_Vlv11VlvSetFlowWrn,SPV S1 1 DHF Flow Error Range LL&HH RD± [%]
+40037,L3CH1_Vlv11VlvSetFlowErr,F4,,,,,L3CH1_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40038,L3CH2_Vlv11VlvSetFlowErr,F4,,,,,L3CH2_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40039,L3CH3_Vlv11VlvSetFlowErr,F4,,,,,L3CH3_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40040,R3CH1_Vlv11VlvSetFlowErr,F4,,,,,R3CH1_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40041,R3CH2_Vlv11VlvSetFlowErr,F4,,,,,R3CH2_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40042,R3CH3_Vlv11VlvSetFlowErr,F4,,,,,R3CH3_Vlv11VlvSetFlowErr,SPV S1 1 DHF Flow Error Range LL-E&HH-E RD± [%]
+40043,L3CH1_Vlv13VlvSetFlowWrn,F4,,,,,L3CH1_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40044,L3CH2_Vlv13VlvSetFlowWrn,F4,,,,,L3CH2_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40045,L3CH3_Vlv13VlvSetFlowWrn,F4,,,,,L3CH3_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40046,R3CH1_Vlv13VlvSetFlowWrn,F4,,,,,R3CH1_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40047,R3CH2_Vlv13VlvSetFlowWrn,F4,,,,,R3CH2_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40048,R3CH3_Vlv13VlvSetFlowWrn,F4,,,,,R3CH3_Vlv13VlvSetFlowWrn,MV3 S1 1 H2O2 Flow Error Range LL&HH RD± [%]
+40049,L3CH1_Vlv13VlvSetFlowErr,F4,,,,,L3CH1_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40050,L3CH2_Vlv13VlvSetFlowErr,F4,,,,,L3CH2_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40051,L3CH3_Vlv13VlvSetFlowErr,F4,,,,,L3CH3_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40052,R3CH1_Vlv13VlvSetFlowErr,F4,,,,,R3CH1_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40053,R3CH2_Vlv13VlvSetFlowErr,F4,,,,,R3CH2_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40054,R3CH3_Vlv13VlvSetFlowErr,F4,,,,,R3CH3_Vlv13VlvSetFlowErr,MV3 S1 1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40055,L3CH1_Vlv14VlvSetFlowWrn,F4,,,,,L3CH1_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40056,L3CH2_Vlv14VlvSetFlowWrn,F4,,,,,L3CH2_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40057,L3CH3_Vlv14VlvSetFlowWrn,F4,,,,,L3CH3_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40058,R3CH1_Vlv14VlvSetFlowWrn,F4,,,,,R3CH1_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40059,R3CH2_Vlv14VlvSetFlowWrn,F4,,,,,R3CH2_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40060,R3CH3_Vlv14VlvSetFlowWrn,F4,,,,,R3CH3_Vlv14VlvSetFlowWrn,MV3 S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40061,L3CH1_Vlv14VlvSetFlowErr,F4,,,,,L3CH1_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40062,L3CH2_Vlv14VlvSetFlowErr,F4,,,,,L3CH2_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40063,L3CH3_Vlv14VlvSetFlowErr,F4,,,,,L3CH3_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40064,R3CH1_Vlv14VlvSetFlowErr,F4,,,,,R3CH1_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40065,R3CH2_Vlv14VlvSetFlowErr,F4,,,,,R3CH2_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40066,R3CH3_Vlv14VlvSetFlowErr,F4,,,,,R3CH3_Vlv14VlvSetFlowErr,MV3 S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40067,L3CH1_Vlv22VlvSetFlowWrn,F4,,,,,L3CH1_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40068,L3CH2_Vlv22VlvSetFlowWrn,F4,,,,,L3CH2_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40069,L3CH3_Vlv22VlvSetFlowWrn,F4,,,,,L3CH3_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40070,R3CH1_Vlv22VlvSetFlowWrn,F4,,,,,R3CH1_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40071,R3CH2_Vlv22VlvSetFlowWrn,F4,,,,,R3CH2_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40072,R3CH3_Vlv22VlvSetFlowWrn,F4,,,,,R3CH3_Vlv22VlvSetFlowWrn,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL&HH RD± [%]
+40073,L3CH1_Vlv22VlvSetFlowErr,F4,,,,,L3CH1_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40074,L3CH2_Vlv22VlvSetFlowErr,F4,,,,,L3CH2_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40075,L3CH3_Vlv22VlvSetFlowErr,F4,,,,,L3CH3_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40076,R3CH1_Vlv22VlvSetFlowErr,F4,,,,,R3CH1_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40077,R3CH2_Vlv22VlvSetFlowErr,F4,,,,,R3CH2_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40078,R3CH3_Vlv22VlvSetFlowErr,F4,,,,,R3CH3_Vlv22VlvSetFlowErr,MV1 S2 2 NSN SC1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40079,L3CH1_Vlv23VlvSetFlowWrn,F4,,,,,L3CH1_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40080,L3CH2_Vlv23VlvSetFlowWrn,F4,,,,,L3CH2_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40081,L3CH3_Vlv23VlvSetFlowWrn,F4,,,,,L3CH3_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40082,R3CH1_Vlv23VlvSetFlowWrn,F4,,,,,R3CH1_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40083,R3CH2_Vlv23VlvSetFlowWrn,F4,,,,,R3CH2_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40084,R3CH3_Vlv23VlvSetFlowWrn,F4,,,,,R3CH3_Vlv23VlvSetFlowWrn,NSN S2 2 N2 Flow Error Range LL&HH RD± [%]
+40085,L3CH1_Vlv23VlvSetFlowErr,F4,,,,,L3CH1_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40086,L3CH2_Vlv23VlvSetFlowErr,F4,,,,,L3CH2_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40087,L3CH3_Vlv23VlvSetFlowErr,F4,,,,,L3CH3_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40088,R3CH1_Vlv23VlvSetFlowErr,F4,,,,,R3CH1_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40089,R3CH2_Vlv23VlvSetFlowErr,F4,,,,,R3CH2_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40090,R3CH3_Vlv23VlvSetFlowErr,F4,,,,,R3CH3_Vlv23VlvSetFlowErr,NSN S2 2 N2 Flow Error Range LL-E&HH-E RD± [%]
+40091,L3CH1_Vlv31VlvSetFlowWrn,F4,,,,,L3CH1_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40092,L3CH2_Vlv31VlvSetFlowWrn,F4,,,,,L3CH2_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40093,L3CH3_Vlv31VlvSetFlowWrn,F4,,,,,L3CH3_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40094,R3CH1_Vlv31VlvSetFlowWrn,F4,,,,,R3CH1_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40095,R3CH2_Vlv31VlvSetFlowWrn,F4,,,,,R3CH2_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40096,R3CH3_Vlv31VlvSetFlowWrn,F4,,,,,R3CH3_Vlv31VlvSetFlowWrn,SPV S3 IPA Flow Error Range LL&HH RD± [%]
+40097,L3CH1_Vlv31VlvSetFlowErr,F4,,,,,L3CH1_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40098,L3CH2_Vlv31VlvSetFlowErr,F4,,,,,L3CH2_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40099,L3CH3_Vlv31VlvSetFlowErr,F4,,,,,L3CH3_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40100,R3CH1_Vlv31VlvSetFlowErr,F4,,,,,R3CH1_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40101,R3CH2_Vlv31VlvSetFlowErr,F4,,,,,R3CH2_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40102,R3CH3_Vlv31VlvSetFlowErr,F4,,,,,R3CH3_Vlv31VlvSetFlowErr,SPV S3 IPA Flow Error Range LL-E&HH-E RD± [%]
+40103,L3CH1_Vlv32VlvSetFlowWrn,F4,,,,,L3CH1_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40104,L3CH2_Vlv32VlvSetFlowWrn,F4,,,,,L3CH2_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40105,L3CH3_Vlv32VlvSetFlowWrn,F4,,,,,L3CH3_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40106,R3CH1_Vlv32VlvSetFlowWrn,F4,,,,,R3CH1_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40107,R3CH2_Vlv32VlvSetFlowWrn,F4,,,,,R3CH2_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40108,R3CH3_Vlv32VlvSetFlowWrn,F4,,,,,R3CH3_Vlv32VlvSetFlowWrn,SPV S3 HIPA Flow Error Range LL&HH RD± [%]
+40109,L3CH1_Vlv32VlvSetFlowErr,F4,,,,,L3CH1_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40110,L3CH2_Vlv32VlvSetFlowErr,F4,,,,,L3CH2_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40111,L3CH3_Vlv32VlvSetFlowErr,F4,,,,,L3CH3_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40112,R3CH1_Vlv32VlvSetFlowErr,F4,,,,,R3CH1_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40113,R3CH2_Vlv32VlvSetFlowErr,F4,,,,,R3CH2_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40114,R3CH3_Vlv32VlvSetFlowErr,F4,,,,,R3CH3_Vlv32VlvSetFlowErr,SPV S3 HIPA Flow Error Range LL-E&HH-E RD± [%]
+40115,L3CH1_Vlv33VlvSetFlowWrn,F4,,,,,L3CH1_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40116,L3CH2_Vlv33VlvSetFlowWrn,F4,,,,,L3CH2_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40117,L3CH3_Vlv33VlvSetFlowWrn,F4,,,,,L3CH3_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40118,R3CH1_Vlv33VlvSetFlowWrn,F4,,,,,R3CH1_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40119,R3CH2_Vlv33VlvSetFlowWrn,F4,,,,,R3CH2_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40120,R3CH3_Vlv33VlvSetFlowWrn,F4,,,,,R3CH3_Vlv33VlvSetFlowWrn,NP Noz S3 Cen N2 Flow Error Range LL&HH RD± [%]
+40121,L3CH1_Vlv33VlvSetFlowErr,F4,,,,,L3CH1_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40122,L3CH2_Vlv33VlvSetFlowErr,F4,,,,,L3CH2_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40123,L3CH3_Vlv33VlvSetFlowErr,F4,,,,,L3CH3_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40124,R3CH1_Vlv33VlvSetFlowErr,F4,,,,,R3CH1_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40125,R3CH2_Vlv33VlvSetFlowErr,F4,,,,,R3CH2_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40126,R3CH3_Vlv33VlvSetFlowErr,F4,,,,,R3CH3_Vlv33VlvSetFlowErr,NP Noz S3 Cen N2 Flow Error Range LL-E&HH-E RD± [%]
+40127,L3CH1_Vlv41VlvSetFlowWrn,F4,,,,,L3CH1_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40128,L3CH2_Vlv41VlvSetFlowWrn,F4,,,,,L3CH2_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40129,L3CH3_Vlv41VlvSetFlowWrn,F4,,,,,L3CH3_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40130,R3CH1_Vlv41VlvSetFlowWrn,F4,,,,,R3CH1_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40131,R3CH2_Vlv41VlvSetFlowWrn,F4,,,,,R3CH2_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40132,R3CH3_Vlv41VlvSetFlowWrn,F4,,,,,R3CH3_Vlv41VlvSetFlowWrn,Chuck Pin Rinse CO2W Flow Error Range LL&HH RD± [%]
+40133,L3CH1_Vlv41VlvSetFlowErr,F4,,,,,L3CH1_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40134,L3CH2_Vlv41VlvSetFlowErr,F4,,,,,L3CH2_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40135,L3CH3_Vlv41VlvSetFlowErr,F4,,,,,L3CH3_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40136,R3CH1_Vlv41VlvSetFlowErr,F4,,,,,R3CH1_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40137,R3CH2_Vlv41VlvSetFlowErr,F4,,,,,R3CH2_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40138,R3CH3_Vlv41VlvSetFlowErr,F4,,,,,R3CH3_Vlv41VlvSetFlowErr,Chuck Pin Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40139,L3CH1_Vlv42VlvSetFlowWrn,F4,,,,,L3CH1_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40140,L3CH2_Vlv42VlvSetFlowWrn,F4,,,,,L3CH2_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40141,L3CH3_Vlv42VlvSetFlowWrn,F4,,,,,L3CH3_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40142,R3CH1_Vlv42VlvSetFlowWrn,F4,,,,,R3CH1_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40143,R3CH2_Vlv42VlvSetFlowWrn,F4,,,,,R3CH2_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40144,R3CH3_Vlv42VlvSetFlowWrn,F4,,,,,R3CH3_Vlv42VlvSetFlowWrn,Fixed Noz Rinse CO2W Flow Error Range LL&HH RD± [%]
+40145,L3CH1_Vlv42VlvSetFlowErr,F4,,,,,L3CH1_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40146,L3CH2_Vlv42VlvSetFlowErr,F4,,,,,L3CH2_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40147,L3CH3_Vlv42VlvSetFlowErr,F4,,,,,L3CH3_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40148,R3CH1_Vlv42VlvSetFlowErr,F4,,,,,R3CH1_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40149,R3CH2_Vlv42VlvSetFlowErr,F4,,,,,R3CH2_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40150,R3CH3_Vlv42VlvSetFlowErr,F4,,,,,R3CH3_Vlv42VlvSetFlowErr,Fixed Noz Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40151,L3CH1_Vlv43VlvSetFlowWrn,F4,,,,,L3CH1_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40152,L3CH2_Vlv43VlvSetFlowWrn,F4,,,,,L3CH2_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40153,L3CH3_Vlv43VlvSetFlowWrn,F4,,,,,L3CH3_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40154,R3CH1_Vlv43VlvSetFlowWrn,F4,,,,,R3CH1_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40155,R3CH2_Vlv43VlvSetFlowWrn,F4,,,,,R3CH2_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40156,R3CH3_Vlv43VlvSetFlowWrn,F4,,,,,R3CH3_Vlv43VlvSetFlowWrn,Fixed Cup Rinse CO2W Flow Error Range LL&HH RD± [%]
+40157,L3CH1_Vlv43VlvSetFlowErr,F4,,,,,L3CH1_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40158,L3CH2_Vlv43VlvSetFlowErr,F4,,,,,L3CH2_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40159,L3CH3_Vlv43VlvSetFlowErr,F4,,,,,L3CH3_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40160,R3CH1_Vlv43VlvSetFlowErr,F4,,,,,R3CH1_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40161,R3CH2_Vlv43VlvSetFlowErr,F4,,,,,R3CH2_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40162,R3CH3_Vlv43VlvSetFlowErr,F4,,,,,R3CH3_Vlv43VlvSetFlowErr,Fixed Cup Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40163,L3CH1_Vlv44VlvSetFlowWrn,F4,,,,,L3CH1_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40164,L3CH2_Vlv44VlvSetFlowWrn,F4,,,,,L3CH2_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40165,L3CH3_Vlv44VlvSetFlowWrn,F4,,,,,L3CH3_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40166,R3CH1_Vlv44VlvSetFlowWrn,F4,,,,,R3CH1_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40167,R3CH2_Vlv44VlvSetFlowWrn,F4,,,,,R3CH2_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40168,R3CH3_Vlv44VlvSetFlowWrn,F4,,,,,R3CH3_Vlv44VlvSetFlowWrn,Ch EXH Rinse CO2W Flow Error Range LL&HH RD± [%]
+40169,L3CH1_Vlv44VlvSetFlowErr,F4,,,,,L3CH1_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40170,L3CH2_Vlv44VlvSetFlowErr,F4,,,,,L3CH2_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40171,L3CH3_Vlv44VlvSetFlowErr,F4,,,,,L3CH3_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40172,R3CH1_Vlv44VlvSetFlowErr,F4,,,,,R3CH1_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40173,R3CH2_Vlv44VlvSetFlowErr,F4,,,,,R3CH2_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40174,R3CH3_Vlv44VlvSetFlowErr,F4,,,,,R3CH3_Vlv44VlvSetFlowErr,Ch EXH Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40175,L3CH1_Vlv47VlvSetFlowWrn,F4,,,,,L3CH1_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40176,L3CH2_Vlv47VlvSetFlowWrn,F4,,,,,L3CH2_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40177,L3CH3_Vlv47VlvSetFlowWrn,F4,,,,,L3CH3_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40178,R3CH1_Vlv47VlvSetFlowWrn,F4,,,,,R3CH1_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40179,R3CH2_Vlv47VlvSetFlowWrn,F4,,,,,R3CH2_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40180,R3CH3_Vlv47VlvSetFlowWrn,F4,,,,,R3CH3_Vlv47VlvSetFlowWrn,Drain Tank Rinse CO2W Flow Error Range LL&HH RD± [%]
+40181,L3CH1_Vlv47VlvSetFlowErr,F4,,,,,L3CH1_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40182,L3CH2_Vlv47VlvSetFlowErr,F4,,,,,L3CH2_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40183,L3CH3_Vlv47VlvSetFlowErr,F4,,,,,L3CH3_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40184,R3CH1_Vlv47VlvSetFlowErr,F4,,,,,R3CH1_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40185,R3CH2_Vlv47VlvSetFlowErr,F4,,,,,R3CH2_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40186,R3CH3_Vlv47VlvSetFlowErr,F4,,,,,R3CH3_Vlv47VlvSetFlowErr,Drain Tank Rinse CO2W Flow Error Range LL-E&HH-E RD± [%]
+40187,L3CH1_Vlv50VlvSetFlowWrn,F4,,,,,L3CH1_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40188,L3CH2_Vlv50VlvSetFlowWrn,F4,,,,,L3CH2_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40189,L3CH3_Vlv50VlvSetFlowWrn,F4,,,,,L3CH3_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40190,R3CH1_Vlv50VlvSetFlowWrn,F4,,,,,R3CH1_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40191,R3CH2_Vlv50VlvSetFlowWrn,F4,,,,,R3CH2_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40192,R3CH3_Vlv50VlvSetFlowWrn,F4,,,,,R3CH3_Vlv50VlvSetFlowWrn,MV1 CO2W Flow Error Range LL&HH RD± [%]
+40193,L3CH1_Vlv50VlvSetFlowErr,F4,,,,,L3CH1_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40194,L3CH2_Vlv50VlvSetFlowErr,F4,,,,,L3CH2_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40195,L3CH3_Vlv50VlvSetFlowErr,F4,,,,,L3CH3_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40196,R3CH1_Vlv50VlvSetFlowErr,F4,,,,,R3CH1_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40197,R3CH2_Vlv50VlvSetFlowErr,F4,,,,,R3CH2_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40198,R3CH3_Vlv50VlvSetFlowErr,F4,,,,,R3CH3_Vlv50VlvSetFlowErr,MV1 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40199,L3CH1_Vlv51VlvSetFlowWrn,F4,,,,,L3CH1_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40200,L3CH2_Vlv51VlvSetFlowWrn,F4,,,,,L3CH2_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40201,L3CH3_Vlv51VlvSetFlowWrn,F4,,,,,L3CH3_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40202,R3CH1_Vlv51VlvSetFlowWrn,F4,,,,,R3CH1_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40203,R3CH2_Vlv51VlvSetFlowWrn,F4,,,,,R3CH2_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40204,R3CH3_Vlv51VlvSetFlowWrn,F4,,,,,R3CH3_Vlv51VlvSetFlowWrn,MV1 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40205,L3CH1_Vlv51VlvSetFlowErr,F4,,,,,L3CH1_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40206,L3CH2_Vlv51VlvSetFlowErr,F4,,,,,L3CH2_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40207,L3CH3_Vlv51VlvSetFlowErr,F4,,,,,L3CH3_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40208,R3CH1_Vlv51VlvSetFlowErr,F4,,,,,R3CH1_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40209,R3CH2_Vlv51VlvSetFlowErr,F4,,,,,R3CH2_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40210,R3CH3_Vlv51VlvSetFlowErr,F4,,,,,R3CH3_Vlv51VlvSetFlowErr,MV1 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40211,L3CH1_Vlv52VlvSetFlowWrn,F4,,,,,L3CH1_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40212,L3CH2_Vlv52VlvSetFlowWrn,F4,,,,,L3CH2_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40213,L3CH3_Vlv52VlvSetFlowWrn,F4,,,,,L3CH3_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40214,R3CH1_Vlv52VlvSetFlowWrn,F4,,,,,R3CH1_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40215,R3CH2_Vlv52VlvSetFlowWrn,F4,,,,,R3CH2_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40216,R3CH3_Vlv52VlvSetFlowWrn,F4,,,,,R3CH3_Vlv52VlvSetFlowWrn,MV1 H2O2 Flow Error Range LL&HH RD± [%]
+40217,L3CH1_Vlv52VlvSetFlowErr,F4,,,,,L3CH1_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40218,L3CH2_Vlv52VlvSetFlowErr,F4,,,,,L3CH2_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40219,L3CH3_Vlv52VlvSetFlowErr,F4,,,,,L3CH3_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40220,R3CH1_Vlv52VlvSetFlowErr,F4,,,,,R3CH1_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40221,R3CH2_Vlv52VlvSetFlowErr,F4,,,,,R3CH2_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40222,R3CH3_Vlv52VlvSetFlowErr,F4,,,,,R3CH3_Vlv52VlvSetFlowErr,MV1 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40223,L3CH1_Vlv54VlvSetFlowWrn,F4,,,,,L3CH1_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40224,L3CH2_Vlv54VlvSetFlowWrn,F4,,,,,L3CH2_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40225,L3CH3_Vlv54VlvSetFlowWrn,F4,,,,,L3CH3_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40226,R3CH1_Vlv54VlvSetFlowWrn,F4,,,,,R3CH1_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40227,R3CH2_Vlv54VlvSetFlowWrn,F4,,,,,R3CH2_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40228,R3CH3_Vlv54VlvSetFlowWrn,F4,,,,,R3CH3_Vlv54VlvSetFlowWrn,MV1 NH4OH Flow Error Range LL&HH RD± [%]
+40229,L3CH1_Vlv54VlvSetFlowErr,F4,,,,,L3CH1_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40230,L3CH2_Vlv54VlvSetFlowErr,F4,,,,,L3CH2_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40231,L3CH3_Vlv54VlvSetFlowErr,F4,,,,,L3CH3_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40232,R3CH1_Vlv54VlvSetFlowErr,F4,,,,,R3CH1_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40233,R3CH2_Vlv54VlvSetFlowErr,F4,,,,,R3CH2_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40234,R3CH3_Vlv54VlvSetFlowErr,F4,,,,,R3CH3_Vlv54VlvSetFlowErr,MV1 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40235,L3CH1_Vlv55VlvSetFlowWrn,F4,,,,,L3CH1_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40236,L3CH2_Vlv55VlvSetFlowWrn,F4,,,,,L3CH2_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40237,L3CH3_Vlv55VlvSetFlowWrn,F4,,,,,L3CH3_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40238,R3CH1_Vlv55VlvSetFlowWrn,F4,,,,,R3CH1_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40239,R3CH2_Vlv55VlvSetFlowWrn,F4,,,,,R3CH2_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40240,R3CH3_Vlv55VlvSetFlowWrn,F4,,,,,R3CH3_Vlv55VlvSetFlowWrn,MV1 HCL Flow Error Range LL&HH RD± [%]
+40241,L3CH1_Vlv55VlvSetFlowErr,F4,,,,,L3CH1_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40242,L3CH2_Vlv55VlvSetFlowErr,F4,,,,,L3CH2_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40243,L3CH3_Vlv55VlvSetFlowErr,F4,,,,,L3CH3_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40244,R3CH1_Vlv55VlvSetFlowErr,F4,,,,,R3CH1_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40245,R3CH2_Vlv55VlvSetFlowErr,F4,,,,,R3CH2_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40246,R3CH3_Vlv55VlvSetFlowErr,F4,,,,,R3CH3_Vlv55VlvSetFlowErr,MV1 HCL Flow Error Range LL-E&HH-E RD± [%]
+40247,L3CH1_Vlv60VlvSetFlowWrn,F4,,,,,L3CH1_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40248,L3CH2_Vlv60VlvSetFlowWrn,F4,,,,,L3CH2_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40249,L3CH3_Vlv60VlvSetFlowWrn,F4,,,,,L3CH3_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40250,R3CH1_Vlv60VlvSetFlowWrn,F4,,,,,R3CH1_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40251,R3CH2_Vlv60VlvSetFlowWrn,F4,,,,,R3CH2_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40252,R3CH3_Vlv60VlvSetFlowWrn,F4,,,,,R3CH3_Vlv60VlvSetFlowWrn,MV2 CO2W Flow Error Range LL&HH RD± [%]
+40253,L3CH1_Vlv60VlvSetFlowErr,F4,,,,,L3CH1_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40254,L3CH2_Vlv60VlvSetFlowErr,F4,,,,,L3CH2_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40255,L3CH3_Vlv60VlvSetFlowErr,F4,,,,,L3CH3_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40256,R3CH1_Vlv60VlvSetFlowErr,F4,,,,,R3CH1_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40257,R3CH2_Vlv60VlvSetFlowErr,F4,,,,,R3CH2_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40258,R3CH3_Vlv60VlvSetFlowErr,F4,,,,,R3CH3_Vlv60VlvSetFlowErr,MV2 CO2W Flow Error Range LL-E&HH-E RD± [%]
+40259,L3CH1_Vlv61VlvSetFlowWrn,F4,,,,,L3CH1_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40260,L3CH2_Vlv61VlvSetFlowWrn,F4,,,,,L3CH2_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40261,L3CH3_Vlv61VlvSetFlowWrn,F4,,,,,L3CH3_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40262,R3CH1_Vlv61VlvSetFlowWrn,F4,,,,,R3CH1_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40263,R3CH2_Vlv61VlvSetFlowWrn,F4,,,,,R3CH2_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40264,R3CH3_Vlv61VlvSetFlowWrn,F4,,,,,R3CH3_Vlv61VlvSetFlowWrn,MV2 HDI3 HDI1/2 DI Flow Error Range LL&HH RD± [%]
+40265,L3CH1_Vlv61VlvSetFlowErr,F4,,,,,L3CH1_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40266,L3CH2_Vlv61VlvSetFlowErr,F4,,,,,L3CH2_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40267,L3CH3_Vlv61VlvSetFlowErr,F4,,,,,L3CH3_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40268,R3CH1_Vlv61VlvSetFlowErr,F4,,,,,R3CH1_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40269,R3CH2_Vlv61VlvSetFlowErr,F4,,,,,R3CH2_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40270,R3CH3_Vlv61VlvSetFlowErr,F4,,,,,R3CH3_Vlv61VlvSetFlowErr,MV2 HDI3 HDI1/2 DI Flow Error Range LL-E&HH-E RD± [%]
+40271,L3CH1_Vlv62VlvSetFlowWrn,F4,,,,,L3CH1_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40272,L3CH2_Vlv62VlvSetFlowWrn,F4,,,,,L3CH2_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40273,L3CH3_Vlv62VlvSetFlowWrn,F4,,,,,L3CH3_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40274,R3CH1_Vlv62VlvSetFlowWrn,F4,,,,,R3CH1_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40275,R3CH2_Vlv62VlvSetFlowWrn,F4,,,,,R3CH2_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40276,R3CH3_Vlv62VlvSetFlowWrn,F4,,,,,R3CH3_Vlv62VlvSetFlowWrn,MV2 H2O2 Flow Error Range LL&HH RD± [%]
+40277,L3CH1_Vlv62VlvSetFlowErr,F4,,,,,L3CH1_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40278,L3CH2_Vlv62VlvSetFlowErr,F4,,,,,L3CH2_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40279,L3CH3_Vlv62VlvSetFlowErr,F4,,,,,L3CH3_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40280,R3CH1_Vlv62VlvSetFlowErr,F4,,,,,R3CH1_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40281,R3CH2_Vlv62VlvSetFlowErr,F4,,,,,R3CH2_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40282,R3CH3_Vlv62VlvSetFlowErr,F4,,,,,R3CH3_Vlv62VlvSetFlowErr,MV2 H2O2 Flow Error Range LL-E&HH-E RD± [%]
+40283,L3CH1_Vlv63VlvSetFlowWrn,F4,,,,,L3CH1_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40284,L3CH2_Vlv63VlvSetFlowWrn,F4,,,,,L3CH2_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40285,L3CH3_Vlv63VlvSetFlowWrn,F4,,,,,L3CH3_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40286,R3CH1_Vlv63VlvSetFlowWrn,F4,,,,,R3CH1_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40287,R3CH2_Vlv63VlvSetFlowWrn,F4,,,,,R3CH2_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40288,R3CH3_Vlv63VlvSetFlowWrn,F4,,,,,R3CH3_Vlv63VlvSetFlowWrn,MV2 DHF Flow Error Range LL&HH RD± [%]
+40289,L3CH1_Vlv63VlvSetFlowErr,F4,,,,,L3CH1_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40290,L3CH2_Vlv63VlvSetFlowErr,F4,,,,,L3CH2_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40291,L3CH3_Vlv63VlvSetFlowErr,F4,,,,,L3CH3_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40292,R3CH1_Vlv63VlvSetFlowErr,F4,,,,,R3CH1_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40293,R3CH2_Vlv63VlvSetFlowErr,F4,,,,,R3CH2_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40294,R3CH3_Vlv63VlvSetFlowErr,F4,,,,,R3CH3_Vlv63VlvSetFlowErr,MV2 DHF Flow Error Range LL-E&HH-E RD± [%]
+40295,L3CH1_Vlv64VlvSetFlowWrn,F4,,,,,L3CH1_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40296,L3CH2_Vlv64VlvSetFlowWrn,F4,,,,,L3CH2_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40297,L3CH3_Vlv64VlvSetFlowWrn,F4,,,,,L3CH3_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40298,R3CH1_Vlv64VlvSetFlowWrn,F4,,,,,R3CH1_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40299,R3CH2_Vlv64VlvSetFlowWrn,F4,,,,,R3CH2_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40300,R3CH3_Vlv64VlvSetFlowWrn,F4,,,,,R3CH3_Vlv64VlvSetFlowWrn,MV2 NH4OH Flow Error Range LL&HH RD± [%]
+40301,L3CH1_Vlv64VlvSetFlowErr,F4,,,,,L3CH1_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40302,L3CH2_Vlv64VlvSetFlowErr,F4,,,,,L3CH2_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40303,L3CH3_Vlv64VlvSetFlowErr,F4,,,,,L3CH3_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40304,R3CH1_Vlv64VlvSetFlowErr,F4,,,,,R3CH1_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40305,R3CH2_Vlv64VlvSetFlowErr,F4,,,,,R3CH2_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40306,R3CH3_Vlv64VlvSetFlowErr,F4,,,,,R3CH3_Vlv64VlvSetFlowErr,MV2 NH4OH Flow Error Range LL-E&HH-E RD± [%]
+40307,L3CH1_Vlv96VlvSetFlowWrn,F4,,,,,L3CH1_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40308,L3CH2_Vlv96VlvSetFlowWrn,F4,,,,,L3CH2_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40309,L3CH3_Vlv96VlvSetFlowWrn,F4,,,,,L3CH3_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40310,R3CH1_Vlv96VlvSetFlowWrn,F4,,,,,R3CH1_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40311,R3CH2_Vlv96VlvSetFlowWrn,F4,,,,,R3CH2_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40312,R3CH3_Vlv96VlvSetFlowWrn,F4,,,,,R3CH3_Vlv96VlvSetFlowWrn,Return Value S1 1 H2SO4 Flow Error Range LL&HH RD± [%]
+40313,L3CH1_Vlv96VlvSetFlowErr,F4,,,,,L3CH1_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40314,L3CH2_Vlv96VlvSetFlowErr,F4,,,,,L3CH2_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40315,L3CH3_Vlv96VlvSetFlowErr,F4,,,,,L3CH3_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40316,R3CH1_Vlv96VlvSetFlowErr,F4,,,,,R3CH1_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40317,R3CH2_Vlv96VlvSetFlowErr,F4,,,,,R3CH2_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+40318,R3CH3_Vlv96VlvSetFlowErr,F4,,,,,R3CH3_Vlv96VlvSetFlowErr,Return Value S1 1 H2SO4 Flow Error Range LL-E&HH-E RD± [%]
+41001,FFU.L3CH1_TargetSpeed,U4,,,,,FFU.L3CH1_TargetSpeed,FFU.L3CH1_TargetSpeed
+41002,FFU.L3CH2_TargetSpeed,U4,,,,,FFU.L3CH2_TargetSpeed,FFU.L3CH2_TargetSpeed
+41003,FFU.L3CH3_TargetSpeed,U4,,,,,FFU.L3CH3_TargetSpeed,FFU.L3CH3_TargetSpeed
+41005,FFU.R3CH1_TargetSpeed,U4,,,,,FFU.R3CH1_TargetSpeed,FFU.R3CH1_TargetSpeed
+41006,FFU.R3CH2_TargetSpeed,U4,,,,,FFU.R3CH2_TargetSpeed,FFU.R3CH2_TargetSpeed
+41007,FFU.R3CH3_TargetSpeed,U4,,,,,FFU.R3CH3_TargetSpeed,FFU.R3CH3_TargetSpeed
+50001,CC1_ReadyTMO,U4,,,,,CC1_ReadyTMO
+50002,CC2_ReadyTMO,U4,,,,,CC2_ReadyTMO
+50003,CC3_ReadyTMO,U4,,,,,CC3_ReadyTMO
+50004,CC5_ReadyTMO,U4,,,,,CC5_ReadyTMO
+50005,CC6_ReadyTMO,U4,,,,,CC6_ReadyTMO
+50006,CC9_ReadyTMO,U4,,,,,CC9_ReadyTMO
+50007,CC11_ReadyTMO,U4,,,,,CC11_ReadyTMO
+50008,CC13_ReadyTMO,U4,,,,,CC13_ReadyTMO
+50009,CC14_ReadyTMO,U4,,,,,CC14_ReadyTMO
+50010,CC1.WaferCountUp,U4,,,,,CC1.WaferCountUp
+50011,CC2.WaferCountUp,U4,,,,,CC2.WaferCountUp
+50012,CC3.WaferCountUp,U4,,,,,CC3.WaferCountUp
+50013,CC9.WaferCountUp,U4,,,,,CC9.WaferCountUp
+50014,CC1.LifeTimeUp,U4,,,,,CC1.LifeTimeUp
+50015,CC2.LifeTimeUp,U4,,,,,CC2.LifeTimeUp
+50016,CC3.LifeTimeUp,U4,,,,,CC3.LifeTimeUp
+50017,CC9.LifeTimeUp,U4,,,,,CC9.LifeTimeUp
+50018,CC21_ReadyTMO,U4,,,,,CC21_ReadyTMO
+60001,TR2.MoveTMO,U4,,,,,TR2.MoveTMO
+60002,ABORT_Delay_Time,U4,,,,,ABORT_Delay_Time
+60003,CSR.MoveTMO,U4,,,,,CSR.MoveTMO
+70001,ACC_TRIGGER_MODE_PM9,U4,,,,,ACC_TRIGGER_MODE_PM9
+70002,ACC_RUNTIME_MODE_PM9,U4,,,,,ACC_RUNTIME_MODE_PM9
+70003,ACC_RUNTIME_TARGET_PM9,F4,,,,,ACC_RUNTIME_TARGET_PM9
+70004,ACC_IDLETIME_MODE_PM9,U4,,,,,ACC_IDLETIME_MODE_PM9
+70005,ACC_IDLETIME_TARGET_PM9,F4,,,,,ACC_IDLETIME_TARGET_PM9
+70006,ACC_RUNCOUNT_MODE_PM9,U4,,,,,ACC_RUNCOUNT_MODE_PM9
+70007,ACC_RUNCOUNT_TARGET_PM9,F4,,,,,ACC_RUNCOUNT_TARGET_PM9
+70008,ACC_TRIGGER_MODE_PM10,U4,,,,,ACC_TRIGGER_MODE_PM10
+70009,ACC_RUNTIME_MODE_PM10,U4,,,,,ACC_RUNTIME_MODE_PM10
+70010,ACC_RUNTIME_TARGET_PM10,F4,,,,,ACC_RUNTIME_TARGET_PM10
+70011,ACC_IDLETIME_MODE_PM10,U4,,,,,ACC_IDLETIME_MODE_PM10
+70012,ACC_IDLETIME_TARGET_PM10,F4,,,,,ACC_IDLETIME_TARGET_PM10
+70013,ACC_RUNCOUNT_TARGET_PM10,F4,,,,,ACC_RUNCOUNT_TARGET_PM10
+70014,ACC_RUNCOUNT_MODE_PM10,U4,,,,,ACC_RUNCOUNT_MODE_PM10
+70015,ACC_TRIGGER_MODE_PM11,U4,,,,,ACC_TRIGGER_MODE_PM11
+70016,ACC_RUNTIME_MODE_PM11,U4,,,,,ACC_RUNTIME_MODE_PM11
+70017,ACC_RUNTIME_TARGET_PM11,F4,,,,,ACC_RUNTIME_TARGET_PM11
+70018,ACC_IDLETIME_MODE_PM11,U4,,,,,ACC_IDLETIME_MODE_PM11
+70019,ACC_IDLETIME_TARGET_PM11,F4,,,,,ACC_IDLETIME_TARGET_PM11
+70020,ACC_RUNCOUNT_TARGET_PM11,F4,,,,,ACC_RUNCOUNT_TARGET_PM11
+70021,ACC_RUNCOUNT_MODE_PM11,U4,,,,,ACC_RUNCOUNT_MODE_PM11
+70022,ACC_TRIGGER_MODE_PM13,U4,,,,,ACC_TRIGGER_MODE_PM13
+70023,ACC_RUNTIME_MODE_PM13,U4,,,,,ACC_RUNTIME_MODE_PM13
+70024,ACC_RUNTIME_TARGET_PM13,F4,,,,,ACC_RUNTIME_TARGET_PM13
+70025,ACC_IDLETIME_MODE_PM13,U4,,,,,ACC_IDLETIME_MODE_PM13
+70026,ACC_IDLETIME_TARGET_PM13,F4,,,,,ACC_IDLETIME_TARGET_PM13
+70027,ACC_RUNCOUNT_MODE_PM13,U4,,,,,ACC_RUNCOUNT_MODE_PM13
+70028,ACC_RUNCOUNT_TARGET_PM13,F4,,,,,ACC_RUNCOUNT_TARGET_PM13
+70029,ACC_TRIGGER_MODE_PM14,U4,,,,,ACC_TRIGGER_MODE_PM14
+70030,ACC_RUNTIME_MODE_PM14,U4,,,,,ACC_RUNTIME_MODE_PM14
+70031,ACC_RUNTIME_TARGET_PM14,F4,,,,,ACC_RUNTIME_TARGET_PM14
+70032,ACC_IDLETIME_MODE_PM14,U4,,,,,ACC_IDLETIME_MODE_PM14
+70033,ACC_IDLETIME_TARGET_PM14,F4,,,,,ACC_IDLETIME_TARGET_PM14
+70034,ACC_RUNCOUNT_MODE_PM14,U4,,,,,ACC_RUNCOUNT_MODE_PM14
+70035,ACC_RUNCOUNT_TARGET_PM14,F4,,,,,ACC_RUNCOUNT_TARGET_PM14
+70036,ACC_TRIGGER_MODE_PM15,U4,,,,,ACC_TRIGGER_MODE_PM15
+70037,ACC_RUNTIME_MODE_PM15,U4,,,,,ACC_RUNTIME_MODE_PM15
+70038,ACC_RUNTIME_TARGET_PM15,F4,,,,,ACC_RUNTIME_TARGET_PM15
+70039,ACC_IDLETIME_MODE_PM15,U4,,,,,ACC_IDLETIME_MODE_PM15
+70040,ACC_IDLETIME_TARGET_PM15,F4,,,,,ACC_IDLETIME_TARGET_PM15
+70041,ACC_RUNCOUNT_MODE_PM15,U4,,,,,ACC_RUNCOUNT_MODE_PM15
+70042,ACC_RUNCOUNT_TARGET_PM15,F4,,,,,ACC_RUNCOUNT_TARGET_PM15
+75001,ACC_TRIGGER_MODE_PM17,U4,,,,,ACC_TRIGGER_MODE_PM17
+75002,ACC_RUNTIME_MODE_PM17,U4,,,,,ACC_RUNTIME_MODE_PM17
+75003,ACC_RUNTIME_TARGET_PM17,F4,,,,,ACC_RUNTIME_TARGET_PM17
+75004,ACC_IDLETIME_MODE_PM17,U4,,,,,ACC_IDLETIME_MODE_PM17
+75005,ACC_IDLETIME_TARGET_PM17,F4,,,,,ACC_IDLETIME_TARGET_PM17
+75006,ACC_RUNCOUNT_TARGET_PM17,F4,,,,,ACC_RUNCOUNT_TARGET_PM17
+75007,ACC_RUNCOUNT_MODE_PM17,U4,,,,,ACC_RUNCOUNT_MODE_PM17
+75008,ACC_TRIGGER_MODE_PM18,U4,,,,,ACC_TRIGGER_MODE_PM18
+75009,ACC_RUNTIME_MODE_PM18,U4,,,,,ACC_RUNTIME_MODE_PM18
+75010,ACC_RUNTIME_TARGET_PM18,F4,,,,,ACC_RUNTIME_TARGET_PM18
+75011,ACC_IDLETIME_MODE_PM18,U4,,,,,ACC_IDLETIME_MODE_PM18
+75012,ACC_IDLETIME_TARGET_PM18,F4,,,,,ACC_IDLETIME_TARGET_PM18
+75013,ACC_RUNCOUNT_MODE_PM18,U4,,,,,ACC_RUNCOUNT_MODE_PM18
+75014,ACC_RUNCOUNT_TARGET_PM18,F4,,,,,ACC_RUNCOUNT_TARGET_PM18
+75015,ACC_TRIGGER_MODE_PM19,U4,,,,,ACC_TRIGGER_MODE_PM19
+75016,ACC_RUNTIME_MODE_PM19,U4,,,,,ACC_RUNTIME_MODE_PM19
+75017,ACC_RUNTIME_TARGET_PM19,F4,,,,,ACC_RUNTIME_TARGET_PM19
+75018,ACC_IDLETIME_MODE_PM19,U4,,,,,ACC_IDLETIME_MODE_PM19
+75019,ACC_IDLETIME_TARGET_PM19,F4,,,,,ACC_IDLETIME_TARGET_PM19
+75020,ACC_RUNCOUNT_MODE_PM19,U4,,,,,ACC_RUNCOUNT_MODE_PM19
+75021,ACC_RUNCOUNT_TARGET_PM19,F4,,,,,ACC_RUNCOUNT_TARGET_PM19
+75022,ACC_TRIGGER_MODE_PM21,U4,,,,,ACC_TRIGGER_MODE_PM21
+75023,ACC_RUNTIME_MODE_PM21,U4,,,,,ACC_RUNTIME_MODE_PM21
+75024,ACC_RUNTIME_TARGET_PM21,F4,,,,,ACC_RUNTIME_TARGET_PM21
+75025,ACC_IDLETIME_MODE_PM21,U4,,,,,ACC_IDLETIME_MODE_PM21
+75026,ACC_IDLETIME_TARGET_PM21,F4,,,,,ACC_IDLETIME_TARGET_PM21
+75027,ACC_RUNCOUNT_MODE_PM21,U4,,,,,ACC_RUNCOUNT_MODE_PM21
+75028,ACC_RUNCOUNT_TARGET_PM21,F4,,,,,ACC_RUNCOUNT_TARGET_PM21
+75029,ACC_TRIGGER_MODE_PM22,U4,,,,,ACC_TRIGGER_MODE_PM22
+75030,ACC_RUNTIME_MODE_PM22,U4,,,,,ACC_RUNTIME_MODE_PM22
+75031,ACC_RUNTIME_TARGET_PM22,F4,,,,,ACC_RUNTIME_TARGET_PM22
+75032,ACC_IDLETIME_MODE_PM22,U4,,,,,ACC_IDLETIME_MODE_PM22
+75033,ACC_IDLETIME_TARGET_PM22,F4,,,,,ACC_IDLETIME_TARGET_PM22
+75034,ACC_RUNCOUNT_MODE_PM22,U4,,,,,ACC_RUNCOUNT_MODE_PM22
+75035,ACC_RUNCOUNT_TARGET_PM22,F4,,,,,ACC_RUNCOUNT_TARGET_PM22
+75036,ACC_TRIGGER_MODE_PM23,U4,,,,,ACC_TRIGGER_MODE_PM23
+75037,ACC_RUNTIME_MODE_PM23,U4,,,,,ACC_RUNTIME_MODE_PM23
+75038,ACC_RUNTIME_TARGET_PM23,F4,,,,,ACC_RUNTIME_TARGET_PM23
+75039,ACC_IDLETIME_MODE_PM23,U4,,,,,ACC_IDLETIME_MODE_PM23
+75040,ACC_IDLETIME_TARGET_PM23,F4,,,,,ACC_IDLETIME_TARGET_PM23
+75041,ACC_RUNCOUNT_TARGET_PM23,F4,,,,,ACC_RUNCOUNT_TARGET_PM23
+75042,ACC_RUNCOUNT_MODE_PM23,U4,,,,,ACC_RUNCOUNT_MODE_PM23
+80001,L2_RinseModeControl,U4,,,,,L2_RinseModeControl
+80002,L2_RinseRunIntervalTime,F4,,,,,L2_RinseRunIntervalTime
+80003,L2_RinseRunByWaferNum,U4,,,,,L2_RinseRunByWaferNum
+80004,L2_RinseRunningTime,U4,,,,,L2_RinseRunningTime
+80005,L3_RinseModeControl,U4,,,,,L3_RinseModeControl
+80006,L3_RinseRunIntervalTime,F4,,,,,L3_RinseRunIntervalTime
+80007,L3_RinseRunByWaferNum,U4,,,,,L3_RinseRunByWaferNum
+80008,L3_RinseRunningTime,U4,,,,,L3_RinseRunningTime
+80009,R2_RinseModeControl,U4,,,,,R2_RinseModeControl
+80010,R2_RinseRunIntervalTime,F4,,,,,R2_RinseRunIntervalTime
+80011,R2_RinseRunByWaferNum,U4,,,,,R2_RinseRunByWaferNum
+80012,R2_RinseRunningTime,U4,,,,,R2_RinseRunningTime
+80013,R3_RinseModeControl,U4,,,,,R3_RinseModeControl
+80014,R3_RinseRunIntervalTime,F4,,,,,R3_RinseRunIntervalTime
+80015,R3_RinseRunByWaferNum,U4,,,,,R3_RinseRunByWaferNum
+80016,R3_RinseRunningTime,U4,,,,,R3_RinseRunningTime
+90001,EFEM_Analog03_SetHH,F4,,,,,EFEM_Analog03_SetHH
+90002,EFEM_Analog03_SetHH_E,F4,,,,,EFEM_Analog03_SetHH_E
+90003,EFEM_Analog03_SetH,F4,,,,,EFEM_Analog03_SetH
+90004,EFEM_Analog03_Timedet,F4,,,,,EFEM_Analog03_Timedet
+90005,EFEM_Analog03_SetL,F4,,,,,EFEM_Analog03_SetL
+90006,EFEM_Analog03_Timeint,F4,,,,,EFEM_Analog03_Timeint
+90007,EFEM_Analog03_SetLL,F4,,,,,EFEM_Analog03_SetLL
+90008,EFEM_Analog03_SetLL_E,F4,,,,,EFEM_Analog03_SetLL_E
+90009,EFEM_Analog04_SetHH,F4,,,,,EFEM_Analog04_SetHH
+90010,EFEM_Analog04_SetHH_E,F4,,,,,EFEM_Analog04_SetHH_E
+90011,EFEM_Analog04_SetH,F4,,,,,EFEM_Analog04_SetH
+90012,EFEM_Analog04_Timedet,F4,,,,,EFEM_Analog04_Timedet
+90013,EFEM_Analog04_SetL,F4,,,,,EFEM_Analog04_SetL
+90014,EFEM_Analog04_Timeint,F4,,,,,EFEM_Analog04_Timeint
+90015,EFEM_Analog04_SetLL,F4,,,,,EFEM_Analog04_SetLL
+90016,EFEM_Analog04_SetLL_E,F4,,,,,EFEM_Analog04_SetLL_E
+90017,EFEM_Analog05_SetHH,F4,,,,,EFEM_Analog05_SetHH
+90018,EFEM_Analog05_SetHH_E,F4,,,,,EFEM_Analog05_SetHH_E
+90019,EFEM_Analog05_SetH,F4,,,,,EFEM_Analog05_SetH
+90020,EFEM_Analog05_Timedet,F4,,,,,EFEM_Analog05_Timedet
+90021,EFEM_Analog05_SetL,F4,,,,,EFEM_Analog05_SetL
+90022,EFEM_Analog05_Timeint,F4,,,,,EFEM_Analog05_Timeint
+90023,EFEM_Analog05_SetLL,F4,,,,,EFEM_Analog05_SetLL
+90024,EFEM_Analog05_SetLL_E,F4,,,,,EFEM_Analog05_SetLL_E
+90025,EFEM_Analog06_SetHH,F4,,,,,EFEM_Analog06_SetHH
+90026,EFEM_Analog06_SetHH_E,F4,,,,,EFEM_Analog06_SetHH_E
+90027,EFEM_Analog06_SetH,F4,,,,,EFEM_Analog06_SetH
+90028,EFEM_Analog06_Timedet,F4,,,,,EFEM_Analog06_Timedet
+90029,EFEM_Analog06_SetL,F4,,,,,EFEM_Analog06_SetL
+90030,EFEM_Analog06_Timeint,F4,,,,,EFEM_Analog06_Timeint
+90031,EFEM_Analog06_SetLL,F4,,,,,EFEM_Analog06_SetLL
+90032,EFEM_Analog06_SetLL_E,F4,,,,,EFEM_Analog06_SetLL_E
+90033,EFEM_Analog07_SetHH,F4,,,,,EFEM_Analog07_SetHH
+90034,EFEM_Analog07_SetHH_E,F4,,,,,EFEM_Analog07_SetHH_E
+90035,EFEM_Analog07_SetH,F4,,,,,EFEM_Analog07_SetH
+90036,EFEM_Analog07_Timedet,F4,,,,,EFEM_Analog07_Timedet
+90037,EFEM_Analog07_SetL,F4,,,,,EFEM_Analog07_SetL
+90038,EFEM_Analog07_Timeint,F4,,,,,EFEM_Analog07_Timeint
+90039,EFEM_Analog07_SetLL,F4,,,,,EFEM_Analog07_SetLL
+90040,EFEM_Analog07_SetLL_E,F4,,,,,EFEM_Analog07_SetLL_E
+90041,EFEM_Analog08_SetHH,F4,,,,,EFEM_Analog08_SetHH
+90042,EFEM_Analog08_SetHH_E,F4,,,,,EFEM_Analog08_SetHH_E
+90043,EFEM_Analog08_SetH,F4,,,,,EFEM_Analog08_SetH
+90044,EFEM_Analog08_Timedet,F4,,,,,EFEM_Analog08_Timedet
+90045,EFEM_Analog08_SetL,F4,,,,,EFEM_Analog08_SetL
+90046,EFEM_Analog08_Timeint,F4,,,,,EFEM_Analog08_Timeint
+90047,EFEM_Analog08_SetLL,F4,,,,,EFEM_Analog08_SetLL
+90048,EFEM_Analog08_SetLL_E,F4,,,,,EFEM_Analog08_SetLL_E
+90049,EFEM_Analog09_SetHH,F4,,,,,EFEM_Analog09_SetHH
+90050,EFEM_Analog09_SetHH_E,F4,,,,,EFEM_Analog09_SetHH_E
+90051,EFEM_Analog09_SetH,F4,,,,,EFEM_Analog09_SetH
+90052,EFEM_Analog09_Timedet,F4,,,,,EFEM_Analog09_Timedet
+90053,EFEM_Analog09_SetL,F4,,,,,EFEM_Analog09_SetL
+90054,EFEM_Analog09_Timeint,F4,,,,,EFEM_Analog09_Timeint
+90055,EFEM_Analog09_SetLL,F4,,,,,EFEM_Analog09_SetLL
+90056,EFEM_Analog09_SetLL_E,F4,,,,,EFEM_Analog09_SetLL_E
+90057,EFEM_Analog10_SetHH,F4,,,,,EFEM_Analog10_SetHH
+90058,EFEM_Analog10_SetHH_E,F4,,,,,EFEM_Analog10_SetHH_E
+90059,EFEM_Analog10_SetH,F4,,,,,EFEM_Analog10_SetH
+90060,EFEM_Analog10_Timedet,F4,,,,,EFEM_Analog10_Timedet
+90061,EFEM_Analog10_SetL,F4,,,,,EFEM_Analog10_SetL
+90062,EFEM_Analog10_Timeint,F4,,,,,EFEM_Analog10_Timeint
+90063,EFEM_Analog10_SetLL,F4,,,,,EFEM_Analog10_SetLL
+90064,EFEM_Analog10_SetLL_E,F4,,,,,EFEM_Analog10_SetLL_E
+90065,EFEM_Analog11_SetHH,F4,,,,,EFEM_Analog11_SetHH
+90066,EFEM_Analog11_SetHH_E,F4,,,,,EFEM_Analog11_SetHH_E
+90067,EFEM_Analog11_SetH,F4,,,,,EFEM_Analog11_SetH
+90068,EFEM_Analog11_Timedet,F4,,,,,EFEM_Analog11_Timedet
+90069,EFEM_Analog11_SetL,F4,,,,,EFEM_Analog11_SetL
+90070,EFEM_Analog11_Timeint,F4,,,,,EFEM_Analog11_Timeint
+90071,EFEM_Analog11_SetLL,F4,,,,,EFEM_Analog11_SetLL
+90072,EFEM_Analog11_SetLL_E,F4,,,,,EFEM_Analog11_SetLL_E
+90073,EFEM_Analog12_SetHH,F4,,,,,EFEM_Analog12_SetHH
+90074,EFEM_Analog12_SetHH_E,F4,,,,,EFEM_Analog12_SetHH_E
+90075,EFEM_Analog12_SetH,F4,,,,,EFEM_Analog12_SetH
+90076,EFEM_Analog12_Timedet,F4,,,,,EFEM_Analog12_Timedet
+90077,EFEM_Analog12_SetL,F4,,,,,EFEM_Analog12_SetL
+90078,EFEM_Analog12_Timeint,F4,,,,,EFEM_Analog12_Timeint
+90079,EFEM_Analog12_SetLL,F4,,,,,EFEM_Analog12_SetLL
+90080,EFEM_Analog12_SetLL_E,F4,,,,,EFEM_Analog12_SetLL_E
+90081,EFEM_Analog13_SetHH,F4,,,,,EFEM_Analog13_SetHH
+90082,EFEM_Analog13_SetHH_E,F4,,,,,EFEM_Analog13_SetHH_E
+90083,EFEM_Analog13_SetH,F4,,,,,EFEM_Analog13_SetH
+90084,EFEM_Analog13_Timedet,F4,,,,,EFEM_Analog13_Timedet
+90085,EFEM_Analog13_SetL,F4,,,,,EFEM_Analog13_SetL
+90086,EFEM_Analog13_Timeint,F4,,,,,EFEM_Analog13_Timeint
+90087,EFEM_Analog13_SetLL,F4,,,,,EFEM_Analog13_SetLL
+90088,EFEM_Analog13_SetLL_E,F4,,,,,EFEM_Analog13_SetLL_E
+90089,EFEM_Analog14_SetHH,F4,,,,,EFEM_Analog14_SetHH
+90090,EFEM_Analog14_SetHH_E,F4,,,,,EFEM_Analog14_SetHH_E
+90091,EFEM_Analog14_SetH,F4,,,,,EFEM_Analog14_SetH
+90092,EFEM_Analog14_Timedet,F4,,,,,EFEM_Analog14_Timedet
+90093,EFEM_Analog14_SetL,F4,,,,,EFEM_Analog14_SetL
+90094,EFEM_Analog14_Timeint,F4,,,,,EFEM_Analog14_Timeint
+90095,EFEM_Analog14_SetLL,F4,,,,,EFEM_Analog14_SetLL
+90096,EFEM_Analog14_SetLL_E,F4,,,,,EFEM_Analog14_SetLL_E
+90097,EFEM_Analog15_SetHH,F4,,,,,EFEM_Analog15_SetHH
+90098,EFEM_Analog15_SetHH_E,F4,,,,,EFEM_Analog15_SetHH_E
+90099,EFEM_Analog15_SetH,F4,,,,,EFEM_Analog15_SetH
+90100,EFEM_Analog15_Timedet,F4,,,,,EFEM_Analog15_Timedet
+90101,EFEM_Analog15_SetL,F4,,,,,EFEM_Analog15_SetL
+90102,EFEM_Analog15_Timeint,F4,,,,,EFEM_Analog15_Timeint
+90103,EFEM_Analog15_SetLL,F4,,,,,EFEM_Analog15_SetLL
+90104,EFEM_Analog15_SetLL_E,F4,,,,,EFEM_Analog15_SetLL_E
+90105,EFEM_Analog16_SetHH,F4,,,,,EFEM_Analog16_SetHH
+90106,EFEM_Analog16_SetHH_E,F4,,,,,EFEM_Analog16_SetHH_E
+90107,EFEM_Analog16_SetH,F4,,,,,EFEM_Analog16_SetH
+90108,EFEM_Analog16_Timedet,F4,,,,,EFEM_Analog16_Timedet
+90109,EFEM_Analog16_SetL,F4,,,,,EFEM_Analog16_SetL
+90110,EFEM_Analog16_Timeint,F4,,,,,EFEM_Analog16_Timeint
+90111,EFEM_Analog16_SetLL,F4,,,,,EFEM_Analog16_SetLL
+90112,EFEM_Analog16_SetLL_E,F4,,,,,EFEM_Analog16_SetLL_E
+90113,EFEM_Analog17_SetHH,F4,,,,,EFEM_Analog17_SetHH
+90114,EFEM_Analog17_SetHH_E,F4,,,,,EFEM_Analog17_SetHH_E
+90115,EFEM_Analog17_SetH,F4,,,,,EFEM_Analog17_SetH
+90116,EFEM_Analog17_Timedet,F4,,,,,EFEM_Analog17_Timedet
+90117,EFEM_Analog17_SetL,F4,,,,,EFEM_Analog17_SetL
+90118,EFEM_Analog17_Timeint,F4,,,,,EFEM_Analog17_Timeint
+90119,EFEM_Analog17_SetLL,F4,,,,,EFEM_Analog17_SetLL
+90120,EFEM_Analog17_SetLL_E,F4,,,,,EFEM_Analog17_SetLL_E
+90121,EFEM_Analog18_SetHH,F4,,,,,EFEM_Analog18_SetHH
+90122,EFEM_Analog18_SetHH_E,F4,,,,,EFEM_Analog18_SetHH_E
+90123,EFEM_Analog18_SetH,F4,,,,,EFEM_Analog18_SetH
+90124,EFEM_Analog18_Timedet,F4,,,,,EFEM_Analog18_Timedet
+90125,EFEM_Analog18_SetL,F4,,,,,EFEM_Analog18_SetL
+90126,EFEM_Analog18_Timeint,F4,,,,,EFEM_Analog18_Timeint
+90127,EFEM_Analog18_SetLL,F4,,,,,EFEM_Analog18_SetLL
+90128,EFEM_Analog18_SetLL_E,F4,,,,,EFEM_Analog18_SetLL_E
+90129,EFEM_Analog19_SetHH,F4,,,,,EFEM_Analog19_SetHH
+90130,EFEM_Analog19_SetHH_E,F4,,,,,EFEM_Analog19_SetHH_E
+90131,EFEM_Analog19_SetH,F4,,,,,EFEM_Analog19_SetH
+90132,EFEM_Analog19_Timedet,F4,,,,,EFEM_Analog19_Timedet
+90133,EFEM_Analog19_SetL,F4,,,,,EFEM_Analog19_SetL
+90134,EFEM_Analog19_Timeint,F4,,,,,EFEM_Analog19_Timeint
+90135,EFEM_Analog19_SetLL,F4,,,,,EFEM_Analog19_SetLL
+90136,EFEM_Analog19_SetLL_E,F4,,,,,EFEM_Analog19_SetLL_E
+90137,EFEM_Analog20_SetHH,F4,,,,,EFEM_Analog20_SetHH
+90138,EFEM_Analog20_SetHH_E,F4,,,,,EFEM_Analog20_SetHH_E
+90139,EFEM_Analog20_SetH,F4,,,,,EFEM_Analog20_SetH
+90140,EFEM_Analog20_Timedet,F4,,,,,EFEM_Analog20_Timedet
+90141,EFEM_Analog20_SetL,F4,,,,,EFEM_Analog20_SetL
+90142,EFEM_Analog20_Timeint,F4,,,,,EFEM_Analog20_Timeint
+90143,EFEM_Analog20_SetLL,F4,,,,,EFEM_Analog20_SetLL
+90144,EFEM_Analog20_SetLL_E,F4,,,,,EFEM_Analog20_SetLL_E
+90145,EFEM_Analog21_SetHH,F4,,,,,EFEM_Analog21_SetHH
+90146,EFEM_Analog21_SetHH_E,F4,,,,,EFEM_Analog21_SetHH_E
+90147,EFEM_Analog21_SetH,F4,,,,,EFEM_Analog21_SetH
+90148,EFEM_Analog21_Timedet,F4,,,,,EFEM_Analog21_Timedet
+90149,EFEM_Analog21_SetL,F4,,,,,EFEM_Analog21_SetL
+90150,EFEM_Analog21_Timeint,F4,,,,,EFEM_Analog21_Timeint
+90151,EFEM_Analog21_SetLL,F4,,,,,EFEM_Analog21_SetLL
+90152,EFEM_Analog21_SetLL_E,F4,,,,,EFEM_Analog21_SetLL_E
+90153,EFEM_Analog22_SetHH,F4,,,,,EFEM_Analog22_SetHH
+90154,EFEM_Analog22_SetHH_E,F4,,,,,EFEM_Analog22_SetHH_E
+90155,EFEM_Analog22_SetH,F4,,,,,EFEM_Analog22_SetH
+90156,EFEM_Analog22_Timedet,F4,,,,,EFEM_Analog22_Timedet
+90157,EFEM_Analog22_SetL,F4,,,,,EFEM_Analog22_SetL
+90158,EFEM_Analog22_Timeint,F4,,,,,EFEM_Analog22_Timeint
+90159,EFEM_Analog22_SetLL,F4,,,,,EFEM_Analog22_SetLL
+90160,EFEM_Analog22_SetLL_E,F4,,,,,EFEM_Analog22_SetLL_E
+90161,EFEM_Analog23_SetHH,F4,,,,,EFEM_Analog23_SetHH
+90162,EFEM_Analog23_SetHH_E,F4,,,,,EFEM_Analog23_SetHH_E
+90163,EFEM_Analog23_SetH,F4,,,,,EFEM_Analog23_SetH
+90164,EFEM_Analog23_Timedet,F4,,,,,EFEM_Analog23_Timedet
+90165,EFEM_Analog23_SetL,F4,,,,,EFEM_Analog23_SetL
+90166,EFEM_Analog23_Timeint,F4,,,,,EFEM_Analog23_Timeint
+90167,EFEM_Analog23_SetLL,F4,,,,,EFEM_Analog23_SetLL
+90168,EFEM_Analog23_SetLL_E,F4,,,,,EFEM_Analog23_SetLL_E
+90169,EFEM_Analog24_SetHH,F4,,,,,EFEM_Analog24_SetHH
+90170,EFEM_Analog24_SetHH_E,F4,,,,,EFEM_Analog24_SetHH_E
+90171,EFEM_Analog24_SetH,F4,,,,,EFEM_Analog24_SetH
+90172,EFEM_Analog24_Timedet,F4,,,,,EFEM_Analog24_Timedet
+90173,EFEM_Analog24_SetL,F4,,,,,EFEM_Analog24_SetL
+90174,EFEM_Analog24_Timeint,F4,,,,,EFEM_Analog24_Timeint
+90175,EFEM_Analog24_SetLL,F4,,,,,EFEM_Analog24_SetLL
+90176,EFEM_Analog24_SetLL_E,F4,,,,,EFEM_Analog24_SetLL_E
+90177,EFEM_Analog27_SetHH,F4,,,,,EFEM_Analog27_SetHH
+90178,EFEM_Analog27_SetHH_E,F4,,,,,EFEM_Analog27_SetHH_E
+90179,EFEM_Analog27_SetH,F4,,,,,EFEM_Analog27_SetH
+90180,EFEM_Analog27_Timedet,F4,,,,,EFEM_Analog27_Timedet
+90181,EFEM_Analog27_SetL,F4,,,,,EFEM_Analog27_SetL
+90182,EFEM_Analog27_Timeint,F4,,,,,EFEM_Analog27_Timeint
+90183,EFEM_Analog27_SetLL,F4,,,,,EFEM_Analog27_SetLL
+90184,EFEM_Analog27_SetLL_E,F4,,,,,EFEM_Analog27_SetLL_E
+90185,EFEM_Analog30_SetHH,F4,,,,,EFEM_Analog30_SetHH
+90186,EFEM_Analog30_SetHH_E,F4,,,,,EFEM_Analog30_SetHH_E
+90187,EFEM_Analog30_SetH,F4,,,,,EFEM_Analog30_SetH
+90188,EFEM_Analog30_Timedet,F4,,,,,EFEM_Analog30_Timedet
+90189,EFEM_Analog30_SetL,F4,,,,,EFEM_Analog30_SetL
+90190,EFEM_Analog30_Timeint,F4,,,,,EFEM_Analog30_Timeint
+90191,EFEM_Analog30_SetLL,F4,,,,,EFEM_Analog30_SetLL
+90192,EFEM_Analog30_SetLL_E,F4,,,,,EFEM_Analog30_SetLL_E
+90193,EFEM_Analog33_SetHH,F4,,,,,EFEM_Analog33_SetHH
+90194,EFEM_Analog33_SetHH_E,F4,,,,,EFEM_Analog33_SetHH_E
+90195,EFEM_Analog33_SetH,F4,,,,,EFEM_Analog33_SetH
+90196,EFEM_Analog33_Timedet,F4,,,,,EFEM_Analog33_Timedet
+90197,EFEM_Analog33_SetL,F4,,,,,EFEM_Analog33_SetL
+90198,EFEM_Analog33_Timeint,F4,,,,,EFEM_Analog33_Timeint
+90199,EFEM_Analog33_SetLL,F4,,,,,EFEM_Analog33_SetLL
+90200,EFEM_Analog33_SetLL_E,F4,,,,,EFEM_Analog33_SetLL_E
+90201,EFEM_Analog36_SetHH,F4,,,,,EFEM_Analog36_SetHH
+90202,EFEM_Analog36_SetHH_E,F4,,,,,EFEM_Analog36_SetHH_E
+90203,EFEM_Analog36_SetH,F4,,,,,EFEM_Analog36_SetH
+90204,EFEM_Analog36_Timedet,F4,,,,,EFEM_Analog36_Timedet
+90205,EFEM_Analog36_SetL,F4,,,,,EFEM_Analog36_SetL
+90206,EFEM_Analog36_Timeint,F4,,,,,EFEM_Analog36_Timeint
+90207,EFEM_Analog36_SetLL,F4,,,,,EFEM_Analog36_SetLL
+90208,EFEM_Analog36_SetLL_E,F4,,,,,EFEM_Analog36_SetLL_E
+91001,FFU1.TargetSpeed,U4,,,,,FFU1.TargetSpeed,FFU1.TargetSpeed
+91002,FFU2.TargetSpeed,U4,,,,,FFU2.TargetSpeed,FFU2.TargetSpeed
+91003,FFU3.TargetSpeed,U4,,,,,FFU3.TargetSpeed,FFU3.TargetSpeed
+91004,FFU4.TargetSpeed,U4,,,,,FFU4.TargetSpeed,FFU4.TargetSpeed
+91005,FFU5.TargetSpeed,U4,,,,,FFU5.TargetSpeed,FFU5.TargetSpeed
+91006,FFU6.TargetSpeed,U4,,,,,FFU6.TargetSpeed,FFU6.TargetSpeed
+53688111,Group,A,,,,,CurrentGroupName

@@ -19,6 +19,7 @@ namespace EAPManage.Controllers
             List<LotInfo> lotInfos = DataFactory.Current.Lot.GetList(u => u.LotId == LotId);
             foreach(var lot in lotInfos)
             {
+                FillEquipmentId(lot);
                 var wafers= DataFactory.Current.Wafer.GetList(u => u.lotId == lot.LotId);
                 lot.Slots = wafers.Select(p => p.WaferId).ToList();
                 lot.SlotsStr = string.Join(", ", wafers.Select(p => p.Slot));
@@ -31,9 +32,10 @@ namespace EAPManage.Controllers
 
         [HttpGet]
         [Route("Idle")]
-        public IActionResult GetIdle()
+        public IActionResult GetIdle(string eqpId)
         {
-            List<LotInfo> lotInfos = DataFactory.Current.Lot.GetList(u => string.IsNullOrEmpty(u.BatchId));
+            List<LotInfo> lotInfos = DataFactory.Current.Lot.GetList(u => string.IsNullOrEmpty(u.BatchId)
+                && (string.IsNullOrEmpty(eqpId) || u.EqpId == eqpId));
             Dictionary<string, object> resdata = new Dictionary<string, object>();
             resdata.Add("total", lotInfos.Count);
             resdata.Add("list", lotInfos.Select(p=>p.LotId).ToList());
@@ -46,6 +48,7 @@ namespace EAPManage.Controllers
             List<LotInfo> lotInfos = DataFactory.Current.Lot.GetAll();
               foreach(var lot in lotInfos)
             {
+                FillEquipmentId(lot);
                 var wafers= DataFactory.Current.Wafer.GetList(u => u.lotId == lot.LotId);
                 lot.Slots = wafers.Select(p => p.WaferId).ToList();
                 lot.SlotsStr = string.Join(", ", wafers.Select(p => p.Slot));
@@ -56,25 +59,41 @@ namespace EAPManage.Controllers
             return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = resdata });
         }
 
-        [HttpGet]
-        [Route("GetPPIDList/{LotId}")]
-        public IActionResult GetPPIDList(string LotId)
+        private static void FillEquipmentId(LotInfo lot)
         {
-            List<LotInfo> lotInfos = DataFactory.Current.Lot.GetList(u => u.LotId == LotId);
-            if (string.IsNullOrEmpty(lotInfos[0]?.BatchId))
+            if (lot == null || !string.IsNullOrWhiteSpace(lot.EqpId) || string.IsNullOrWhiteSpace(lot.BatchId))
+                return;
+
+            lot.EqpId = DataFactory.Current.Batch.GetList(u => u.BatchId == lot.BatchId)
+                .FirstOrDefault()?.EqpId;
+        }
+
+        [HttpGet]
+        [Route("GetPPIDList/{LotId?}")]
+        public IActionResult GetPPIDList(string LotId, string eqpId)
+        {
+            if (!string.IsNullOrWhiteSpace(LotId))
             {
-                Dictionary<string, object> resdata = new Dictionary<string, object>();
-                resdata.Add("list", new List<string>());
-                return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = resdata });
+                var lot = DataFactory.Current.Lot.GetList(u => u.LotId == LotId).FirstOrDefault();
+                if (lot != null)
+                {
+                    var lotEqpId = lot.EqpId;
+                    if (string.IsNullOrWhiteSpace(lotEqpId) && !string.IsNullOrWhiteSpace(lot.BatchId))
+                    {
+                        lotEqpId = DataFactory.Current.Batch.GetList(u => u.BatchId == lot.BatchId)
+                            .FirstOrDefault()?.EqpId;
+                    }
+                    if (!string.IsNullOrWhiteSpace(lotEqpId)) eqpId = lotEqpId;
+                }
             }
-            else
+
+            if (string.IsNullOrWhiteSpace(eqpId))
             {
-                var eqpId=  DataFactory.Current.Batch.GetList(u => u.BatchId == lotInfos[0].BatchId)?[0].EqpId;
-                var pplist= EAPClient.Get_PPID_List(eqpId);
-                Dictionary<string, object> resdata = new Dictionary<string, object>();
-                resdata.Add("list", pplist);
-                return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = resdata });
+                return Ok(new { Return = "NG", MESSAGE = "请选择设备", data = new { list = new List<string>() } });
             }
+
+            var pplist = EAPClient.Get_PPID_List(eqpId) ?? new List<string>();
+            return Ok(new { Return = "OK", MESSAGE = "SUCCESS", data = new { list = pplist } });
         }
 
         [HttpPost]
@@ -82,6 +101,8 @@ namespace EAPManage.Controllers
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(lotInfo.EqpId))
+                    return Ok(new { Return = "NG", MESSAGE = "请选择设备" });
                 var res = false;
                 var res1 = 0;
                 if (lotInfo.Slots.Count != lotInfo.QTY)
@@ -125,6 +146,11 @@ namespace EAPManage.Controllers
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(lotInfo.EqpId))
+                {
+                    var existingLot = DataFactory.Current.Lot.GetById(lotInfo.Id);
+                    lotInfo.EqpId = existingLot?.EqpId;
+                }
                 var res = false;
                 var res1 = 0;
                 if (lotInfo.Slots.Count != lotInfo.QTY)

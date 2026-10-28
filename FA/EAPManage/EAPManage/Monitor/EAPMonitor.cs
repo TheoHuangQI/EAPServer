@@ -43,7 +43,8 @@ namespace EAPManage.Monitor
 
                 var xmlBody = XmlSerialization.SerializeOnlyBody(mQBody);
                 var xmlMessage = XmlSerialization.XmlSerializeMessage<MQData>(requestMessage, xmlBody);
-                var replyData =await ActiveMQClient.Current.SendRequestAsync<MQBody>(xmlMessage);
+                var replyData = await ActiveMQClient.Current.SendRequestAsync<MQBody>(
+                    xmlMessage, TimeSpan.FromSeconds(5));
                 if (replyData != null)
                 {
                     if (eqpInfo.EapStatus != (int)EAPState.Run)

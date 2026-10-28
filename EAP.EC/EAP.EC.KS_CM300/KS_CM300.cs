@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -35,9 +36,10 @@ namespace EAP.EC.KS_CM300
 
     public class ChannelContext
     {
-        public bool IsRunning;
+        internal ChannelPollingTask Worker { get; } = new();
+        public bool IsRunning => Worker.IsRunning;
         public Dictionary<int, VIDItem> SvidDict;
-        public Action<Arguments> PollAction;
+        public Func<Arguments, CancellationToken, Task> PollAction;
     }
 
     public class VIDItem
@@ -73,6 +75,13 @@ namespace EAP.EC.KS_CM300
         private readonly Dictionary<uint, EnabledAlarm> _enabledAlarmMap = new Dictionary<uint, EnabledAlarm>();
         private readonly object _connectionStateLock = new object();
         private readonly Dictionary<string, long> _connectionVersions = new Dictionary<string, long>();
+        private readonly Dictionary<string, long> _connectionSessionIds = new Dictionary<string, long>();
+        private readonly Dictionary<string, ConnectionState> _connectionStates = new Dictionary<string, ConnectionState>();
+        private readonly Dictionary<string, long> _controlStateConnectionGenerations = new Dictionary<string, long>();
+        private readonly ConcurrentDictionary<string, SemaphoreSlim> _eventReportInitializationLocks = new();
+        private readonly ControlStateQueryCoordinator _controlStateQueries = new();
+        private readonly object _svidDefinitionLock = new();
+        private readonly ConcurrentDictionary<string, (bool Found, uint ReportId, int DataIndex)> _processCompleteLocationFields = new();
         Dictionary<int, ChannelContext> _channelMap;
         Dictionary<string, Dictionary<int, VIDItem>> _channelSvidDictMap;
 
@@ -118,6 +127,13 @@ namespace EAP.EC.KS_CM300
             { 73, "EV_LOADPORT_TRANSFER_READY_TO_UNLOAD" },
             { 74, "E87TransferBlockedTrans10TransferReady" },
             { 75, "EV_CARRIER_APPROACH_COMPLETE" },
+            { 3500, "EV_LOADPORT_TRANSFER_OOS" },
+            { 3510, "EV_LOADPORT_ALARM_ACCESS_MODE_ON" },
+            { 3511, "EV_LOADPORT_ALARM_ACCESS_MODE_OFF" },
+            { 3512, "EV_LOADPORT_ALARM_OOS_ON" },
+            { 3513, "EV_LOADPORT_ALARM_OOS_OFF" },
+            { 3514, "EV_LOADPORT_RESERVATION_ON" },
+            { 3515, "EV_LOADPORT_RESERVATION_OFF" },
             { 81, "SubstSMTrans01_InitToSource" },
             { 82, "SubstSMTrans02_SourceToWork" },
             { 83, "SubstSMTrans03_WorkToSource" },
@@ -206,40 +222,40 @@ namespace EAP.EC.KS_CM300
             _channelMap = new Dictionary<int, ChannelContext>
             {
                 // ===== L2 =====
-                { 20900, new ChannelContext { SvidDict = L2CH1FlwSvidDict, PollAction = args => PollChannel(args, L2CH1FlwSvidDict) } },
-                { 21000, new ChannelContext { SvidDict = L2CH2FlwSvidDict, PollAction = args => PollChannel(args, L2CH2FlwSvidDict) } },
-                { 21100, new ChannelContext { SvidDict = L2CH3FlwSvidDict, PollAction = args => PollChannel(args, L2CH3FlwSvidDict) } },
-                { 21200, new ChannelContext { SvidDict = L2CH4FlwSvidDict, PollAction = args => PollChannel(args, L2CH4FlwSvidDict) } },
+                { 20900, new ChannelContext { SvidDict = L2CH1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L2CH1FlwSvidDict, token) } },
+                { 21000, new ChannelContext { SvidDict = L2CH2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L2CH2FlwSvidDict, token) } },
+                { 21100, new ChannelContext { SvidDict = L2CH3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L2CH3FlwSvidDict, token) } },
+                { 21200, new ChannelContext { SvidDict = L2CH4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L2CH4FlwSvidDict, token) } },
 
                 // ===== R2 =====
-                { 21300, new ChannelContext { SvidDict = R2CH1FlwSvidDict, PollAction = args => PollChannel(args, R2CH1FlwSvidDict) } },
-                { 21400, new ChannelContext { SvidDict = R2CH2FlwSvidDict, PollAction = args => PollChannel(args, R2CH2FlwSvidDict) } },
-                { 21500, new ChannelContext { SvidDict = R2CH3FlwSvidDict, PollAction = args => PollChannel(args, R2CH3FlwSvidDict) } },
-                { 21600, new ChannelContext { SvidDict = R2CH4FlwSvidDict, PollAction = args => PollChannel(args, R2CH4FlwSvidDict) } },
+                { 21300, new ChannelContext { SvidDict = R2CH1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R2CH1FlwSvidDict, token) } },
+                { 21400, new ChannelContext { SvidDict = R2CH2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R2CH2FlwSvidDict, token) } },
+                { 21500, new ChannelContext { SvidDict = R2CH3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R2CH3FlwSvidDict, token) } },
+                { 21600, new ChannelContext { SvidDict = R2CH4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R2CH4FlwSvidDict, token) } },
 
                 // ===== L3 =====
-                { 21700, new ChannelContext { SvidDict = L3CH1FlwSvidDict, PollAction = args => PollChannel(args, L3CH1FlwSvidDict) } },
-                { 21800, new ChannelContext { SvidDict = L3CH2FlwSvidDict, PollAction = args => PollChannel(args, L3CH2FlwSvidDict) } },
-                { 21900, new ChannelContext { SvidDict = L3CH3FlwSvidDict, PollAction = args => PollChannel(args, L3CH3FlwSvidDict) } },
-                { 22000, new ChannelContext { SvidDict = L3CH4FlwSvidDict, PollAction = args => PollChannel(args, L3CH4FlwSvidDict) } },
+                { 21700, new ChannelContext { SvidDict = L3CH1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3CH1FlwSvidDict, token) } },
+                { 21800, new ChannelContext { SvidDict = L3CH2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3CH2FlwSvidDict, token) } },
+                { 21900, new ChannelContext { SvidDict = L3CH3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3CH3FlwSvidDict, token) } },
+                { 22000, new ChannelContext { SvidDict = L3CH4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3CH4FlwSvidDict, token) } },
 
                 // ===== R3 =====
-                { 22100, new ChannelContext { SvidDict = R3CH1FlwSvidDict, PollAction = args => PollChannel(args, R3CH1FlwSvidDict) } },
-                { 22200, new ChannelContext { SvidDict = R3CH2FlwSvidDict, PollAction = args => PollChannel(args, R3CH2FlwSvidDict) } },
-                { 22300, new ChannelContext { SvidDict = R3CH3FlwSvidDict, PollAction = args => PollChannel(args, R3CH3FlwSvidDict) } },
-                { 22400, new ChannelContext { SvidDict = R3CH4FlwSvidDict, PollAction = args => PollChannel(args, R3CH4FlwSvidDict) } },
+                { 22100, new ChannelContext { SvidDict = R3CH1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3CH1FlwSvidDict, token) } },
+                { 22200, new ChannelContext { SvidDict = R3CH2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3CH2FlwSvidDict, token) } },
+                { 22300, new ChannelContext { SvidDict = R3CH3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3CH3FlwSvidDict, token) } },
+                { 22400, new ChannelContext { SvidDict = R3CH4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3CH4FlwSvidDict, token) } },
 
                 // ===== SDSL3 =====
-                { 23100, new ChannelContext { SvidDict = L3SDS1FlwSvidDict, PollAction = args => PollChannel(args, L3SDS1FlwSvidDict) } },
-                { 23200, new ChannelContext { SvidDict = L3SDS2FlwSvidDict, PollAction = args => PollChannel(args, L3SDS2FlwSvidDict) } },
-                { 23300, new ChannelContext { SvidDict = L3SDS3FlwSvidDict, PollAction = args => PollChannel(args, L3SDS3FlwSvidDict) } },
-                { 23400, new ChannelContext { SvidDict = L3SDS4FlwSvidDict, PollAction = args => PollChannel(args, L3SDS4FlwSvidDict) } },
+                { 23100, new ChannelContext { SvidDict = L3SDS1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3SDS1FlwSvidDict, token) } },
+                { 23200, new ChannelContext { SvidDict = L3SDS2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3SDS2FlwSvidDict, token) } },
+                { 23300, new ChannelContext { SvidDict = L3SDS3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3SDS3FlwSvidDict, token) } },
+                { 23400, new ChannelContext { SvidDict = L3SDS4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, L3SDS4FlwSvidDict, token) } },
 
                 // ===== SDSR3 =====
-                { 23500, new ChannelContext { SvidDict = R3SDS1FlwSvidDict, PollAction = args => PollChannel(args, R3SDS1FlwSvidDict) } },
-                { 23600, new ChannelContext { SvidDict = R3SDS2FlwSvidDict, PollAction = args => PollChannel(args, R3SDS2FlwSvidDict) } },
-                { 23700, new ChannelContext { SvidDict = R3SDS3FlwSvidDict, PollAction = args => PollChannel(args, R3SDS3FlwSvidDict) } },
-                { 23800, new ChannelContext { SvidDict = R3SDS4FlwSvidDict, PollAction = args => PollChannel(args, R3SDS4FlwSvidDict) } },
+                { 23500, new ChannelContext { SvidDict = R3SDS1FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3SDS1FlwSvidDict, token) } },
+                { 23600, new ChannelContext { SvidDict = R3SDS2FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3SDS2FlwSvidDict, token) } },
+                { 23700, new ChannelContext { SvidDict = R3SDS3FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3SDS3FlwSvidDict, token) } },
+                { 23800, new ChannelContext { SvidDict = R3SDS4FlwSvidDict, PollAction = (args, token) => PollChannelAsync(args, R3SDS4FlwSvidDict, token) } },
             };
 
             _channelSvidDictMap = new Dictionary<string, Dictionary<int, VIDItem>>
@@ -276,20 +292,19 @@ namespace EAP.EC.KS_CM300
             };
         }
 
-        public void PollChannel(Arguments args, Dictionary<int, VIDItem> svidDict)
+        public async Task PollChannelAsync(Arguments args, Dictionary<int, VIDItem> svidDict,
+            CancellationToken cancellationToken = default)
         {
-            if (svidDict.Count == 0) return;
+            cancellationToken.ThrowIfCancellationRequested();
+            KeyValuePair<int, VIDItem>[] requested;
+            lock (_svidDefinitionLock)
+                requested = svidDict.ToArray();
+            if (requested.Length == 0) return;
 
             var eqpId = args.Header[CItems.EqpId].ToString();
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
 
-            var item1 = new Item[svidDict.Count];
-            int i = 0;
-            foreach (var svid in svidDict.Keys)
-            {
-                item1[i] = Item.U4((uint)svid);
-                i++;
-            }
+            var item1 = requested.Select(svid => Item.U4((uint)svid.Key)).ToArray();
             try
             {
                 var msg = new SecsMessage(1, 3)
@@ -300,11 +315,25 @@ namespace EAP.EC.KS_CM300
                 SecsMessage reply = null;
                 try
                 {
-                    reply = context.SecsGem.SendAsync(msg).Result;
+                    using var transportCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    try
+                    {
+                        reply = await SecsExecution.SendAsync(args, context.SecsGem, msg, transportCancellation.Token)
+                            .WaitAsync(GetSecsReplyTimeout(eqpId), cancellationToken).ConfigureAwait(false);
+                    }
+                    finally
+                    {
+                        transportCancellation.Cancel();
+                    }
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
                 }
                 catch (Exception ex)
                 {
                     LogSVIDErrorAsync(0, $"Send S1F3 failed: {ex.Message}, {msg.SecsItem}", "SVID_ValueCheck_Result");
+                    throw;
                 }
 
                 if (reply == null || reply.SecsItem == null || reply.SecsItem.Count == 0)
@@ -313,8 +342,13 @@ namespace EAP.EC.KS_CM300
                     return;
                 }
 
+                if (reply.S != 1 || reply.F != 4 || reply.SecsItem.Format != SecsFormat.List
+                    || reply.SecsItem.Count != item1.Length)
+                    throw new InvalidOperationException("Channel S1F3 expected S1F4 with one value per requested SVID.");
+
                 for (int j = 0; j < reply.SecsItem.Items.Length; j++)
                 {
+                    cancellationToken.ThrowIfCancellationRequested();
                     Item resItem = reply.SecsItem.Items[j];
                     var actualFormat = resItem.Format.ToString();
                     string svidTemp = SecsItemUtil.GetItemValue(item1[j])?.ToString();
@@ -325,7 +359,7 @@ namespace EAP.EC.KS_CM300
                             try
                             {
                                 var rawValue = SecsItemUtil.GetItemValue(resItem)?.ToString();
-                                var vID = svidDict[svid];
+                                var vID = requested[j].Value;
                                 var previousValue = vID.value;
 
                                 if (string.Equals(previousValue, rawValue, StringComparison.OrdinalIgnoreCase) && previousValue != "0" && rawValue != "0")
@@ -333,7 +367,7 @@ namespace EAP.EC.KS_CM300
                                     LogSVIDErrorAsync(svid, $"Value match: last={previousValue}, current={rawValue}", "SVID_ValueCheck_Result");
                                 }
 
-                                svidDict[svid].value = rawValue;
+                                vID.value = rawValue;
                                 PublishSvidValue(eqpId, svid, vID.name, actualFormat, rawValue, previousValue);
                             }
                             catch (Exception ex)
@@ -344,9 +378,14 @@ namespace EAP.EC.KS_CM300
                     }
                 }
             }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
                 LogSVIDErrorAsync(-1, ex.Message, "SVID_ValueCheck_Result");
+                throw;
             }
         }
 
@@ -398,7 +437,7 @@ namespace EAP.EC.KS_CM300
         }
 
         #region Handler
-        public void SecsMsgHandler(Arguments args)
+        public async Task SecsMsgHandler(Arguments args)
         {
             try
             {
@@ -414,10 +453,10 @@ namespace EAP.EC.KS_CM300
                             switch (function)
                             {
                                 case 1:
-                                    ReciveMsgS1F1(args);
+                                    await ReciveMsgS1F1(args);
                                     break;
                                 case 13:  // 鏂板 S1F13 澶勭悊
-                                    ReciveMsgS1F13(args);
+                                    await ReciveMsgS1F13(args);
                                     break;
                             }
                             break;
@@ -428,7 +467,7 @@ namespace EAP.EC.KS_CM300
                                     ReciveMsgS5F1(args);
                                     break;
                                 case 7:
-                                    ReciveMsgS5F7(args);
+                                    await ReciveMsgS5F7(args);
                                     break;
                             }
                             break;
@@ -436,7 +475,7 @@ namespace EAP.EC.KS_CM300
                             switch (function)
                             {
                                 case 11:
-                                    ReciveMsgS6F11(args);
+                                    await ReciveMsgS6F11(args);
                                     break;
                             }
                             break;
@@ -445,8 +484,12 @@ namespace EAP.EC.KS_CM300
                     }
                     // MESClient.Send_Message(eqpId, "1", $"Recive SECS  MSG:S{stream}F{function}", LogType.INFO);
                 }
-                args.SetResultOK();
-
+                else
+                {
+                    args.SetResultNG($"No SECS context found for {eqpId}.");
+                }
+                if (string.IsNullOrEmpty(args.GetResultCode()))
+                    args.SetResultOK();
             }
             catch (Exception ex)
             {
@@ -455,27 +498,34 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public async void ConnectionChange(Arguments args)
+        public async Task ConnectionChange(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
             var state = (ConnectionState)args.Header[CItems.ConnectionState];
             var version = args.Header.ContainsKey(CItems.ConnectionVersion)
                 ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
                 : 0;
+            var sessionId = args.Header.ContainsKey(CItems.ConnectionSessionId)
+                ? Convert.ToInt64(args.Header[CItems.ConnectionSessionId])
+                : 0;
 
             lock (_connectionStateLock)
             {
-                if (_connectionVersions.TryGetValue(eqpId, out var latestVersion) && version < latestVersion)
+                if ((_connectionVersions.TryGetValue(eqpId, out var latestVersion) && version < latestVersion)
+                    || (_connectionVersions.TryGetValue(eqpId, out latestVersion) && version == latestVersion
+                        && _connectionSessionIds.TryGetValue(eqpId, out var latestSessionId) && sessionId < latestSessionId))
                 {
                     return;
                 }
                 _connectionVersions[eqpId] = version;
+                _connectionSessionIds[eqpId] = sessionId;
+                _connectionStates[eqpId] = state;
             }
 
             switch (state)
             {
                 case ConnectionState.Disabled:
-                    HsmsDisConnect(args);
+                    await HsmsDisConnectAsync(args);
                     break;
                 case ConnectionState.Connecting:
                     break;
@@ -487,44 +537,99 @@ namespace EAP.EC.KS_CM300
                     await HsmsConnectAsync(args);
                     break;
                 case ConnectionState.Communicating:
+                    // A SECS reply may arrive while S1F13 is still being completed. If
+                    // the handshake timed out during a debugger pause, subsequent valid
+                    // traffic is still authoritative evidence that the session recovered.
+                    if (TrySetConnectionStatus(eqpId, version, sessionId,
+                            ConnectStatus.CONNECTED, out var connectionStatusChanged)
+                        && connectionStatusChanged)
+                    {
+                        logger.Info($"HSMS traffic confirmed equipment connected. EqpId={eqpId} "
+                            + $"Version={version} SessionId={sessionId}");
+                        await MESClient.Send_EqpStateAsync(eqpId, EQPState.Connected, version);
+                    }
                     break;
                 case ConnectionState.Reconnecting:
-                    HsmsDisConnect(args);
+                    await HsmsDisConnectAsync(args);
                     break;
                 case ConnectionState.Retry:
-                    HsmsDisConnect(args);
+                    await HsmsDisConnectAsync(args);
                     break;
                 case ConnectionState.Disconnected:
-                    HsmsDisConnect(args);
+                    await HsmsDisConnectAsync(args);
                     break;
             }
         }
 
-        public async void ReciveMsgS6F11(Arguments args)
+        public async Task ReciveMsgS6F11(Arguments args)
         {
+            var ceid = 0;
+            Item rootItem = null;
+            var eqpId = string.Empty;
             try
             {
-                var eqpId = args.Header[CItems.EqpId].ToString();
-                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                eqpId = args.Header[CItems.EqpId].ToString();
+                rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
+                ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
                 Item replyItem = Item.B((byte)0);
                 SecsMessage replyMsg = new SecsMessage(6, 12);
                 replyMsg.SecsItem = replyItem;
-                await args.SecsData.TryReplyAsync(replyMsg);
+                if (!await SecsExecution.ReplyAsync(args, replyMsg))
+                {
+                    args.SetResultNG("S6F12 acknowledgement was not sent.");
+                    return;
+                }
 
-                var dataid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[0]).ToString());
-                var ceid = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[1]).ToString());
                 SendDashboardSecsEvent(args, ceid);
+                var isLpStateMachineEvent = IsLPStateMachineEvent(ceid);
+                if (isLpStateMachineEvent)
+                {
+                    Receive_S6F11_LPStateMachineEvent(args, ceid);
+                }
 
                 switch (ceid)
                 {
                     case 8:
                     case 9:
                     case 10:
-                        Receive_S6F11_ControlStateChange(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/ControlStateChange", () => Receive_S6F11_ControlStateChange(args));
                         break;
                     case 23:
                     case 24:
                         Receive_S6F11_LPAccessStateChange(args);
+                        break;
+                    case 14:
+                    case 15:
+                    case 25:
+                    case 26:
+                    case 27:
+                    case 31:
+                    case 32:
+                    case 33:
+                    case 34:
+                    case 35:
+                    case 42:
+                    case 43:
+                    case 46:
+                    case 50:
+                    case 51:
+                    case 52:
+                    case 53:
+                    case 54:
+                    case 59:
+                    case 61:
+                    case 75:
+                    case 3500:
+                    case 3510:
+                    case 3511:
+                    case 3512:
+                    case 3513:
+                    case 3514:
+                    case 3515:
+                        break;
+                    case 37:
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/CIDWaitingForHost", () => Receive_S6F11_CIDWaitingForHost(args));
                         break;
                     case 65:
                     case 67:
@@ -534,75 +639,111 @@ namespace EAP.EC.KS_CM300
                     case 72:
                     case 73:
                     case 74:
-                        Receive_S6F11_LPTransferStateChange(args);
-                        break;
-                    case 59:
-                        Receive_S6F11_CIDWaitingForHost(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/LPTransferStateChange", () => Receive_S6F11_LPTransferStateChange(args));
                         break;
                     case 48:
-                        Receive_S6F11_SlotMapWaitingForHost(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/SlotMapWaitingForHost", () => Receive_S6F11_SlotMapWaitingForHost(args));
                         break;
                     case 49:
-                        Receive_S6F11_SlotMapVerifyok(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/SlotMapVerifyOK", () => Receive_S6F11_SlotMapVerifyok(args));
                         break;
                     case 92:
-                        Receive_S6F11_WaferProcessComplete(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/WaferProcessComplete", () => Receive_S6F11_WaferProcessComplete(args));
                         break;
                     case 105:
-                        Receive_S6F11_PRJOB_QUEUED(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/PRJOB_QUEUED", () => Receive_S6F11_PRJOB_QUEUED(args));
                         break;
                     case 127:
-                        Receive_S6F11_ProcessStart(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/ProcessStart", () => Receive_S6F11_ProcessStart(args));
                         break;
                     case 132:
-                        Receive_S6F11_ProcessEnd(args);
+                        await SecsExecution.RunAsync(args, $"CEID={ceid}/ProcessEnd", () => Receive_S6F11_ProcessEnd(args));
                         break;
                     default:
-                        await HandleChannelCEIDAsync(ceid, args);
+                        if (!isLpStateMachineEvent)
+                        {
+                            await SecsExecution.RunAsync(args, $"CEID={ceid}/ChannelEvent", () => HandleChannelCEIDAsync(ceid, args));
+                        }
                         break;
                 }
-                args.SetResultOK();
+                if (string.IsNullOrEmpty(args.GetResultCode()))
+                    args.SetResultOK();
+
             }
             catch (Exception ex)
             {
                 args.SetResultNG(ex.Message);
+            }
+            finally
+            {
+                if (args.GetResultCode() == "NG" && IsAutomaticRunEvent(ceid) && !string.IsNullOrWhiteSpace(eqpId))
+                {
+                    var portId = args.Header != null && args.Header.TryGetValue(CItems.PortId, out var portValue)
+                        ? portValue?.ToString()
+                        : null;
+                    if (string.IsNullOrWhiteSpace(portId) && rootItem != null)
+                        portId = ExtractDashboardPortId(rootItem).ToString();
+                    var failure = args.GetResultMsg();
+                    MESClient.Send_Message(eqpId, string.IsNullOrWhiteSpace(portId) ? "0" : portId,
+                        $"Automatic run failed. CEID={ceid}; TraceId={args.TraceId}; Reason={failure}", LogType.ERROR);
+                }
+            }
+        }
+
+        private static bool IsAutomaticRunEvent(int ceid)
+        {
+            switch (ceid)
+            {
+                case 37:  // Carrier ID waiting for host
+                case 48:  // Slot map waiting for host
+                case 49:  // Slot map verified
+                case 65:
+                case 67:
+                case 69:
+                case 70:
+                case 71:
+                case 72:
+                case 73:
+                case 74:
+                case 92:  // Wafer process complete
+                case 105: // Process job queued
+                case 127: // Process start
+                case 132: // Process end
+                    return true;
+                default:
+                    return false;
             }
         }
 
         private async Task HandleChannelCEIDAsync(int ceid, Arguments args)
         {
             int startCeid = ceid - (ceid % 2);
-            int stopCeid = startCeid + 1;
-
             if (!_channelMap.TryGetValue(startCeid, out var ctx))
                 return;
 
-            LoadSVIDDef();
-            if (ceid == startCeid)
+            if (ceid != startCeid)
             {
-                //LogSVIDErrorAsync(ceid, $"Received Start CEID: {ceid}", "SVID_ValueCheck_Result");
-                if (ctx.IsRunning) return;
+                await ctx.Worker.StopAsync().ConfigureAwait(false);
+                return;
+            }
 
-                ctx.IsRunning = true;
-
-                _ = Task.Run(async () =>
+            if (ctx.IsRunning) return;
+            // Background polling owns its result and trace, separate from the start event.
+            var pollArgs = new Arguments { Header = new Dictionary<string, object>(args.Header) };
+            ctx.Worker.Start(token => SecsExecution.RunAsync(pollArgs, $"Channel={startCeid}/Polling", async () =>
+            {
+                logger.Info($"Channel polling started TraceId={pollArgs.TraceId} ParentTraceId={args.TraceId} "
+                    + $"EqpId={pollArgs.Header[CItems.EqpId]} Channel={startCeid}");
+                token.ThrowIfCancellationRequested();
+                LoadSVIDDef(pollArgs.Header[CItems.EqpId].ToString());
+                while (await IsOnRemoteAsync(pollArgs, $"Channel={startCeid}/REMOTE", token).ConfigureAwait(false))
                 {
-                    while (ctx.IsRunning)
-                    {
-                        var sw = Stopwatch.StartNew();
-                        ctx.PollAction(args);
-
-                        await Task.Delay(1000);
-                        sw.Stop();
-                        Console.WriteLine($"Channel {startCeid} 鎵ц鏃堕棿: {sw.ElapsedMilliseconds} ms");
-                    }
-                });
-            }
-            else if (ceid == stopCeid)
-            {
-                ctx.IsRunning = false;
-                //LogSVIDErrorAsync(ceid, $"Received Stop CEID: {ceid}", "SVID_ValueCheck_Result");
-            }
+                    token.ThrowIfCancellationRequested();
+                    await ctx.PollAction(pollArgs, token).ConfigureAwait(false);
+                    await Task.Delay(1000, token).ConfigureAwait(false);
+                }
+            }), ex => logger.Error($"Channel polling failed TraceId={pollArgs.TraceId} "
+                + $"EqpId={pollArgs.Header[CItems.EqpId]} Channel={startCeid} Exception={ex}"));
         }
 
         private string GetDashboardEventName(int ceid)
@@ -780,7 +921,7 @@ namespace EAP.EC.KS_CM300
 
         #region Receive  Message
 
-        public async void ReciveMsgS1F1(Arguments args)
+        public async Task ReciveMsgS1F1(Arguments args)
         {
             try
             {
@@ -788,7 +929,11 @@ namespace EAP.EC.KS_CM300
                 Item replyItem = Item.L();
                 SecsMessage replyMsg = new SecsMessage(1, 2);
                 replyMsg.SecsItem = replyItem;
-                await args.SecsData.TryReplyAsync(replyMsg);
+                if (!await SecsExecution.ReplyAsync(args, replyMsg))
+                {
+                    args.SetResultNG("S1F2 reply was not sent.");
+                    return;
+                }
                 args.SetResultOK();
             }
             catch (Exception ex)
@@ -797,7 +942,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public async void ReciveMsgS1F13(Arguments args)
+        public async Task ReciveMsgS1F13(Arguments args)
         {
             try
             {
@@ -818,7 +963,11 @@ namespace EAP.EC.KS_CM300
                 replyMsg.SecsItem = replyItem;
 
                 // 鍙戦€佸洖澶?
-                await args.SecsData.TryReplyAsync(replyMsg);
+                if (!await SecsExecution.ReplyAsync(args, replyMsg))
+                {
+                    args.SetResultNG("S1F14 reply was not sent.");
+                    return;
+                }
 
                 args.SetResultOK();
             }
@@ -871,7 +1020,7 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public async void ReciveMsgS5F7(Arguments args)
+        public async Task ReciveMsgS5F7(Arguments args)
         {
             try
             {
@@ -894,7 +1043,11 @@ namespace EAP.EC.KS_CM300
                     SecsItem = Item.L(alarmItems)
                 };
 
-                await args.SecsData.TryReplyAsync(replyMsg);
+                if (!await SecsExecution.ReplyAsync(args, replyMsg))
+                {
+                    args.SetResultNG("S5F8 reply was not sent.");
+                    return;
+                }
                 args.SetResultOK();
             }
             catch (Exception ex)
@@ -940,13 +1093,13 @@ namespace EAP.EC.KS_CM300
         /// 璁惧鎺у埗鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
-        public async void Receive_S6F11_ControlStateChange(Arguments args)
+        public async Task Receive_S6F11_ControlStateChange(Arguments args)
         {
             try
             {
                 var eqpId = args.Header[CItems.EqpId].ToString();
                 var rootItem = args.SecsData.PrimaryMessage.SecsItem;
-                if (rootItem.Items.Length != 3)
+                if (rootItem?.Items == null || rootItem.Items.Length < 2)
                 {
                     return;
                 }
@@ -954,100 +1107,29 @@ namespace EAP.EC.KS_CM300
                 var eqp = AppCache.Current.EqpInfos.FirstOrDefault(a => a.Key == eqpId);
                 if (eqp.Value != null)
                 {
-                    switch (ceid)
+                    if (ceid is 8 or 9 or 10)
                     {
-                        case 8:
-                            {
-                                eqp.Value.ControlStatus = ControlState.EQPOFFLINE;
-                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                if (controlState != 1 && controlState != 2 && controlState != 3)
-                                {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report EQPOFFLINE Event,CEID={ceid},But SVID ControlState={controlState}  ");
-                                }
-                                break;
-                            }
-                        case 9:
-                            {
-                                //await Send_S2F41(args, "go_remote");
-                                //LoadSVIDDef();
-                                //while (true)
-                                //{
-                                //    Stopwatch sw = Stopwatch.StartNew();
-                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
-
-                                //    Thread.Sleep(150);
-                                //    sw.Stop();
-                                //    Console.WriteLine($"鎵ц鏃堕棿锛歿sw.ElapsedMilliseconds} ms \r\n");
-                                //}
-
-                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                eqp.Value.ControlStatus = (ControlState)controlState;
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                if (controlState != 4)
-                                {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report LOCAL Event,CEID={ceid},But SVID ControlState ={controlState}  ");
-                                }
-                                //args.Header[CItems.Check] = false;
-                                //Send_S1F3_Get_AccessMode(args);
-                                ////Send_S1F3_Get_AllDifferenceSVID(args);
-                                //Send_S1F3_Get_TransferStatus(args);
-                                break;
-                            }
-
-                        case 10:
-                            {
-                                //await Send_S2F41(args, "go_local");
-
-                                //LoadSVIDDef();
-
-                                //_ = Task.Run(async () =>
-                                //{
-                                //    await Task.Delay(1000);
-                                //    await Send_S5F7_QueryEnabledAlarms(args);
-                                //});
-
-                                //Send_S1F3_Get_AllDifferenceSVIDValue(args);
-                                //while (true)
-                                //{
-                                //    Stopwatch sw = Stopwatch.StartNew();
-                                //    Send_S1F3_Get_AllDifferenceSVIDValue(args);
-                                //    await Task.Delay(990);
-                                //    sw.Stop();
-                                //    Console.WriteLine($"鎵ц鏃堕棿锛歿sw.ElapsedMilliseconds} ms \r\n");
-                                //}
-
-                                var controlState = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][1]).ToString());
-                                eqp.Value.ControlStatus = (ControlState)controlState;
-                                MESClient.Send_ControlState(eqpId, (ControlState)controlState);
-                                if (controlState != 5)
-                                {
-                                    MESClient.Send_Exception(eqpId, "0", $"EQP Report REMOTE Event,CEID={ceid},But SVID ControlState ={controlState}  ");
-                                }
-                                //else if (!eqp.Value.IsInitial)
-                                //{
-                                //    await HsmsInitial(args);
-                                //    if (args.GetResultCode() == "OK")
-                                //    {
-                                //        eqp.Value.IsInitial = true;
-                                //    }
-                                //}
-                                //args.Header[CItems.Check] = false;
-                                //Send_S1F3_Get_TransferStatus(args);
-                                //var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                                //if (context.transactions != null)
-                                //{
-                                //    foreach (var trans in context.transactions)
-                                //    {
-                                //        if (trans.Direction == "H->E" || trans.Direction == "E<-H")
-                                //            await context.SecsGem.SendAsync(trans.message);
-                                //    }
-                                //}
-                                break;
-                            }
-                        default:
-                            break;
+                        var eventControlState = ceid switch
+                        {
+                            8 => ControlState.EQPOFFLINE,
+                            9 => ControlState.LOCAL,
+                            10 => ControlState.REMOTE,
+                            _ => ControlState.UNKNOWN
+                        };
+                        InvalidateControlStateQueries(eqpId);
+                        eqp.Value.ControlStatus = eventControlState;
+                        PublishControlState(eqpId, eventControlState, force: true);
+                        if (eventControlState == ControlState.REMOTE)
+                        {
+                            await EnsureEventReportsInitializedAsync(args, eqp.Value);
+                        }
+                        else
+                        {
+                            StopChannelPolling();
+                        }
+                        return;
                     }
+
                 }
             }
             catch (Exception ex)
@@ -1060,7 +1142,7 @@ namespace EAP.EC.KS_CM300
         /// LP Access 鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
-        public async void Receive_S6F11_LPAccessStateChange(Arguments args)
+        public void Receive_S6F11_LPAccessStateChange(Arguments args)
         {
             try
             {
@@ -1084,7 +1166,7 @@ namespace EAP.EC.KS_CM300
                                 var accessMode = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
                                 if (accessMode != 1)
                                 {
-                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report Auto Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
+                                    MESClient.Send_Message(eqpId, portId.ToString(), $"EQP Report Auto Event,CEID={ceid},But SVID Aceess ={accessMode}", LogType.ERROR);
                                 }
                                 break;
                             }
@@ -1095,7 +1177,7 @@ namespace EAP.EC.KS_CM300
                                 var accessMode = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
                                 if (accessMode != 0)
                                 {
-                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report Manual Event,CEID={ceid},But SVID Aceess ={accessMode}  ");
+                                    MESClient.Send_Message(eqpId, portId.ToString(), $"EQP Report Manual Event,CEID={ceid},But SVID Aceess ={accessMode}", LogType.ERROR);
                                 }
                                 break;
                             }
@@ -1111,10 +1193,195 @@ namespace EAP.EC.KS_CM300
         }
 
         /// <summary>
+        /// Handles E87 carrier/load-port state-machine events that do not start
+        /// an automatic host transaction.  The event report is still reflected
+        /// in the local port cache so later transfer events use current state.
+        /// </summary>
+        private void Receive_S6F11_LPStateMachineEvent(Arguments args, int ceid)
+        {
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var rootItem = args.SecsData.PrimaryMessage.SecsItem;
+                var portId = ExtractDashboardPortId(rootItem);
+                if (portId <= 0 || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo) ||
+                    eqpInfo?.PortInfo == null || !eqpInfo.PortInfo.TryGetValue(portId, out var port))
+                {
+                    return;
+                }
+
+                var carrierId = ExtractDashboardCarrierId(rootItem);
+                switch (ceid)
+                {
+                    case 14: // MaterialReceivedEvent
+                        if (!string.IsNullOrWhiteSpace(carrierId))
+                        {
+                            port.CarrierId = carrierId;
+                        }
+                        break;
+                    case 15: // MaterialRemovedEvent
+                        port.CarrierId = string.Empty;
+                        port.AssociationState = false;
+                        port.ClampState = false;
+                        port.CarrierApproachComplete = false;
+                        port.CarrierTagReleased = false;
+                        break;
+                    case 26: // EV_CARRIER_ID_READ_FAILED
+                    case 43: // EV_CARRIER_ID_VERIFY_FAILED
+                        port.CarrierIdState = CarrierIdState.Failed;
+                        break;
+                    case 27: // EV_CARRIER_LOCATION_CHANGED
+                        port.CarrierLocationId = GetSecsTextByPath(rootItem, 2, 0, 1, 1);
+                        if (!string.IsNullOrWhiteSpace(carrierId))
+                        {
+                            port.CarrierId = carrierId;
+                        }
+                        break;
+                    case 75: // EV_CARRIER_APPROACH_COMPLETE
+                        port.CarrierApproachComplete = true;
+                        break;
+                    case 31:
+                        port.ClampState = true;
+                        break;
+                    case 32:
+                        port.ClampState = false;
+                        break;
+                    case 33: // EV_CARRIER_TAG_RELEASED
+                        port.CarrierTagReleased = true;
+                        break;
+                    case 34: // EV_CARRIER_DOOR_OPENED
+                        port.CarrierDoorOpen = true;
+                        port.CarrierTagReleased = false;
+                        break;
+                    case 25: // EV_CARRIER_DOOR_CLOSED
+                        port.CarrierDoorOpen = false;
+                        break;
+                    case 35: // E87NoStateTrans01Carrier
+                    case 46: // NoStateTransSotMapNotRead
+                        port.SlotMapState = CarrierSlotMapState.NotRead;
+                        break;
+                    case 37: // EV_CARRIER_ID_WAIT_FOR_HOST
+                        port.CarrierIdState = CarrierIdState.WaitingForHost;
+                        if (!string.IsNullOrWhiteSpace(carrierId))
+                        {
+                            port.CarrierId = carrierId;
+                        }
+                        break;
+                    case 42: // EV_CARRIER_ID_VERIFY_OK
+                        port.CarrierIdState = CarrierIdState.Verified;
+                        break;
+                    case 48: // EV_CARRIER_SLOTMAP_WAIT_FOR_HOST
+                        port.SlotMapState = CarrierSlotMapState.WaitingForHost;
+                        break;
+                    case 49: // EV_CARRIER_SLOTMAP_VERIFY_OK
+                        port.SlotMapState = CarrierSlotMapState.Verified;
+                        break;
+                    case 50: // EV_CARRIER_SLOTMAP_VERIFY_FAILED
+                        port.SlotMapState = CarrierSlotMapState.Failed;
+                        break;
+                    case 51: // E87NoStateTrans17NotAccessed
+                        port.CarrierAccessState = CarrierAccessState.NotAccessed;
+                        break;
+                    case 52: // EV_CARRIER_IN_ACCESS
+                        port.CarrierAccessState = CarrierAccessState.InAccess;
+                        break;
+                    case 53: // EV_CARRIER_COMPLETE
+                        port.CarrierAccessState = CarrierAccessState.Complete;
+                        break;
+                    case 54: // EV_CARRIER_STOPPED
+                        port.CarrierAccessState = CarrierAccessState.Stopped;
+                        break;
+                    case 59: // AssocSMGoAssoc
+                        port.AssociationState = true;
+                        if (!string.IsNullOrWhiteSpace(carrierId))
+                        {
+                            port.CarrierId = carrierId;
+                        }
+                        break;
+                    case 61: // AssocToNotAssoc
+                        port.AssociationState = false;
+                        port.CarrierId = string.Empty;
+                        break;
+                    case 3500: // EV_LOADPORT_TRANSFER_OOS (extended event ID)
+                        port.TransferStatus = TransferStatus.OutOfService;
+                        break;
+                    case 3510:
+                        port.AccessModeAlarm = true;
+                        break;
+                    case 3511:
+                        port.AccessModeAlarm = false;
+                        break;
+                    case 3512:
+                        port.OutOfServiceAlarm = true;
+                        break;
+                    case 3513:
+                        port.OutOfServiceAlarm = false;
+                        break;
+                    case 3514:
+                        port.ReservationState = true;
+                        break;
+                    case 3515:
+                        port.ReservationState = false;
+                        break;
+                }
+
+                if (ceid == 3500)
+                {
+                    MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), port.TransferStatus);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Failed to apply LP CEID {ceid} state.", ex);
+            }
+        }
+
+        private static bool IsLPStateMachineEvent(int ceid)
+        {
+            switch (ceid)
+            {
+                case 14:
+                case 15:
+                case 25:
+                case 26:
+                case 27:
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                case 37:
+                case 42:
+                case 43:
+                case 46:
+                case 48:
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                case 54:
+                case 59:
+                case 61:
+                case 75:
+                case 3500:
+                case 3510:
+                case 3511:
+                case 3512:
+                case 3513:
+                case 3514:
+                case 3515:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        /// <summary>
         /// LP Transfer 鐘舵€丆heck
         /// </summary>
         /// <param name="args"></param>
-        public async void Receive_S6F11_LPTransferStateChange(Arguments args)
+        public async Task Receive_S6F11_LPTransferStateChange(Arguments args)
         {
             try
             {
@@ -1159,17 +1426,22 @@ namespace EAP.EC.KS_CM300
                             {
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.TransferBlocked;
                                 MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.TransferBlocked);
-                                var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][1][1][0]).ToString());
-                                if (transferStatus != 1)
-                                {
-                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report TransferBlocked Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
-                                }
+                                //var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
+                                //if (transferStatus != 1)
+                                //{
+                                //    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report TransferBlocked Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                //}
                                 break;
                             }
                         case 72:
                             {
                                 eqp.Value.PortInfo[portId].TransferStatus = TransferStatus.ReadyToLoad;
+                                MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.ReadyToLoad);
                                 var carrierId = eqp.Value.PortInfo[portId].CarrierId;
+                                if (eqp.Value.PortInfo[portId].JobMode == 1)
+                                {
+                                    CleanupTransferStateForPort(eqpId, portId, carrierId);
+                                }
                                 var batchs = AppCache.Current.MesBatchInfos.Where(a => a.Value.CARRIERID == carrierId);
                                 if (batchs != null && batchs.Count() > 0)
                                 {
@@ -1183,16 +1455,22 @@ namespace EAP.EC.KS_CM300
                                     }
                                 }
                                 eqp.Value.PortInfo[portId].CarrierId = string.Empty;
-                                MESClient.Send_LPTransferStatus(eqpId, portId.ToString(), TransferStatus.ReadyToLoad);
                                 var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 2)
                                 {
-                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                    MESClient.Send_Message(eqpId, portId.ToString(), $"EQP Report ReadyToLoad Event,CEID={ceid},But SVID Aceess ={transferStatus}", LogType.ERROR);
                                 }
 
-                                if (!IsLoopProcessEnabled(eqpId, portId))
+                                // Loading a carrier is part of the automatic run
+                                // sequence.  Keep state and MES reports current in
+                                // LOCAL, but do not issue the automatic command.
+                                if (!await IsOnRemoteAsync(eqpId))
                                 {
-                                    MESClient.Send_Message(eqpId, portId.ToString(), "Loop process stopped, skip TEST_ToLoad.", LogType.INFO);
+                                    break;
+                                }
+
+                                if (!EnsureLoopProcessEnabled(eqpId, portId, "TEST_ToLoad", args))
+                                {
                                     break;
                                 }
 
@@ -1201,8 +1479,7 @@ namespace EAP.EC.KS_CM300
                                 SecsMessage msg = new SecsMessage(2, 41);
                                 Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
                                 msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToLoad"), paramItem });
-                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                                var reply = context.SecsGem.SendAsync(msg);
+                                await SendAutomaticCommandAsync(eqpId, portId, msg, "TEST_ToLoad", args);
                                 break;
                             }
                         case 73:
@@ -1212,13 +1489,31 @@ namespace EAP.EC.KS_CM300
                                 var transferStatus = int.Parse(SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][3]).ToString());
                                 if (transferStatus != 3)
                                 {
-                                    MESClient.Send_Exception(eqpId, portId.ToString(), $"EQP Report ReadyToUnload Event,CEID={ceid},But SVID Aceess ={transferStatus}  ");
+                                    MESClient.Send_Message(eqpId, portId.ToString(), $"EQP Report ReadyToUnload Event,CEID={ceid},But SVID Aceess ={transferStatus}", LogType.ERROR);
                                 }
+                                if (!await IsOnRemoteAsync(eqpId))
+                                {
+                                    break;
+                                }
+
+                                if (!EnsureLoopProcessEnabled(eqpId, portId, "TEST_ToUnload", args))
+                                {
+                                    break;
+                                }
+
                                 SecsMessage msg = new SecsMessage(2, 41);
                                 Item paramItem = Item.L(new Item[] { Item.A("port"), Item.U1((byte)portId) });
                                 msg.SecsItem = Item.L(new Item[] { Item.A("TEST_ToUnload"), paramItem });
-                                var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                                var reply = context.SecsGem.SendAsync(msg);
+                                var unloadReady = true;
+                                if (eqp.Value.PortInfo[portId].JobMode == 1
+                                    && eqp.Value.PortInfo[portId].TransferRole == 2)
+                                {
+                                    unloadReady = await Send_TOSwitchSimWafer(args, portId, 1);
+                                }
+                                if (unloadReady)
+                                {
+                                    await SendAutomaticCommandAsync(eqpId, portId, msg, "TEST_ToUnload", args);
+                                }
                                 break;
                             }
                     }
@@ -1233,8 +1528,13 @@ namespace EAP.EC.KS_CM300
         }
 
 
-        public async void Receive_S6F11_CIDWaitingForHost(Arguments args)
+        public async Task Receive_S6F11_CIDWaitingForHost(Arguments args)
         {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
@@ -1260,60 +1560,102 @@ namespace EAP.EC.KS_CM300
                     portId = 4;
                     break;
             }
-            AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
+            if (portId <= 0 || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var equipment)
+                || !equipment.PortInfo.TryGetValue(portId, out var portState))
+            {
+                args.SetResultNG($"Unknown load port reported by CEID=37. EqpId={eqpId}, Port={portstr}.");
+                return;
+            }
+
+            portState.CarrierId = carrierId;
             MESClient.Send_MaterialRecived(eqpId, portId, carrierId);
 
             // 妫€鏌ュ惊鐜窇鐗囩姸鎬侊紙鎸塋P锛夛紝濡傛灉宸插仠姝㈡垨鏆傚仠锛屽垯閲婃斁Carrier
             if (!IsLoopProcessEnabled(eqpId, portId))
             {
-                var loopState = 0;
-                if (AppCache.Current.LoopProcessState.ContainsKey(eqpId) && AppCache.Current.LoopProcessState[eqpId].ContainsKey(portId))
-                {
-                    loopState = AppCache.Current.LoopProcessState[eqpId][portId];
-                }
-                var stateText = loopState == 2 ? "PAUSED" : "STOPPED";
+                var stateText = TryGetLoopProcessState(eqpId, portId, out var loopState)
+                    ? loopState == 2 ? "PAUSED" : "STOPPED"
+                    : "STOPPED or not synchronized";
                 MESClient.Send_Message(eqpId, portId.ToString(), $"Loop process {stateText}, rejecting new lot. eqpId={eqpId}, carrierId={carrierId}", LogType.WARNING);
                 args.Header[CItems.PortId] = portId;
                 args.Header[CItems.CarrierId] = carrierId;
-                Send_S3F17_CarrierRelease(args);
+                await Send_S3F17_CarrierRelease(args);
                 args.SetResultNG();
                 return;
             }
 
-            var mesbatchInfo = await MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId, portId.ToString());
+            var mesbatchInfo = await SecsExecution.RunAsync(args, "MES_LotInfoDownloadRequest",
+                () => MESClient.MES_LotInfoDownloadRequest(eqpId, carrierId, portId.ToString()));
             if (mesbatchInfo == null)
             {
                 MESClient.Send_Message(eqpId, portId.ToString(), $"MES_LotInfoDownloadRequest returned null, releasing carrier. eqpId={eqpId}, carrierId={carrierId}", LogType.ERROR);
                 args.Header[CItems.PortId] = portId;
                 args.Header[CItems.CarrierId] = carrierId;
-                Send_S3F17_CarrierRelease(args);
+                await Send_S3F17_CarrierRelease(args);
                 args.SetResultNG();
                 return;
             }
-            if (!AppCache.Current.MesBatchInfos.ContainsKey(mesbatchInfo.BATCHCHID))
+            var portInfo = AppCache.Current.EqpInfos[eqpId].PortInfo[portId];
+            var isTransfer = portInfo.JobMode == 1;
+            var isTransferSource = isTransfer && portInfo.TransferRole == 1;
+            if (isTransfer)
+            {
+                // Create the pair state as soon as either carrier arrives. This
+                // lets a PJ queued event find its transfer state even when the
+                // source/destination LPs arrive in either order.
+                GetOrUpdateTransferState(eqpId, portId, carrierId, mesbatchInfo);
+
+                // Transfer pairs may receive the same BATCHCHID from MES. Keep a
+                // carrier-scoped copy so source and destination cannot overwrite
+                // each other, while retaining the source copy in the legacy cache
+                // for PJ/CJ creation.
+                AppCache.Current.TransferBatchInfos[GetTransferCarrierKey(eqpId, carrierId)] = mesbatchInfo;
+                if (isTransferSource)
+                {
+                    if (AppCache.Current.MesBatchInfos.TryGetValue(mesbatchInfo.BATCHCHID, out var cachedBatch))
+                    {
+                        cachedBatch.PORTID = mesbatchInfo.PORTID;
+                    }
+                    else
+                    {
+                        AppCache.Current.MesBatchInfos[mesbatchInfo.BATCHCHID] = mesbatchInfo;
+                    }
+                }
+            }
+            else if (AppCache.Current.MesBatchInfos.TryGetValue(mesbatchInfo.BATCHCHID, out var cachedBatch))
+            {
+                // Refresh only the routing field; the existing lot state may already be in use.
+                cachedBatch.PORTID = mesbatchInfo.PORTID;
+            }
+            else
             {
                 AppCache.Current.MesBatchInfos.Add(mesbatchInfo.BATCHCHID, mesbatchInfo);
             }
-            if (!AppCache.Current.CJQuendList.ContainsKey(mesbatchInfo.BATCHCHID))
+            if (!isTransfer || isTransferSource)
             {
-                AppCache.Current.CJQuendList.Add(mesbatchInfo.BATCHCHID, new Dictionary<string, int>());
-
-                foreach (var lot in mesbatchInfo.LOTLIST)
+                if (!AppCache.Current.CJQuendList.ContainsKey(mesbatchInfo.BATCHCHID))
                 {
-                    AppCache.Current.CJQuendList[mesbatchInfo.BATCHCHID].Add(lot.LOT_ID, 0);
+                    AppCache.Current.CJQuendList.Add(mesbatchInfo.BATCHCHID, new Dictionary<string, int>());
+
+                    foreach (var lot in mesbatchInfo.LOTLIST)
+                    {
+                        AppCache.Current.CJQuendList[mesbatchInfo.BATCHCHID].Add(lot.LOT_ID, 0);
+                    }
                 }
             }
             args.Header[CItems.PortId] = portId;
             args.Header[CItems.CarrierId] = carrierId;
             AppCache.Current.EqpInfos[eqpId].PortInfo[portId].CarrierId = carrierId;
 
-            // 鍐嶆妫€鏌ユ殏鍋滅姸鎬侊紙闃叉鍦ㄤ笅杞芥湡闂寸姸鎬佸彂鐢熸敼鍙橈級
-            if (AppCache.Current.LoopProcessState.ContainsKey(eqpId) &&
-                AppCache.Current.LoopProcessState[eqpId].ContainsKey(portId) &&
-                AppCache.Current.LoopProcessState[eqpId][portId] == 2)
+            // Check again after the MES download because the LP may have been
+            // stopped while the request was in flight.
+            if (!IsLoopProcessEnabled(eqpId, portId))
             {
-                MESClient.Send_Message(eqpId, portId.ToString(), $"Loop process PAUSED after download, releasing carrier.", LogType.WARNING);
-                Send_S3F17_CarrierRelease(args);
+                var stateText = TryGetLoopProcessState(eqpId, portId, out var currentState)
+                    ? currentState == 2 ? "PAUSED" : "STOPPED"
+                    : "STOPPED or not synchronized";
+                MESClient.Send_Message(eqpId, portId.ToString(), $"Loop process {stateText} after download, releasing carrier.", LogType.WARNING);
+                await Send_S3F17_CarrierRelease(args);
                 args.SetResultNG();
                 return;
             }
@@ -1321,12 +1663,19 @@ namespace EAP.EC.KS_CM300
             await Send_S3F17_FirstProcessWithCarrier(args);
             if (args.GetResultCode() != "OK")
             {
-                Send_S3F17_CarrierRelease(args);
+                var failureMessage = args.GetResultMsg();
+                await Send_S3F17_CarrierRelease(args);
+                args.SetResultNG(failureMessage);
             }
         }
 
-        public async void Receive_S6F11_SlotMapWaitingForHost(Arguments args)
+        public async Task Receive_S6F11_SlotMapWaitingForHost(Arguments args)
         {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
@@ -1354,6 +1703,13 @@ namespace EAP.EC.KS_CM300
             }
             args.Header[CItems.CarrierId] = carrierId;
             args.Header[CItems.PortId] = portId;
+
+            if (!EnsureLoopProcessEnabled(eqpId, portId, "Slot map processing", args))
+            {
+                await Send_S3F17_CancelCarrier(args);
+                return;
+            }
+
             var slotMapStr = "";
             List<int> slotMap = new List<int>();
             if (rootItem.Items[2][0][1][3].Items.Length == 25)
@@ -1366,8 +1722,13 @@ namespace EAP.EC.KS_CM300
                     slotMapStr += ";";
                 }
             }
-            MESClient.Send_MapResult(eqpId, portId.ToString(), slotMapStr);
-            var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
+            await MESClient.Send_MapResultAsync(eqpId, portId.ToString(), slotMapStr);
+            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var mapEqpInfo)
+                && mapEqpInfo.PortInfo.TryGetValue(portId, out var mapPortInfo))
+            {
+                mapPortInfo.CurrentSlotMap = slotMap.ToList();
+            }
+            var batchInfo = GetBatchInfoForCarrier(eqpId, carrierId);
             if (batchInfo != null)
             {
                 foreach (var lot in batchInfo.LOTLIST)
@@ -1385,14 +1746,25 @@ namespace EAP.EC.KS_CM300
             ExitLoop:
                 if (args.GetResultCode() == "NG")
                 {
-                    Send_S3F17_CancelCarrier(args);
+                    var failureMessage = args.GetResultMsg();
+                    await Send_S3F17_CancelCarrier(args);
+                    args.SetResultNG(failureMessage);
+                    return;
+                }
+                if (!EnsureLoopProcessEnabled(eqpId, portId, "Slot map processing", args))
+                {
+                    await Send_S3F17_CancelCarrier(args);
                     return;
                 }
                 args.Header[CItems.SlotMap] = slotMap;
                 args.Header[CItems.BatchInfo] = batchInfo;
                 await Send_S3F17_SecondProcessWithCarrier(args);
                 if (args.GetResultCode() != "OK")
-                    Send_S3F17_CancelCarrier(args);
+                {
+                    var failureMessage = args.GetResultMsg();
+                    await Send_S3F17_CancelCarrier(args);
+                    args.SetResultNG(failureMessage);
+                }
             }
             else
             {
@@ -1407,6 +1779,11 @@ namespace EAP.EC.KS_CM300
                     lotInfo.WAFERS.Add(new Wafer() { WAFER_ID = "EAPTEST" + carrierId + m.ToString(), SLOT = m });
                 }
                 batchInfo.LOTLIST.Add(lotInfo);
+                if (!EnsureLoopProcessEnabled(eqpId, portId, "Slot map processing", args))
+                {
+                    await Send_S3F17_CancelCarrier(args);
+                    return;
+                }
                 args.Header[CItems.SlotMap] = slotMap;
                 args.Header[CItems.BatchInfo] = batchInfo;
                 await Send_S3F17_SecondProcessWithCarrier(args);
@@ -1415,19 +1792,17 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public async void Receive_S6F11_SlotMapVerifyok(Arguments args)
+        public async Task Receive_S6F11_SlotMapVerifyok(Arguments args)
         {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
             {
-                args.SetResultNG();
-                return;
-            }
-            await Send_S16F21_SelectPJSpace(args);
-            if (args.GetResultCode() != "OK")
-            {
-                Send_S3F17_CancelCarrier(args);
                 args.SetResultNG();
                 return;
             }
@@ -1435,43 +1810,322 @@ namespace EAP.EC.KS_CM300
             var portId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][0]).ToString().Trim();
             args.Header[CItems.CarrierId] = carrierId;
             args.Header[CItems.PortId] = portId;
-            var res = await MESClient.MES_TrackIn(eqpId, carrierId);
+
+            if (!int.TryParse(portId.Replace("LP", string.Empty, StringComparison.OrdinalIgnoreCase), out var parsedPortId)
+                || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                || !eqpInfo.PortInfo.TryGetValue(parsedPortId, out var portInfo))
+            {
+                args.SetResultNG($"Unknown load port: {portId}");
+                await Send_S3F17_CancelCarrier(args);
+                return;
+            }
+
+            if (!EnsureLoopProcessEnabled(eqpId, parsedPortId, "Slot map verification", args))
+            {
+                await Send_S3F17_CancelCarrier(args);
+                return;
+            }
+
+            var batchInfo = GetBatchInfoForCarrier(eqpId, carrierId);
+            var transferState = GetOrUpdateTransferState(eqpId, parsedPortId, carrierId, batchInfo);
+            if (portInfo.JobMode == 1 && transferState == null)
+            {
+                args.SetResultNG($"Invalid Transfer configuration for LP{parsedPortId}.");
+                await Send_S3F17_CancelCarrier(args);
+                return;
+            }
+            if (transferState != null)
+            {
+                var trackInOk = await TrackInTransferPortAsync(args, transferState, parsedPortId);
+                if (!trackInOk)
+                {
+                    await Send_S3F17_CancelCarrier(args);
+                    args.SetResultNG($"MES TrackIn failed for Transfer LP{parsedPortId}.");
+                    return;
+                }
+
+                var currentSlotMap = portInfo.CurrentSlotMap;
+                if (currentSlotMap == null || currentSlotMap.Count != 25)
+                {
+                    args.SetResultNG($"Transfer LP{parsedPortId} has no valid slot map.");
+                    await Send_S3F17_CancelCarrier(args);
+                    return;
+                }
+                if (IsSourcePort(transferState, parsedPortId))
+                {
+                    transferState.SourceSlotMap = currentSlotMap.ToList();
+                    await Send_S16F21_SelectPJSpace(args);
+                    if (args.GetResultCode() != "OK")
+                    {
+                        var failureMessage = args.GetResultMsg();
+                        await Send_S3F17_CancelCarrier(args);
+                        args.SetResultNG(failureMessage);
+                        return;
+                    }
+
+                    transferState.SourcePjCreateInProgress = true;
+                    await Send_S16F15_CreatePJ(args);
+                    transferState.SourcePjCreateInProgress = false;
+                    transferState.SourcePjCreated = args.GetResultCode() == "OK";
+                    if (args.GetResultCode() != "OK")
+                    {
+                        var failureMessage = args.GetResultMsg();
+                        await Send_S3F17_CancelCarrier(args);
+                        args.SetResultNG(failureMessage);
+                        return;
+                    }
+                }
+                else
+                {
+                    transferState.DestinationSlotMap = currentSlotMap.ToList();
+                }
+                // A PJ queued event can arrive before the partner LP finishes
+                // mapping. Re-check here once both LPs are ready.
+                await TryCreateTransferCJAsync(args, transferState);
+                return;
+            }
+
+            await Send_S16F21_SelectPJSpace(args);
+            if (args.GetResultCode() != "OK")
+            {
+                var failureMessage = args.GetResultMsg();
+                await Send_S3F17_CancelCarrier(args);
+                args.SetResultNG(failureMessage);
+                return;
+            }
+            var res = await SecsExecution.RunAsync(args, "MES_TrackIn",
+                () => MESClient.MES_TrackIn(eqpId, portId, carrierId));
             if (res)
             {
                 await Send_S16F15_CreatePJ(args);
                 if (args.GetResultCode() != "OK")
                 {
-                    Send_S3F17_CancelCarrier(args);
-                    args.SetResultNG();
+                    var failureMessage = args.GetResultMsg();
+                    await Send_S3F17_CancelCarrier(args);
+                    args.SetResultNG(failureMessage);
                     return;
                 }
             }
             else
             {
-                Send_S3F17_CancelCarrier(args);
+                await Send_S3F17_CancelCarrier(args);
                 args.SetResultNG("TrackIn Fail");
                 return;
             }
         }
 
-        public async void Receive_S6F11_WaferProcessComplete(Arguments args)
+        public async Task Receive_S6F11_WaferProcessComplete(Arguments args)
         {
-            var eqpId = args.Header[CItems.EqpId].ToString();
-            var rootItem = args.SecsData.PrimaryMessage.SecsItem;
-            if (rootItem.Items.Length != 3)
+            if (!await IsOnRemoteAsync(args))
             {
-                args.SetResultNG();
                 return;
             }
-            string SubstLocSubstLocID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][10]).ToString().Trim();
-            var carrierId = SubstLocSubstLocID.Split('.')[0];
-            var slot = SubstLocSubstLocID.Split('.')[1];
-            var portId = AppCache.Current.EqpInfos[eqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
-            MESClient.Send_MapResult(eqpId, portId, slot);
+
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            var rootItem = args.SecsData?.PrimaryMessage?.SecsItem;
+            if (rootItem?.Items == null || rootItem.Items.Length != 3)
+            {
+                args.SetResultNG("Wafer process complete event has an invalid S6F11 structure.");
+                return;
+            }
+
+            // CEID 92 report layouts differ between equipment configurations.
+            // Resolve SubstLocSubstLocID's index from this tool's event-report file.
+            var locationId = FindSubstrateLocationId(eqpId, rootItem.Items[2]);
+            if (!TryParseSubstrateLocationId(locationId, out var carrierId, out var slot))
+            {
+                args.SetResultNG($"CEID=92 did not contain a valid SubstLocSubstLocID. Value={locationId ?? "<missing>"}.");
+                return;
+            }
+
+            if (!AppCache.Current.EqpInfos.TryGetValue(eqpId, out var equipment)
+                || equipment?.PortInfo == null)
+            {
+                args.SetResultNG($"CEID=92 could not resolve equipment port state. EqpId={eqpId}.");
+                return;
+            }
+
+            var port = equipment.PortInfo.Values.FirstOrDefault(item =>
+                string.Equals(item.CarrierId?.Trim(), carrierId, StringComparison.OrdinalIgnoreCase));
+            if (port == null)
+            {
+                args.SetResultNG($"CEID=92 carrier is not associated with a load port. EqpId={eqpId}, CarrierId={carrierId}.");
+                return;
+            }
+
+            args.Header[CItems.PortId] = port.PortNo;
+            args.Header[CItems.CarrierId] = carrierId;
+            await MESClient.Send_MapResultAsync(eqpId, port.PortNo.ToString(), slot);
         }
 
-        public async void Receive_S6F11_PRJOB_QUEUED(Arguments args)
+        private string FindSubstrateLocationId(string eqpId, Item reportList)
         {
+            if (reportList?.Items == null)
+            {
+                return null;
+            }
+
+            var knownCarriers = AppCache.Current.EqpInfos.TryGetValue(eqpId, out var equipment)
+                ? equipment.PortInfo.Values.Select(port => port.CarrierId?.Trim())
+                    .Where(carrierId => !string.IsNullOrWhiteSpace(carrierId))
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                : new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var field = _processCompleteLocationFields.GetOrAdd(eqpId, ResolveProcessCompleteLocationField);
+            string mappedValue = null;
+            if (field.Found)
+            {
+                foreach (var report in reportList.Items)
+                {
+                    if (report?.Items == null || report.Items.Length < 2
+                        || !uint.TryParse(SecsItemUtil.GetItemValue(report.Items[0])?.ToString(), out var reportId)
+                        || reportId != field.ReportId
+                        || report.Items[1]?.Items == null
+                        || field.DataIndex >= report.Items[1].Items.Length)
+                    {
+                        continue;
+                    }
+
+                    mappedValue = SecsItemUtil.GetItemValue(report.Items[1].Items[field.DataIndex])?.ToString()?.Trim();
+                    if (TryParseSubstrateLocationId(mappedValue, out var mappedCarrier, out _)
+                        && (knownCarriers.Count == 0 || knownCarriers.Contains(mappedCarrier)))
+                    {
+                        return mappedValue;
+                    }
+                }
+            }
+
+            // Some older reports omit DV 185; use the matching loaded carrier
+            // as a fallback instead of depending on a layout-specific position.
+            foreach (var value in EnumerateSecsLeafValues(reportList))
+            {
+                if (TryParseSubstrateLocationId(value, out var candidateCarrier, out _)
+                    && (knownCarriers.Count == 0 || knownCarriers.Contains(candidateCarrier)))
+                {
+                    return value;
+                }
+            }
+
+            return mappedValue;
+        }
+
+        private (bool Found, uint ReportId, int DataIndex) ResolveProcessCompleteLocationField(string eqpId)
+        {
+            try
+            {
+                var path = ResolveEventReportPath(eqpId);
+                if (!File.Exists(path))
+                {
+                    return (false, 0, -1);
+                }
+
+                var document = new XmlDocument();
+                document.Load(path);
+                var eventNode = document.SelectSingleNode("/EVENT_REPORT/EVENT[@id='92']");
+                var reportNodes = document.SelectNodes("/EVENT_REPORT/REPORT");
+                if (eventNode == null || reportNodes == null)
+                {
+                    return (false, 0, -1);
+                }
+
+                foreach (XmlNode linkedReport in eventNode.SelectNodes("RPT"))
+                {
+                    if (!uint.TryParse(XmlUtils.XmlGetNodeAttrVal(linkedReport, "id"), out var reportId))
+                    {
+                        continue;
+                    }
+
+                    var definition = reportNodes.Cast<XmlNode>().FirstOrDefault(node =>
+                        uint.TryParse(XmlUtils.XmlGetNodeAttrVal(node, "id"), out var id) && id == reportId);
+                    var dataVariables = definition?.SelectNodes("DV");
+                    if (dataVariables == null)
+                    {
+                        continue;
+                    }
+
+                    for (var index = 0; index < dataVariables.Count; index++)
+                    {
+                        if (XmlUtils.XmlGetNodeAttrVal(dataVariables[index], "id") == "185")
+                        {
+                            return (true, reportId, index);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Warn($"Unable to resolve CEID=92 SubstLocSubstLocID field. EqpId={eqpId}, Error={ex.Message}");
+            }
+
+            return (false, 0, -1);
+        }
+
+        private IEnumerable<string> EnumerateSecsLeafValues(Item item)
+        {
+            if (item == null)
+            {
+                yield break;
+            }
+
+            if (item.Format == SecsFormat.List)
+            {
+                if (item.Items != null)
+                {
+                    foreach (var child in item.Items)
+                    {
+                        foreach (var value in EnumerateSecsLeafValues(child))
+                        {
+                            yield return value;
+                        }
+                    }
+                }
+
+                yield break;
+            }
+
+            var valueText = SecsItemUtil.GetItemValue(item)?.ToString()?.Trim();
+            if (!string.IsNullOrWhiteSpace(valueText))
+            {
+                yield return valueText;
+            }
+        }
+
+        private static bool TryParseSubstrateLocationId(string value, out string carrierId, out string slot)
+        {
+            carrierId = null;
+            slot = null;
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return false;
+            }
+
+            var separator = value.LastIndexOf('.');
+            if (separator <= 0 || separator >= value.Length - 1)
+            {
+                return false;
+            }
+
+            var candidateCarrierId = value.Substring(0, separator).Trim();
+            var candidateSlot = value.Substring(separator + 1).Trim();
+            if (string.IsNullOrWhiteSpace(candidateCarrierId)
+                || !int.TryParse(candidateSlot, out var slotNumber)
+                || slotNumber < 1 || slotNumber > 25)
+            {
+                return false;
+            }
+
+            carrierId = candidateCarrierId;
+            slot = slotNumber.ToString();
+            return true;
+        }
+
+        public async Task Receive_S6F11_PRJOB_QUEUED(Arguments args)
+        {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
@@ -1480,6 +2134,24 @@ namespace EAP.EC.KS_CM300
                 return;
             }
             var pjid = SecsItemUtil.GetItemValue(rootItem[2][0][1][1]).ToString();
+
+            // Transfer PJs must never fall through to the ordinary CJ path.
+            // Identify them by the source batch/PJ itself, so this remains
+            // correct even when the LPs arrive in the opposite order or an
+            // older CJQuendList entry is still present.
+            var transferState = FindTransferStateBySourcePjId(eqpId, pjid);
+            if (transferState != null)
+            {
+                lock (transferState)
+                {
+                    transferState.SourceQueuedPjIds.Add(pjid);
+                    transferState.SourcePjQueued = GetLotIds(transferState.SourceBatchInfo)
+                        .All(lotId => transferState.SourceQueuedPjIds.Contains(lotId));
+                }
+                await TryCreateTransferCJAsync(args, transferState);
+                return;
+            }
+
             bool creatCJ = true;
             var cjid = string.Empty;
             foreach (var cj in AppCache.Current.CJQuendList)
@@ -1500,12 +2172,38 @@ namespace EAP.EC.KS_CM300
             {
                 var batchInfo = AppCache.Current.MesBatchInfos.FirstOrDefault(a => a.Key == cjid);
                 args.Header[CItems.BatchInfo] = batchInfo.Key;
+                transferState = FindTransferStateBySourceBatchId(eqpId, cjid);
+                if (transferState != null)
+                {
+                    lock (transferState)
+                    {
+                        transferState.SourceQueuedPjIds.Add(pjid);
+                        transferState.SourcePjQueued = GetLotIds(transferState.SourceBatchInfo)
+                            .All(lotId => transferState.SourceQueuedPjIds.Contains(lotId));
+                    }
+                    await TryCreateTransferCJAsync(args, transferState);
+                    return;
+                }
+                if (IsTransferSourceBatch(eqpId, batchInfo.Value))
+                {
+                    // A transfer PJ may arrive before its state is fully
+                    // populated. Never create an ordinary CJ for that batch.
+                    MESClient.Send_Message(eqpId, "0",
+                        $"Transfer PJ {pjid} is waiting for its paired LP; ordinary CJ creation was skipped.",
+                        LogType.WARNING);
+                    return;
+                }
                 await Send_S14F9_CreateCJ(args);
             }
         }
 
-        public void Receive_S6F11_ProcessStart(Arguments args)
+        public async Task Receive_S6F11_ProcessStart(Arguments args)
         {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
@@ -1513,12 +2211,19 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
-            MESClient.MES_LotStart(eqpId, carrierId);
+            var carrierID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
+            var portID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
+
+            await SecsExecution.RunAsync(args, "MES_LotStart", () => MESClient.MES_LotStart(eqpId, portID, carrierID));
         }
 
-        public void Receive_S6F11_ProcessEnd(Arguments args)
+        public async Task Receive_S6F11_ProcessEnd(Arguments args)
         {
+            if (!await IsOnRemoteAsync(args))
+            {
+                return;
+            }
+
             var eqpId = args.Header[CItems.EqpId].ToString();
             var rootItem = args.SecsData.PrimaryMessage.SecsItem;
             if (rootItem.Items.Length != 3)
@@ -1526,32 +2231,47 @@ namespace EAP.EC.KS_CM300
                 args.SetResultNG();
                 return;
             }
-            var carrierId = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
-            MESClient.MES_LotEnd(eqpId, carrierId);
-            MESClient.MES_TrackOut(eqpId, carrierId);
+            var carrierID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
+            var portID = SecsItemUtil.GetItemValue(rootItem.Items[2][0][1][5][0]).ToString().Trim();
+            var transferState = FindTransferStateByCarrier(eqpId, carrierID);
+            if (transferState != null)
+            {
+                await CompleteTransferTrackOutAsync(args, transferState);
+                return;
+            }
+            await SecsExecution.RunAsync(args, "MES_LotEnd", () => MESClient.MES_LotEnd(eqpId, portID, carrierID));
+            await SecsExecution.RunAsync(args, "MES_TrackOut", () => MESClient.MES_TrackOut(eqpId, portID, carrierID));
         }
         #endregion Receive  Message
 
         #region Send Message
         public ControlState Send_S1F3_Get_ControlState(Arguments args)
         {
-            var eqpId = args.Header[CItems.EqpId].ToString();
-            var check = (bool)args.Header[CItems.Check];
-            SecsMessage msg = new SecsMessage(1, 3);
-            Item[] items = new Item[] { Item.U4(29) };
-            msg.SecsItem = Item.L(items);
-            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply = context.SecsGem.SendAsync(msg).Result;
-            if (reply != null)
+            try
             {
-                var res = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[0]).ToString());
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var check = (bool)args.Header[CItems.Check];
+                // Compatibility boundary for the synchronous MQ/reflection dispatcher.
+                // The actual SECS query and parsing are shared with all async callers.
+                var result = QueryControlStateAsync(eqpId).GetAwaiter().GetResult();
+                if (!result.Success)
+                {
+                    args.SetResultNG(result.Message);
+                    return ControlState.UNKNOWN;
+                }
+
                 if (!check)
                 {
-                    MESClient.Send_ControlState(eqpId, (ControlState)res);
+                    PublishControlState(eqpId, result.State.Value);
                 }
-                return (ControlState)res;
+                args.SetResultOK();
+                return result.State.Value;
             }
-            return ControlState.UNKNOWN;
+            catch (Exception ex)
+            {
+                args?.SetResultNG($"S1F3/SVID29 query failed: {ex.Message}");
+                return ControlState.UNKNOWN;
+            }
         }
 
         public void Send_S1F3_FDCTEST(Arguments args)
@@ -2040,84 +2760,87 @@ namespace EAP.EC.KS_CM300
 
         public void LoadSVIDDef(string equipmentId = null)
         {
-            dict.Clear();
-            allSvidDict.Clear();
-            if (_channelSvidDictMap != null)
+            lock (_svidDefinitionLock)
             {
-                foreach (var channelDict in _channelSvidDictMap.Values)
+                dict.Clear();
+                allSvidDict.Clear();
+                if (_channelSvidDictMap != null)
                 {
-                    channelDict.Clear();
-                }
-            }
-
-            path = ResolveSvidDefinitionPath(equipmentId);
-            if (!File.Exists(path))
-            {
-                return;
-            }
-            var lines = File.ReadAllLines(path);
-            foreach (var line in lines)
-            {
-                // 璺宠繃绌鸿鎴栬〃澶?
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("id,"))
-                    continue;
-
-                var parts = ReadCsvFields(line);
-
-                // 蹇呴』鑷冲皯鍖呭惈 id 鍜?type 瀛楁
-                if (parts.Length < 3)
-                    continue;
-
-                // 瑙ｆ瀽 ID
-                if (int.TryParse(parts[0], out int id))
-                {
-                    string type = parts[2].Trim();  // type 鍒?
-                    dict[id] = type;
-                    allSvidDict[id] = new VIDItem()
+                    foreach (var channelDict in _channelSvidDictMap.Values)
                     {
-                        VID = id,
-                        type = type,
-                        name = parts[1].Trim(),
-                        unit = parts.Length > 3 ? parts[3].Trim() : string.Empty,
-                        ecsName = parts.Length > 5 ? parts[5].Trim() : string.Empty,
-                        description = parts.Length > 6 ? parts[6].Trim() : string.Empty
-                    };
-
-                    //currentVIDList.Add(new VIDItem()
-                    //{
-                    //    VID = id,
-                    //    type = type,
-                    //    value = "0"
-                    //});
-                    //nextVIDList.Add(new VIDItem()
-                    //{
-                    //    VID = id,
-                    //    type = type,
-                    //    value = "0"
-                    //});
+                        channelDict.Clear();
+                    }
                 }
-            }
-            foreach (var svid in allSvidDict.Values)
-            {
-                // 蹇€熷け璐ワ細涓嶇鍚堝熀鏈?FlwPV 瑙勫垯鐩存帴璺宠繃锛岃繕闇€瑕佹坊鍔燬DS鐨凷VID
-                if (!ChannelRegex.IsMatch(svid.name) && !svid.name.Contains("SDS"))
-                    continue;
 
-                // 鎻愬彇 ChannelKey锛堝锛歀2CH1锛?
-                var channelKeyMatch = ChannelKeyRegex.Match(svid.name);
-                if (!channelKeyMatch.Success)
+                path = ResolveSvidDefinitionPath(equipmentId);
+                if (!File.Exists(path))
                 {
-                    channelKeyMatch = ChannelKey2Regex.Match(svid.name);
-                    if (!channelKeyMatch.Success)
+                    return;
+                }
+                var lines = File.ReadAllLines(path);
+                foreach (var line in lines)
+                {
+                    // 璺宠繃绌鸿鎴栬〃澶?
+                    if (string.IsNullOrWhiteSpace(line) || line.StartsWith("id,"))
                         continue;
+
+                    var parts = ReadCsvFields(line);
+
+                    // 蹇呴』鑷冲皯鍖呭惈 id 鍜?type 瀛楁
+                    if (parts.Length < 3)
+                        continue;
+
+                    // 瑙ｆ瀽 ID
+                    if (int.TryParse(parts[0], out int id))
+                    {
+                        string type = parts[2].Trim();  // type 鍒?
+                        dict[id] = type;
+                        allSvidDict[id] = new VIDItem()
+                        {
+                            VID = id,
+                            type = type,
+                            name = parts[1].Trim(),
+                            unit = parts.Length > 3 ? parts[3].Trim() : string.Empty,
+                            ecsName = parts.Length > 5 ? parts[5].Trim() : string.Empty,
+                            description = parts.Length > 6 ? parts[6].Trim() : string.Empty
+                        };
+
+                        //currentVIDList.Add(new VIDItem()
+                        //{
+                        //    VID = id,
+                        //    type = type,
+                        //    value = "0"
+                        //});
+                        //nextVIDList.Add(new VIDItem()
+                        //{
+                        //    VID = id,
+                        //    type = type,
+                        //    value = "0"
+                        //});
+                    }
                 }
-
-                string channelKey = channelKeyMatch.Value;
-
-                // 鏌ユ壘瀵瑰簲 Dictionary
-                if (_channelSvidDictMap.TryGetValue(channelKey, out var dict))
+                foreach (var svid in allSvidDict.Values)
                 {
-                    dict[svid.VID] = svid;
+                    // 蹇€熷け璐ワ細涓嶇鍚堝熀鏈?FlwPV 瑙勫垯鐩存帴璺宠繃锛岃繕闇€瑕佹坊鍔燬DS鐨凷VID
+                    if (!ChannelRegex.IsMatch(svid.name) && !svid.name.Contains("SDS"))
+                        continue;
+
+                    // 鎻愬彇 ChannelKey锛堝锛歀2CH1锛?
+                    var channelKeyMatch = ChannelKeyRegex.Match(svid.name);
+                    if (!channelKeyMatch.Success)
+                    {
+                        channelKeyMatch = ChannelKey2Regex.Match(svid.name);
+                        if (!channelKeyMatch.Success)
+                            continue;
+                    }
+
+                    string channelKey = channelKeyMatch.Value;
+
+                    // 鏌ユ壘瀵瑰簲 Dictionary
+                    if (_channelSvidDictMap.TryGetValue(channelKey, out var dict))
+                    {
+                        dict[svid.VID] = svid;
+                    }
                 }
             }
         }
@@ -2129,7 +2852,7 @@ namespace EAP.EC.KS_CM300
 
             //return Regex.IsMatch(input, @"^R3CH1_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Vlv\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Vlv\d+FlwPV$");
             //return Regex.IsMatch(input, @"^R3CH1_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH2_Ana\d+FlwPV$") || Regex.IsMatch(input, @"^R3CH3_Ana\d+FlwPV$");
-            return Regex.IsMatch(input, @"FlwPV")|| Regex.IsMatch(input, @"ComAss") || Regex.IsMatch(input, @"LifeAct") || Regex.IsMatch(input, @"Door_Open_Sns");
+            return Regex.IsMatch(input, @"FlwPV") || Regex.IsMatch(input, @"ComAss") || Regex.IsMatch(input, @"LifeAct") || Regex.IsMatch(input, @"Door_Open_Sns");
         }
 
         public static bool IsMatchCHVlvFlwPV(string input, string matchRule)
@@ -2405,14 +3128,14 @@ namespace EAP.EC.KS_CM300
             return fields.ToArray();
         }
 
-        public async void Send_S1F3_Get_DataVarible(Arguments args)
+        public async Task Send_S1F3_Get_DataVarible(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
             SecsMessage msg = new SecsMessage(1, 3);
             Item[] items = new Item[] { Item.U4(163) };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
             if (reply != null)
             {
                 var transfer1 = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[0][0]).ToString());
@@ -2445,7 +3168,7 @@ namespace EAP.EC.KS_CM300
                 Item item = Item.L(items);
                 msg.SecsItem = Item.L(new Item[] { Item.Boolean(enable), item });
                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                var reply = await context.SecsGem.SendAsync(msg);
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
                 if (reply != null)
                 {
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
@@ -2471,7 +3194,7 @@ namespace EAP.EC.KS_CM300
                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
 
                 SecsMessage msg = new SecsMessage(5, 7);
-                var reply = await context.SecsGem.SendAsync(msg);
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
 
                 if (reply == null)
                 {
@@ -2527,7 +3250,7 @@ namespace EAP.EC.KS_CM300
 
                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
 
-                var reply = await context.SecsGem.SendAsync(msg);
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
 
                 if (reply != null)
                 {
@@ -2545,6 +3268,70 @@ namespace EAP.EC.KS_CM300
             catch (Exception ex)
             {
                 args.SetResultNG($"Send S2F41 (GO REMOTE) failed: {ex.Message}");
+            }
+        }
+
+        private async Task<bool> Send_TOSwitchSimWafer(Arguments args, int inputPortId, uint simWaferStatus)
+        {
+            try
+            {
+                if (!await EnsureRemoteAsync(args, "Switch simulated wafer status on input LP"))
+                    return false;
+
+                if (inputPortId <= 0)
+                {
+                    args.SetResultNG($"Send TEST_TOSWITCHSIMWAFER failed: invalid input LP number {inputPortId}.");
+                    return false;
+                }
+
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                if (!EnsureLoopProcessEnabled(eqpId, inputPortId, "TEST_TOSWITCHSIMWAFER", args))
+                {
+                    return false;
+                }
+
+                var msg = new SecsMessage(2, 41)
+                {
+                    SecsItem = Item.L(new Item[]
+                    {
+                        Item.A("TEST_TOSWITCHSIMWAFER"),
+                        Item.L(new Item[]
+                        {
+                            Item.L(new Item[] { Item.A("PORTNUM"), Item.U4((uint)inputPortId) }),
+                            Item.L(new Item[] { Item.A("SIMWAFERSTATUS"), Item.U4(simWaferStatus) })
+                        })
+                    })
+                };
+
+                var context = EAPContext.contexts?.FirstOrDefault(a => a.EquipmentID == eqpId);
+                if (context?.SecsGem == null)
+                {
+                    args.SetResultNG("Send TEST_TOSWITCHSIMWAFER failed: SECS context unavailable.");
+                    return false;
+                }
+
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+                if (reply?.SecsItem == null || reply.SecsItem.Items.Length == 0)
+                {
+                    args.SetResultNG("Send TEST_TOSWITCHSIMWAFER failed: no reply received.");
+                    return false;
+                }
+
+                var retCode = Convert.ToInt32(SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]));
+
+                //不校验SwitchSimWafer是否成功，避免影响后续流程，因为有的项目（如23001）不支持该命令，返回非0会导致后续流程中断
+                //if (retCode != 0)
+                //{
+                //    args.SetResultNG($"Send TEST_TOSWITCHSIMWAFER rejected by equipment. ReturnCode: {retCode}");
+                //    return false;
+                //}
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                args.SetResultNG($"Send TEST_TOSWITCHSIMWAFER failed: {ex.Message}");
+                return false;
             }
         }
 
@@ -2588,7 +3375,7 @@ namespace EAP.EC.KS_CM300
                     msg.SecsItem = Item.L(new Item[] { Item.U4(0), item });
                 }
                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                var reply = await context.SecsGem.SendAsync(msg);
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
                 if (reply != null)
                 {
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
@@ -2637,7 +3424,7 @@ namespace EAP.EC.KS_CM300
                     msg.SecsItem = Item.L(new Item[] { Item.U4(0), Item.L() });
                 }
                 var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
-                var reply = await context.SecsGem.SendAsync(msg);
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
                 if (reply != null)
                 {
                     byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem);
@@ -2657,15 +3444,30 @@ namespace EAP.EC.KS_CM300
 
         public async Task Send_S3F17_FirstProcessWithCarrier(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "ProceedWithCarrier"))
+            {
+                return;
+            }
+
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
             var portId = int.Parse(args.Header[CItems.PortId].ToString());
+            if (!EnsureLoopProcessEnabled(EqpId, portId, "ProceedWithCarrier", args))
+            {
+                return;
+            }
+
             SecsMessage msg = new SecsMessage(3, 17);
             Item[] items = new Item[] { Item.U4((byte)0), Item.A("ProceedWithCarrier"), Item.A(carrierId), Item.U1((byte)portId), Item.L() };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Send ProceedWithCarrier failed: no reply received.");
+                return;
+            }
+            else
             {
                 int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
@@ -2679,9 +3481,19 @@ namespace EAP.EC.KS_CM300
 
         public async Task Send_S3F17_SecondProcessWithCarrier(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "ProceedWithCarrier slot map"))
+            {
+                return;
+            }
+
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
             var portId = int.Parse(args.Header[CItems.PortId].ToString());
+            if (!EnsureLoopProcessEnabled(EqpId, portId, "ProceedWithCarrier slot map", args))
+            {
+                return;
+            }
+
             var eqpSlotMap = args.Header[CItems.SlotMap] as List<int>;
             var batchInfo = args.Header[CItems.BatchInfo] as MESLotInfoDownloadReply;
             SecsMessage msg = new SecsMessage(3, 17);
@@ -2707,8 +3519,13 @@ namespace EAP.EC.KS_CM300
             Item[] items = new Item[] { Item.U4((byte)0), Item.A("ProceedWithCarrier"), Item.A(carrierId), Item.U1((byte)portId), Item.L(new Item[] { Item.L(Item.A("ContentMap"), Item.L(contentItems)), Item.L(Item.A("SlotMap"), Item.L(slotItems)) }) };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Send ProceedWithCarrier slot map failed: no reply received.");
+                return;
+            }
+            else
             {
                 int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
@@ -2720,8 +3537,12 @@ namespace EAP.EC.KS_CM300
             args.SetResultOK();
         }
 
-        public async void Send_S3F17_CarrierRelease(Arguments args)
+        public async Task Send_S3F17_CarrierRelease(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "CarrierRelease"))
+            {
+                return;
+            }
 
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
@@ -2730,8 +3551,13 @@ namespace EAP.EC.KS_CM300
             Item[] items = new Item[] { Item.U4((byte)0), Item.A("CarrierRelease"), Item.A(carrierId), Item.U1((byte)portId), Item.L() };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Send CarrierRelease failed: no reply received.");
+                return;
+            }
+            else
             {
                 int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
@@ -2743,8 +3569,13 @@ namespace EAP.EC.KS_CM300
             args.SetResultOK();
         }
 
-        public async void Send_S3F17_CancelCarrier(Arguments args)
+        public async Task Send_S3F17_CancelCarrier(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "CancelCarrier"))
+            {
+                return;
+            }
+
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = args.Header[CItems.CarrierId].ToString();
             var portId = int.Parse(args.Header[CItems.PortId].ToString());
@@ -2752,8 +3583,13 @@ namespace EAP.EC.KS_CM300
             Item[] items = new Item[] { Item.U4((byte)0), Item.A("CancelCarrier"), Item.A(carrierId), Item.U1((byte)portId), Item.L() };
             msg.SecsItem = Item.L(items);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Send CancelCarrier failed: no reply received.");
+                return;
+            }
+            else
             {
                 int retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem.Items[0]);
                 if (retCode != 0)
@@ -2770,7 +3606,7 @@ namespace EAP.EC.KS_CM300
             var EqpId = args.Header[CItems.EqpId].ToString();
             SecsMessage msg = new SecsMessage(7, 19);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
             List<string> recipeList = new List<string>();
             if (reply != null)
             {
@@ -2792,11 +3628,28 @@ namespace EAP.EC.KS_CM300
 
         public async Task Send_S16F21_SelectPJSpace(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "Select process job space"))
+            {
+                return;
+            }
+
             var EqpId = args.Header[CItems.EqpId].ToString();
+            var portText = args.Header.TryGetValue(CItems.PortId, out var portValue) ? portValue?.ToString() : null;
+            if (!int.TryParse(portText?.Replace("LP", string.Empty, StringComparison.OrdinalIgnoreCase), out var portId)
+                || !EnsureLoopProcessEnabled(EqpId, portId, "Select process job space", args))
+            {
+                return;
+            }
+
             SecsMessage msg = new SecsMessage(16, 21);
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Select process job space failed: no reply received.");
+                return;
+            }
+            else
             {
                 int retCode = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem).ToString());
                 if (retCode <= 0)
@@ -2812,10 +3665,25 @@ namespace EAP.EC.KS_CM300
         {
             try
             {
+                if (!await EnsureRemoteAsync(args, "Create process jobs"))
+                {
+                    return;
+                }
+
                 var EqpId = args.Header[CItems.EqpId].ToString();
                 var carrierId = args.Header[CItems.CarrierId].ToString();
                 var portId = int.Parse(args.Header[CItems.PortId].ToString());
+                if (!EnsureLoopProcessEnabled(EqpId, portId, "Create process jobs", args))
+                {
+                    return;
+                }
+
                 var batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.CARRIERID.Trim() == carrierId.Trim());
+                if (batchInfo == null)
+                {
+                    batchInfo = AppCache.Current.MesBatchInfos.Values.FirstOrDefault(a => a.PORTID.Trim() == portId.ToString().Trim());
+                    batchInfo.CARRIERID = carrierId;
+                }
                 SecsMessage msg = new SecsMessage(16, 15);
                 Item[] pjItems = new Item[batchInfo.BATCHSIZE];
                 int index = 0;
@@ -2841,10 +3709,19 @@ namespace EAP.EC.KS_CM300
                     pjItems[index] = Item.L(new Item[] { pjIdItem, meatItem, carrierSpecItem, recipeSpecItem, startItem, pauseEventItem });
                     index++;
                 }
+                if (!EnsureLoopProcessEnabled(EqpId, portId, "Create process jobs", args))
+                {
+                    return;
+                }
                 msg.SecsItem = Item.L(new Item[] { Item.U1((byte)0), Item.L(pjItems) });
                 var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-                var reply = await context.SecsGem.SendAsync(msg);
-                if (reply != null)
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+                if (reply == null)
+                {
+                    args.SetResultNG("Create process jobs failed: no reply received.");
+                    return;
+                }
+                else
                 {
                     var res = (bool)SecsItemUtil.GetItemValue(reply.SecsItem[1][0]);
                     if (!res)
@@ -2852,24 +3729,141 @@ namespace EAP.EC.KS_CM300
                         args.SetResultNG();
                         return;
                     }
-                    MESClient.Send_MapResult(EqpId, portId.ToString(), string.Join(';', slots) + ";");
+                    await MESClient.Send_MapResultAsync(EqpId, portId.ToString(), string.Join(';', slots) + ";");
                 }
                 args.SetResultOK();
             }
             catch (Exception ex)
             {
-
+                args.SetResultNG($"Create process jobs failed: {ex.Message}");
             }
+        }
+
+        private static bool TryGetTransferCJResult(Item replyItem, out int value)
+        {
+            value = 0;
+            if (replyItem == null)
+                return false;
+
+            // Standard S14F10 is a scalar ACKC. Some equipment wraps the
+            // same value under the object reply list used by S14F9.
+            var itemValue = SecsItemUtil.GetItemValue(replyItem);
+            if (itemValue != null && int.TryParse(itemValue.ToString(), out value))
+                return true;
+
+            if (replyItem.Items?.Length > 2)
+            {
+                var objectReply = replyItem[2];
+                if (objectReply?.Items?.Length > 0)
+                {
+                    foreach (var candidate in objectReply.Items.Take(2))
+                    {
+                        var candidateValue = SecsItemUtil.GetItemValue(candidate);
+                        if (candidateValue != null && int.TryParse(candidateValue.ToString(), out value))
+                            return true;
+                    }
+                }
+                if (objectReply != null)
+                {
+                    var objectValue = SecsItemUtil.GetItemValue(objectReply);
+                    if (objectValue != null && int.TryParse(objectValue.ToString(), out value))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        private async Task Send_S14F9_CreateTransferCJ(Arguments args, TransferJobState state, List<int> slots)
+        {
+            if (!await EnsureRemoteAsync(args, "Create Transfer control job"))
+                return;
+
+            if (state.SourceBatchInfo == null || string.IsNullOrWhiteSpace(state.SourceCarrierId)
+                || string.IsNullOrWhiteSpace(state.DestinationCarrierId))
+            {
+                args.SetResultNG("Transfer CJ requires source and destination carriers.");
+                return;
+            }
+
+            var eqpId = args.Header[CItems.EqpId].ToString();
+            if (!EnsureLoopProcessEnabled(eqpId, state.SourcePortId, "Create Transfer control job", args)
+                || !EnsureLoopProcessEnabled(eqpId, state.DestinationPortId, "Create Transfer control job", args))
+            {
+                return;
+            }
+
+            var sourceBatch = state.SourceBatchInfo;
+            var pjItems = new Item[sourceBatch.BATCHSIZE > 0 ? sourceBatch.BATCHSIZE : sourceBatch.LOTLIST.Count];
+            var index = 0;
+            foreach (var lot in sourceBatch.LOTLIST)
+            {
+                pjItems[index++] = Item.L(new Item[] { Item.A(lot.LOT_ID), Item.L(), Item.L() });
+            }
+
+            if (!EnsureLoopProcessEnabled(eqpId, state.SourcePortId, "Create Transfer control job", args)
+                || !EnsureLoopProcessEnabled(eqpId, state.DestinationPortId, "Create Transfer control job", args))
+            {
+                return;
+            }
+
+            var sourceSlots = Item.L(slots.Select(slot => Item.U1((byte)slot)).ToArray());
+            var destinationSlots = Item.L(slots.Select(slot => Item.U1((byte)slot)).ToArray());
+            var mtrlOutSpec = Item.L(new Item[]
+            {
+                Item.L(new Item[] { Item.A(state.SourceCarrierId), sourceSlots }),
+                Item.L(new Item[] { Item.A(state.DestinationCarrierId), destinationSlots })
+            });
+
+            var cjItem = Item.L(new Item[]
+            {
+                Item.L(new Item[] { Item.A("ObjID"), Item.A("ControlJobTransfer" + state.SourceCarrierId) }),
+                Item.L(new Item[] { Item.A("CarrierInputSpec"), Item.L(new Item[] { Item.A(state.SourceCarrierId) }) }),
+                Item.L(new Item[] { Item.A("ProcessingCtrlSpec"), Item.L(pjItems) }),
+                Item.L(new Item[] { Item.A("ProcessOrderMgmt"), Item.U1((byte)3) }),
+                Item.L(new Item[] { Item.A("StartMethod"), Item.Boolean(true) }),
+                Item.L(new Item[] { Item.A("MtrlOutSpec"), Item.L(new Item[] { mtrlOutSpec }) }),
+                Item.L(new Item[] { Item.A("PauseEvent"), Item.L() })
+            });
+
+            var msg = new SecsMessage(14, 9)
+            {
+                SecsItem = Item.L(new Item[] { Item.A("Equipment"), Item.A("ControlJob"), cjItem })
+            };
+            var context = EAPContext.contexts.First(a => a.EquipmentID == eqpId);
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Create Transfer control job failed: no reply received.");
+                return;
+            }
+
+            if (!TryGetTransferCJResult(reply.SecsItem, out var resultCode) || resultCode != 0)
+            {
+                args.SetResultNG("Create Transfer control job rejected by equipment.");
+                return;
+            }
+            args.SetResultOK();
         }
 
         public async Task Send_S14F9_CreateCJ(Arguments args)
         {
+            if (!await EnsureRemoteAsync(args, "Create control job"))
+            {
+                return;
+            }
 
             var batchId = args.Header[CItems.BatchInfo].ToString();
             var batchInfo = AppCache.Current.MesBatchInfos[batchId];
             var EqpId = args.Header[CItems.EqpId].ToString();
             var carrierId = batchInfo.CARRIERID;
-            var portId = AppCache.Current.EqpInfos[EqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
+            var portId = batchInfo.PORTID;
+            if (!int.TryParse(portId, out var parsedPortId)
+                || !EnsureLoopProcessEnabled(EqpId, parsedPortId, "Create control job", args))
+            {
+                return;
+            }
+
+            //var portId = AppCache.Current.EqpInfos[EqpId].PortInfo.Values.FirstOrDefault(a => a.CarrierId == carrierId).PortNo.ToString();
             SecsMessage msg = new SecsMessage(14, 9);
             Item[] pjItems = new Item[batchInfo.BATCHSIZE];
             int index = 0;
@@ -2892,6 +3886,10 @@ namespace EAP.EC.KS_CM300
                 sourceItem.Items[slotindex] = Item.U1((byte)slot);
                 destItem.Items[slotindex] = Item.U1((byte)slot);
                 slotindex++;
+            }
+            if (!EnsureLoopProcessEnabled(EqpId, parsedPortId, "Create control job", args))
+            {
+                return;
             }
             var destcarrierId = string.Empty;
             switch (portId)
@@ -2925,8 +3923,13 @@ namespace EAP.EC.KS_CM300
             });
             msg.SecsItem = Item.L(new Item[] { Item.A("Equipment"), Item.A("ControlJob"), cjItem });
             var context = EAPContext.contexts.First(a => a.EquipmentID == EqpId);
-            var reply = await context.SecsGem.SendAsync(msg);
-            if (reply != null)
+            var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+            if (reply == null)
+            {
+                args.SetResultNG("Create control job failed: no reply received.");
+                return;
+            }
+            else
             {
                 var res = int.Parse(SecsItemUtil.GetItemValue(reply.SecsItem[2][0]).ToString());
                 if (res != 0)
@@ -2947,22 +3950,704 @@ namespace EAP.EC.KS_CM300
             return recipeList;
         }
 
+        private async Task<bool> EnsureRemoteAsync(Arguments args, string action,
+            [CallerMemberName] string source = null)
+        {
+            if (await IsOnRemoteAsync(args, $"{source}/{action}"))
+            {
+                return true;
+            }
+
+            var eqpId = args?.Header != null && args.Header.TryGetValue(CItems.EqpId, out var value)
+                ? value?.ToString()
+                : string.Empty;
+            args?.SetResultNG($"{action} skipped because equipment {eqpId} is not in REMOTE control state.");
+            return false;
+        }
+
+        private void StopChannelPolling()
+        {
+            if (_channelMap == null)
+            {
+                return;
+            }
+
+            foreach (var channel in _channelMap.Values)
+            {
+                if (channel != null)
+                {
+                    _ = channel.Worker.StopAsync();
+                }
+            }
+        }
+
+        private async Task<bool> SendAutomaticCommandAsync(string eqpId, int portId, SecsMessage message, string commandName, Arguments args)
+        {
+            if (!await IsOnRemoteAsync(eqpId, commandName))
+            {
+                MESClient.Send_Message(eqpId, portId.ToString(), $"{commandName} skipped because equipment is not in REMOTE control state.", LogType.WARNING);
+                return false;
+            }
+
+            try
+            {
+                var context = EAPContext.contexts?.FirstOrDefault(item => item.EquipmentID == eqpId);
+                if (context?.SecsGem == null)
+                {
+                    MESClient.Send_Message(eqpId, portId.ToString(), $"{commandName} skipped because the SECS context is unavailable.", LogType.ERROR);
+                    return false;
+                }
+
+                if (!EnsureLoopProcessEnabled(eqpId, portId, commandName, args))
+                {
+                    return false;
+                }
+
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, message);
+                if (reply == null)
+                {
+                    MESClient.Send_Message(eqpId, portId.ToString(), $"{commandName} failed: no SECS reply received.", LogType.ERROR);
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MESClient.Send_Message(eqpId, portId.ToString(), $"{commandName} failed: {ex.Message}", LogType.ERROR);
+                return false;
+            }
+        }
+
+        private async Task<bool> IsOnRemoteAsync(string eqpId, [CallerMemberName] string source = null,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(eqpId) || AppCache.Current?.EqpInfos == null)
+            {
+                return false;
+            }
+
+            if (!AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo) || eqpInfo == null)
+            {
+                return false;
+            }
+
+            if (eqpInfo.ConnectStatus != ConnectStatus.CONNECTED)
+            {
+                return false;
+            }
+
+            var context = EAPContext.contexts?.FirstOrDefault(item => item.EquipmentID == eqpId);
+            if (context?.SecsGem == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var result = await QueryControlStateAsync(eqpId, source, cancellationToken).ConfigureAwait(false);
+                cancellationToken.ThrowIfCancellationRequested();
+                if (!result.Success)
+                {
+                    MESClient.Send_Message(eqpId, "0", $"{result.Message} Source={source}; automatic processing skipped.", LogType.WARNING);
+                    return false;
+                }
+
+                PublishControlState(eqpId, result.State.Value);
+                return result.State.Value == ControlState.REMOTE;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                MESClient.Send_Message(eqpId, "0", $"S1F3/SVID29 query failed: {ex.Message}; automatic processing skipped.", LogType.WARNING);
+                return false;
+            }
+        }
+
+        private async Task<ControlStateQueryResult> QueryControlStateAsync(string eqpId,
+            [CallerMemberName] string source = null, CancellationToken cancellationToken = default)
+        {
+            var generation = GetControlStateConnectionGeneration(eqpId);
+            var traceId = SecsExecution.CurrentTraceId;
+            string queryId = null;
+            var sw = Stopwatch.StartNew();
+            ControlStateQueryResult result = null;
+            try
+            {
+                result = await _controlStateQueries.RunAsync(eqpId, generation,
+                    (id, token) => ExecuteControlStateQueryAsync(eqpId, source, token, id), cancellationToken,
+                    (id, shared) =>
+                    {
+                        queryId = id;
+                        logger.Info($"SVID29 Wait Begin TraceId={traceId} QueryId={id} EqpId={eqpId} Source={source} Shared={shared}");
+                    }).ConfigureAwait(false);
+                if (generation != GetControlStateConnectionGeneration(eqpId))
+                    result = new(ControlStateQueryStatus.StaleConnection,
+                        Message: "SVID29 result discarded because connection or control state changed during the query.");
+                return result;
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                result = new(ControlStateQueryStatus.Cancelled, Message: "SVID29 caller stopped waiting.");
+                return result;
+            }
+            finally
+            {
+                logger.Info($"SVID29 Wait End TraceId={traceId} QueryId={queryId} EqpId={eqpId} Source={source} "
+                    + $"ElapsedMs={sw.ElapsedMilliseconds} Result={result?.Status}");
+            }
+        }
+
+        private async Task<ControlStateQueryResult> ExecuteControlStateQueryAsync(string eqpId,
+            string source, CancellationToken cancellationToken, string queryId)
+        {
+            var sw = Stopwatch.StartNew();
+            var result = new ControlStateQueryResult(ControlStateQueryStatus.Failed,
+                Message: "S1F3/SVID29 query did not complete.");
+            // Keep the protocol T3 unchanged. This watchdog also covers a missing native timeout callback.
+            var timeout = GetSecsReplyTimeout(eqpId);
+            var traceId = SecsExecution.CurrentTraceId;
+            logger.Info($"S1F3/SVID29 Begin TraceId={traceId} QueryId={queryId} EqpId={eqpId} Source={source} TimeoutMs={timeout.TotalMilliseconds:F0}");
+            try
+            {
+                var context = EAPContext.contexts?.FirstOrDefault(item => item.EquipmentID == eqpId);
+                if (context?.SecsGem == null)
+                {
+                    result = new(ControlStateQueryStatus.Unavailable,
+                        Message: "S1F3/SVID29 query skipped because the SECS context is unavailable.");
+                    return result;
+                }
+
+                var generation = GetControlStateConnectionGeneration(eqpId);
+                result = await ControlStateQuery.ExecuteAsync(context.SecsGem.SendAsync, timeout, cancellationToken, queryId)
+                    .ConfigureAwait(false);
+                if (generation != GetControlStateConnectionGeneration(eqpId))
+                {
+                    result = new(ControlStateQueryStatus.StaleConnection,
+                        Message: "S1F3/SVID29 query discarded because connection or control state changed during the query.");
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                result = new(ControlStateQueryStatus.Failed,
+                    Message: $"S1F3/SVID29 query failed: {ex.Message}", Exception: ex);
+                return result;
+            }
+            finally
+            {
+                var log = $"S1F3/SVID29 End TraceId={traceId} QueryId={queryId} EqpId={eqpId} Source={source} "
+                    + $"Result={result.Status} State={result.State} ElapsedMs={sw.ElapsedMilliseconds} Detail={result.Message}";
+                if (result.Success)
+                    logger.Info(log);
+                else
+                    logger.Warn(log + (result.Exception == null ? string.Empty : $" Exception={result.Exception}"));
+            }
+        }
+
+        private static TimeSpan GetSecsReplyTimeout(string eqpId)
+        {
+            var t3Seconds = EAPContext.EqpConfigures?.FirstOrDefault(config => config.Name == eqpId)?.T3 ?? 45;
+            return TimeSpan.FromSeconds((t3Seconds > 0 ? t3Seconds : 45) + 1d);
+        }
+
+        private long GetControlStateConnectionGeneration(string eqpId)
+        {
+            lock (_connectionStateLock)
+            {
+                return _controlStateConnectionGenerations.TryGetValue(eqpId, out var generation) ? generation : 0;
+            }
+        }
+
+        private void InvalidateControlStateQueries(string eqpId)
+        {
+            lock (_connectionStateLock)
+            {
+                _controlStateConnectionGenerations.TryGetValue(eqpId, out var generation);
+                _controlStateConnectionGenerations[eqpId] = generation + 1;
+            }
+            _controlStateQueries.Invalidate(eqpId);
+        }
+
+        private static void PublishControlState(string eqpId, ControlState state, bool force = false)
+        {
+            var changed = true;
+            if (AppCache.Current?.EqpInfos != null
+                && AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                && eqpInfo != null)
+            {
+                changed = eqpInfo.ControlStatus != state;
+                eqpInfo.ControlStatus = state;
+            }
+
+            if (force || changed)
+            {
+                MESClient.Send_ControlState(eqpId, state);
+            }
+        }
+
+        private async Task<bool> IsOnRemoteAsync(Arguments args, [CallerMemberName] string source = null,
+            CancellationToken cancellationToken = default)
+        {
+            if (args?.Header == null || !args.Header.TryGetValue(CItems.EqpId, out var eqpId))
+            {
+                args?.SetResultNG("REMOTE check skipped because equipment id is unavailable.");
+                return false;
+            }
+
+            var remote = await IsOnRemoteAsync(eqpId?.ToString(), source, cancellationToken).ConfigureAwait(false);
+            if (!remote)
+                args.SetResultNG($"{source} skipped because equipment {eqpId} is not in a confirmed REMOTE state.");
+            return remote;
+        }
+
         /// <summary>
         /// 妫€鏌P鏄惁鍏佽杩涜寰幆璺戠墖
         /// </summary>
         private bool IsLoopProcessEnabled(string eqpId, int portId = 0)
         {
-            if (!AppCache.Current.LoopProcessState.ContainsKey(eqpId))
+            return TryGetLoopProcessState(eqpId, portId, out var state) && state == 0;
+        }
+
+        private bool TryGetLoopProcessState(string eqpId, int portId, out int state)
+        {
+            state = -1;
+            var processStates = AppCache.Current?.LoopProcessState;
+            if (processStates == null || string.IsNullOrWhiteSpace(eqpId) || portId <= 0)
+            {
+                return false;
+            }
+
+            lock (processStates)
+            {
+                return processStates.TryGetValue(eqpId, out var portStates)
+                    && portStates != null
+                    && portStates.TryGetValue(portId, out state);
+            }
+        }
+
+        private bool EnsureLoopProcessEnabled(string eqpId, int portId, string action, Arguments args)
+        {
+            if (IsLoopProcessEnabled(eqpId, portId))
             {
                 return true;
             }
-            var portStates = AppCache.Current.LoopProcessState[eqpId];
-            if (portStates == null || !portStates.ContainsKey(portId))
+
+            var stateText = TryGetLoopProcessState(eqpId, portId, out var state)
+                ? state == 2 ? "PAUSED" : state == 1 ? "STOPPED" : "not synchronized"
+                : "STOPPED or not synchronized";
+            var message = $"{action} skipped because loop process on LP{portId} is {stateText}.";
+            MESClient.Send_Message(eqpId, portId.ToString(), message, LogType.WARNING);
+            args?.SetResultNG(message);
+            return false;
+        }
+
+        private static string GetTransferStateKey(string eqpId, int sourcePortId)
+        {
+            return $"{eqpId}:{sourcePortId}";
+        }
+
+        private static string GetTransferCarrierKey(string eqpId, string carrierId)
+        {
+            return $"{eqpId}:{carrierId?.Trim()}";
+        }
+
+        private static MESLotInfoDownloadReply GetBatchInfoForCarrier(string eqpId, string carrierId)
+        {
+            if (AppCache.Current.TransferBatchInfos != null
+                && AppCache.Current.TransferBatchInfos.TryGetValue(GetTransferCarrierKey(eqpId, carrierId), out var transferBatch))
             {
-                return true;
+                return transferBatch;
             }
-            var state = portStates[portId];
-            return state == 0;
+
+            return AppCache.Current.MesBatchInfos?.Values.FirstOrDefault(batch =>
+                string.Equals(batch?.CARRIERID?.Trim(), carrierId?.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+
+        private TransferJobState GetOrUpdateTransferState(
+            string eqpId, int portId, string carrierId, MESLotInfoDownloadReply batchInfo)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId)
+                || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                || eqpInfo?.PortInfo == null
+                || !eqpInfo.PortInfo.TryGetValue(portId, out var port)
+                || port.JobMode != 1
+                || port.TransferRole is not (1 or 2)
+                || port.TransferPartnerPortNo <= 0
+                || !eqpInfo.PortInfo.TryGetValue(port.TransferPartnerPortNo, out var partner)
+                || partner.JobMode != 1
+                || partner.TransferRole is not (1 or 2)
+                || partner.TransferRole == port.TransferRole
+                || partner.TransferPartnerPortNo != portId)
+            {
+                return null;
+            }
+
+            var sourcePortId = port.TransferRole == 1 ? portId : port.TransferPartnerPortNo;
+            var destinationPortId = port.TransferRole == 1 ? port.TransferPartnerPortNo : portId;
+            var key = GetTransferStateKey(eqpId, sourcePortId);
+            var state = AppCache.Current.TransferJobStates.GetOrAdd(key, _ => new TransferJobState
+            {
+                EquipmentId = eqpId,
+                SourcePortId = sourcePortId,
+                DestinationPortId = destinationPortId
+            });
+
+            if (port.TransferRole == 1)
+            {
+                if (!string.Equals(state.SourceCarrierId, carrierId, StringComparison.OrdinalIgnoreCase))
+                {
+                    state.SourceCarrierGeneration++;
+                    state.SourcePjCreated = false;
+                    state.SourcePjCreateInProgress = false;
+                    state.SourcePjQueued = false;
+                    state.SourceQueuedPjIds.Clear();
+                    state.CjCreated = false;
+                    state.CjCreateInProgress = false;
+                    state.TrackOutCompleted = false;
+                    state.Failed = false;
+                }
+                state.SourceCarrierId = carrierId;
+                state.SourceBatchInfo = batchInfo;
+                state.SourceBatchId = batchInfo?.BATCHCHID;
+            }
+            else
+            {
+                if (!string.Equals(state.DestinationCarrierId, carrierId, StringComparison.OrdinalIgnoreCase))
+                {
+                    state.DestinationCarrierGeneration++;
+                    state.DestinationTrackIn = false;
+                    state.DestinationSlotMap = null;
+                    state.DestinationSimWaferStatusSet = false;
+                    state.CjCreated = false;
+                    state.CjCreateInProgress = false;
+                    state.TrackOutCompleted = false;
+                    state.Failed = false;
+                }
+                state.DestinationCarrierId = carrierId;
+                state.DestinationBatchInfo = batchInfo;
+                state.DestinationBatchId = batchInfo?.BATCHCHID;
+            }
+
+            state.Failed = false;
+            return state;
+        }
+
+        private TransferJobState FindTransferStateForPort(string eqpId, int portId, string carrierId = null)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId) || AppCache.Current.TransferJobStates == null)
+                return null;
+
+            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                && eqpInfo?.PortInfo != null
+                && eqpInfo.PortInfo.TryGetValue(portId, out var port)
+                && port.TransferRole == 1)
+            {
+                if (AppCache.Current.TransferJobStates.TryGetValue(GetTransferStateKey(eqpId, portId), out var sourceState))
+                    return sourceState;
+            }
+
+            return AppCache.Current.TransferJobStates.Values.FirstOrDefault(state =>
+                state.EquipmentId == eqpId
+                && (state.SourcePortId == portId || state.DestinationPortId == portId)
+                && (string.IsNullOrWhiteSpace(carrierId)
+                    || string.Equals(state.SourceCarrierId, carrierId, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(state.DestinationCarrierId, carrierId, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        private TransferJobState FindTransferStateByCarrier(string eqpId, string carrierId)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId) || string.IsNullOrWhiteSpace(carrierId)
+                || AppCache.Current.TransferJobStates == null)
+                return null;
+
+            return AppCache.Current.TransferJobStates.Values.FirstOrDefault(state =>
+                state.EquipmentId == eqpId
+                && (string.Equals(state.SourceCarrierId, carrierId, StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(state.DestinationCarrierId, carrierId, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        private TransferJobState FindTransferStateBySourceBatchId(string eqpId, string batchId)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId) || string.IsNullOrWhiteSpace(batchId)
+                || AppCache.Current.TransferJobStates == null)
+                return null;
+
+            return AppCache.Current.TransferJobStates.Values.FirstOrDefault(state =>
+                state.EquipmentId == eqpId
+                && string.Equals(state.SourceBatchId, batchId, StringComparison.OrdinalIgnoreCase));
+        }
+
+        private TransferJobState FindTransferStateBySourcePjId(string eqpId, string pjid)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId) || string.IsNullOrWhiteSpace(pjid)
+                || AppCache.Current.TransferJobStates == null)
+                return null;
+
+            return AppCache.Current.TransferJobStates.Values.FirstOrDefault(state =>
+                state.EquipmentId == eqpId
+                && state.SourceBatchInfo?.LOTLIST?.Any(lot =>
+                    string.Equals(lot?.LOT_ID, pjid, StringComparison.OrdinalIgnoreCase)) == true);
+        }
+
+        private static bool IsTransferSourceBatch(string eqpId, MESLotInfoDownloadReply batchInfo)
+        {
+            if (string.IsNullOrWhiteSpace(eqpId) || batchInfo == null
+                || !int.TryParse(batchInfo.PORTID, out var portId)
+                || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                || eqpInfo?.PortInfo == null
+                || !eqpInfo.PortInfo.TryGetValue(portId, out var portInfo))
+                return false;
+
+            return portInfo.JobMode == 1 && portInfo.TransferRole == 1;
+        }
+
+        private static List<string> GetLotIds(MESLotInfoDownloadReply batchInfo)
+        {
+            return batchInfo?.LOTLIST?
+                .Where(lot => lot != null && !string.IsNullOrWhiteSpace(lot.LOT_ID))
+                .Select(lot => lot.LOT_ID)
+                .ToList() ?? new List<string>();
+        }
+
+        private static List<int> GetTransferSlots(MESLotInfoDownloadReply batchInfo)
+        {
+            return batchInfo?.LOTLIST?
+                .Where(lot => lot?.WAFERS != null)
+                .SelectMany(lot => lot.WAFERS)
+                .Where(wafer => wafer != null && wafer.SLOT > 0)
+                .Select(wafer => wafer.SLOT)
+                .ToList() ?? new List<int>();
+        }
+
+        private static bool IsSourcePort(TransferJobState state, int portId)
+        {
+            return state != null && state.SourcePortId == portId;
+        }
+
+        private async Task<bool> TrackInTransferPortAsync(Arguments args, TransferJobState state, int portId)
+        {
+            if (state == null)
+                return false;
+
+            var source = IsSourcePort(state, portId);
+            lock (state)
+            {
+                if (source && state.SourceTrackIn || !source && state.DestinationTrackIn)
+                    return true;
+
+                if (source && state.SourceTrackInInProgress || !source && state.DestinationTrackInInProgress)
+                    return false;
+
+                if (source)
+                    state.SourceTrackInInProgress = true;
+                else
+                    state.DestinationTrackInInProgress = true;
+            }
+            var carrierId = source ? state.SourceCarrierId : state.DestinationCarrierId;
+            bool result;
+            try
+            {
+                result = await SecsExecution.RunAsync(args, "MES_TrackIn",
+                    () => MESClient.MES_TrackIn(args.Header[CItems.EqpId].ToString(), portId.ToString(), carrierId));
+            }
+            finally
+            {
+                lock (state)
+                {
+                    if (source)
+                        state.SourceTrackInInProgress = false;
+                    else
+                        state.DestinationTrackInInProgress = false;
+                }
+            }
+            if (result)
+            {
+                var refreshedBatchInfo = GetBatchInfoForCarrier(args.Header[CItems.EqpId].ToString(), carrierId);
+                if (refreshedBatchInfo != null)
+                {
+                    if (source)
+                    {
+                        state.SourceBatchInfo = refreshedBatchInfo;
+                        state.SourceBatchId = refreshedBatchInfo.BATCHCHID;
+                    }
+                    else
+                    {
+                        state.DestinationBatchInfo = refreshedBatchInfo;
+                        state.DestinationBatchId = refreshedBatchInfo.BATCHCHID;
+                    }
+                }
+                if (source)
+                    state.SourceTrackIn = true;
+                else
+                    state.DestinationTrackIn = true;
+            }
+            else
+            {
+                state.Failed = true;
+            }
+            return result;
+        }
+
+        private async Task TryCreateTransferCJAsync(Arguments args, TransferJobState state)
+        {
+            if (state == null)
+                return;
+
+            lock (state)
+            {
+                if (state.Failed || state.CjCreated || state.CjCreateInProgress
+                    || !state.SourcePjCreated || !state.SourcePjQueued || !state.SourceTrackIn || !state.DestinationTrackIn
+                    || state.SourceCarrierGeneration <= 0
+                    || state.SourceCarrierGeneration != state.DestinationCarrierGeneration
+                    || string.IsNullOrWhiteSpace(state.SourceCarrierId)
+                    || string.IsNullOrWhiteSpace(state.DestinationCarrierId)
+                    || state.SourceBatchInfo == null
+                    || state.SourceSlotMap == null || state.SourceSlotMap.Count != 25
+                    || state.DestinationSlotMap == null || state.DestinationSlotMap.Count != 25)
+                {
+                    return;
+                }
+                state.CjCreateInProgress = true;
+            }
+
+            var slots = GetTransferSlots(state.SourceBatchInfo);
+            if (slots.Count == 0 || slots.Any(slot => slot > 25) || slots.Distinct().Count() != slots.Count
+                || slots.Any(slot => state.SourceSlotMap[slot - 1] != 3 || state.DestinationSlotMap[slot - 1] != 3))
+            {
+                state.Failed = true;
+                state.CjCreateInProgress = false;
+                args.SetResultNG("Transfer source batch has no valid wafer slots.");
+                return;
+            }
+
+            var success = false;
+            try
+            {
+                if (!state.DestinationSimWaferStatusSet)
+                {
+                    if (!await Send_TOSwitchSimWafer(args, state.DestinationPortId, 0))
+                    {
+                        state.Failed = true;
+                        return;
+                    }
+
+                    lock (state)
+                    {
+                        state.DestinationSimWaferStatusSet = true;
+                    }
+                }
+
+                await Send_S14F9_CreateTransferCJ(args, state, slots);
+                success = args.GetResultCode() == "OK";
+            }
+            finally
+            {
+                lock (state)
+                {
+                    state.CjCreateInProgress = false;
+                    if (success)
+                        state.CjCreated = true;
+                    else
+                        state.Failed = true;
+                }
+            }
+        }
+
+        private async Task CompleteTransferTrackOutAsync(Arguments args, TransferJobState state)
+        {
+            if (state == null)
+                return;
+
+            lock (state)
+            {
+                if (state.TrackOutCompleted || state.TrackOutInProgress
+                    || state.SourceBatchInfo == null || state.DestinationBatchInfo == null)
+                    return;
+                state.TrackOutInProgress = true;
+            }
+            var success = false;
+            try
+            {
+                var eqpId = args.Header[CItems.EqpId].ToString();
+                var sourceLots = GetLotIds(state.SourceBatchInfo);
+                var destinationLots = GetLotIds(state.DestinationBatchInfo);
+                success = sourceLots.Count > 0 && destinationLots.Count > 0;
+                if (success)
+                {
+                    success = await SecsExecution.RunAsync(args, "MES_LotEnd/Source",
+                        () => MESClient.MES_LotEndLots(eqpId, state.SourcePortId.ToString(), state.SourceCarrierId, sourceLots));
+                }
+                if (success)
+                {
+                    success = await SecsExecution.RunAsync(args, "MES_LotEnd/Destination",
+                        () => MESClient.MES_LotEndLots(eqpId, state.DestinationPortId.ToString(), state.DestinationCarrierId, destinationLots));
+                }
+                if (success)
+                {
+                    success = await SecsExecution.RunAsync(args, "MES_TrackOut/Source",
+                        () => MESClient.MES_TrackOutLots(eqpId, state.SourcePortId.ToString(), state.SourceCarrierId, sourceLots));
+                }
+                if (success)
+                {
+                    success = await SecsExecution.RunAsync(args, "MES_TrackOut/Destination",
+                        () => MESClient.MES_TrackOutLots(eqpId, state.DestinationPortId.ToString(), state.DestinationCarrierId, destinationLots));
+                }
+            }
+            finally
+            {
+                lock (state)
+                {
+                    state.TrackOutInProgress = false;
+                    state.TrackOutCompleted = success;
+                    if (!success)
+                        state.Failed = true;
+                }
+            }
+        }
+
+        private void CleanupTransferStateForPort(string eqpId, int portId, string carrierId)
+        {
+            var state = FindTransferStateForPort(eqpId, portId, carrierId);
+            if (state == null)
+                return;
+
+            if (state.SourcePortId == portId)
+            {
+                if (!string.IsNullOrWhiteSpace(state.SourceCarrierId))
+                    AppCache.Current.TransferBatchInfos?.TryRemove(GetTransferCarrierKey(eqpId, state.SourceCarrierId), out _);
+                state.SourceCarrierId = null;
+                state.SourceBatchInfo = null;
+                state.SourceBatchId = null;
+                state.SourceSlotMap = null;
+                state.SourceTrackIn = false;
+                state.SourcePjCreated = false;
+                state.SourcePjQueued = false;
+                state.SourceQueuedPjIds.Clear();
+                state.DestinationSimWaferStatusSet = false;
+            }
+            else if (state.DestinationPortId == portId)
+            {
+                if (!string.IsNullOrWhiteSpace(state.DestinationCarrierId))
+                    AppCache.Current.TransferBatchInfos?.TryRemove(GetTransferCarrierKey(eqpId, state.DestinationCarrierId), out _);
+                state.DestinationCarrierId = null;
+                state.DestinationBatchInfo = null;
+                state.DestinationBatchId = null;
+                state.DestinationSlotMap = null;
+                state.DestinationTrackIn = false;
+                state.DestinationSimWaferStatusSet = false;
+            }
+
+            if (string.IsNullOrWhiteSpace(state.SourceCarrierId)
+                && string.IsNullOrWhiteSpace(state.DestinationCarrierId))
+            {
+                AppCache.Current.TransferJobStates.TryRemove(GetTransferStateKey(eqpId, state.SourcePortId), out _);
+            }
         }
 
         public async Task HsmsConnectAsync(Arguments args)
@@ -2974,6 +4659,9 @@ namespace EAP.EC.KS_CM300
                 eqpId = args.Header[CItems.EqpId].ToString();
                 var version = args.Header.ContainsKey(CItems.ConnectionVersion)
                     ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
+                    : 0;
+                var sessionId = args.Header.ContainsKey(CItems.ConnectionSessionId)
+                    ? Convert.ToInt64(args.Header[CItems.ConnectionSessionId])
                     : 0;
                 var context = EAPContext.contexts?.FirstOrDefault(a => a.EquipmentID == eqpId);
                 if (context == null)
@@ -2987,36 +4675,56 @@ namespace EAP.EC.KS_CM300
                 }
 
                 // 妫€鏌ユ槸鍚﹀凡缁忚繛鎺ワ紝濡傛灉鏄垯涓嶉渶瑕佸彂閫?S1F13
-                bool isAlreadyConnected = false;
-                if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfoObj))
+                SecsMessage msg = new SecsMessage(1, 13);
+                msg.SecsItem = Item.L();
+                var reply = await SecsExecution.SendAsync(args, context.SecsGem, msg);
+
+                if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
                 {
-                    isAlreadyConnected = eqpInfoObj.ConnectStatus == ConnectStatus.CONNECTED;
+                    args.SetResultNG("Send S1F13, Equipment Reply Empty.");
+                    return;
+                }
+                byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
+                if (retCode != 0)
+                {
+                    args.SetResultNG("Send S1F13, Equipment Reply Fail.");
+                    return;
                 }
 
-                if (!isAlreadyConnected)
+                if (!TrySetConnectionStatus(eqpId, version, sessionId,
+                        ConnectStatus.CONNECTED, out var connectionStatusChanged))
                 {
-                    SecsMessage msg = new SecsMessage(1, 13);
-                    msg.SecsItem = Item.L();
-                    var reply = await context.SecsGem.SendAsync(msg);
+                    logger.Warn($"Ignoring stale S1F13 completion. EqpId={eqpId} Version={version} SessionId={sessionId}");
+                    return;
+                }
 
-                    if (reply == null || reply.SecsItem == null || reply.SecsItem.Items.Length == 0)
-                    {
-                        args.SetResultNG("Send S1F13, Equipment Reply Empty.");
-                        return;
-                    }
-                    byte retCode = (byte)SecsItemUtil.GetItemValue(reply.SecsItem[0]);
-                    if (retCode != 0)
-                    {
-                        args.SetResultNG("Send S1F13, Equipment Reply Fail.");
-                        return;
-                    }
+                if (connectionStatusChanged)
+                    await MESClient.Send_EqpStateAsync(eqpId, EQPState.Connected, version);
 
-                    MESClient.Send_EqpState(eqpId, EQPState.Connected);
-
-                    if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+                try
+                {
+                    var result = await QueryControlStateAsync(eqpId);
+                    if (result.Success)
                     {
-                        eqpInfo.ConnectStatus = ConnectStatus.CONNECTED;
+                        PublishControlState(eqpId, result.State.Value, force: true);
+                        // A tool may already be in REMOTE when the EAP process is
+                        // started (especially when a second tool starts later).
+                        // In that case no CEID=10 transition is emitted to trigger
+                        // event-report initialization, so initialize it here.
+                        if (result.State.Value == ControlState.REMOTE
+                            && AppCache.Current.EqpInfos.TryGetValue(eqpId, out var connectedEqp))
+                        {
+                            await EnsureEventReportsInitializedAsync(args, connectedEqp);
+                        }
                     }
+                    else
+                    {
+                        MESClient.Send_Message(eqpId, "0", $"{result.Message} Control-state refresh after connection failed.", LogType.WARNING);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MESClient.Send_Message(eqpId, "0", $"S1F3/SVID29 control-state refresh failed after connection: {ex.Message}", LogType.WARNING);
                 }
 
                 args.SetResultOK();
@@ -3033,21 +4741,64 @@ namespace EAP.EC.KS_CM300
             }
         }
 
-        public void HsmsDisConnect(Arguments args)
+        public async Task HsmsDisConnectAsync(Arguments args)
         {
             var eqpId = args.Header[CItems.EqpId].ToString();
             var version = args.Header.ContainsKey(CItems.ConnectionVersion)
                 ? Convert.ToInt64(args.Header[CItems.ConnectionVersion])
                 : 0;
-            if (!IsLatestConnectionVersion(eqpId, version))
+            var sessionId = args.Header.ContainsKey(CItems.ConnectionSessionId)
+                ? Convert.ToInt64(args.Header[CItems.ConnectionSessionId])
+                : 0;
+            if (!TrySetConnectionStatus(eqpId, version, sessionId,
+                    ConnectStatus.DISCONNECTED, out var connectionStatusChanged))
             {
                 return;
             }
-            MESClient.Send_EqpState(eqpId, EQPState.DisConnected);
-            //寤虹珛閫昏緫杩炴帴
-            if (AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo))
+            InvalidateControlStateQueries(eqpId);
+            StopChannelPolling();
+            if (connectionStatusChanged)
+                await MESClient.Send_EqpStateAsync(eqpId, EQPState.DisConnected, version);
+        }
+
+        private bool TrySetConnectionStatus(string eqpId, long version, long sessionId,
+            ConnectStatus status, out bool statusChanged)
+        {
+            statusChanged = false;
+            lock (_connectionStateLock)
             {
-                eqpInfo.ConnectStatus = ConnectStatus.DISCONNECTED;
+                if (!_connectionVersions.TryGetValue(eqpId, out var latestVersion)
+                    || version > latestVersion
+                    || !_connectionSessionIds.TryGetValue(eqpId, out var latestSessionId)
+                    || sessionId != latestSessionId)
+                    return false;
+
+                if (status == ConnectStatus.DISCONNECTED)
+                {
+                    if (version != latestVersion || !_connectionStates.TryGetValue(eqpId, out var currentState)
+                        || (currentState != ConnectionState.Disabled
+                            && currentState != ConnectionState.Reconnecting
+                            && currentState != ConnectionState.Retry
+                            && currentState != ConnectionState.Disconnected))
+                        return false;
+                }
+                else if (!_connectionStates.TryGetValue(eqpId, out var currentState)
+                    || (currentState != ConnectionState.Connected
+                        && currentState != ConnectionState.Selecting
+                        && currentState != ConnectionState.Selected
+                        && currentState != ConnectionState.Communicating))
+                {
+                    return false;
+                }
+
+                if (AppCache.Current?.EqpInfos == null
+                    || !AppCache.Current.EqpInfos.TryGetValue(eqpId, out var eqpInfo)
+                    || eqpInfo == null)
+                    return false;
+
+                statusChanged = eqpInfo.ConnectStatus != status;
+                eqpInfo.ConnectStatus = status;
+                return true;
             }
         }
 
@@ -3056,6 +4807,47 @@ namespace EAP.EC.KS_CM300
             lock (_connectionStateLock)
             {
                 return !_connectionVersions.TryGetValue(eqpId, out var latestVersion) || version >= latestVersion;
+            }
+        }
+
+        private async Task EnsureEventReportsInitializedAsync(Arguments args, EqpInfo equipment)
+        {
+            if (equipment == null || args?.Header == null
+                || !args.Header.TryGetValue(CItems.EqpId, out var equipmentIdValue))
+            {
+                return;
+            }
+
+            var eqpId = equipmentIdValue?.ToString();
+            if (string.IsNullOrWhiteSpace(eqpId))
+            {
+                return;
+            }
+
+            var initializationLock = _eventReportInitializationLocks.GetOrAdd(eqpId, _ => new SemaphoreSlim(1, 1));
+            await initializationLock.WaitAsync();
+            try
+            {
+                if (equipment.IsInitial)
+                {
+                    return;
+                }
+
+                await HsmsInitial(args);
+                if (args.GetResultCode() == "OK")
+                {
+                    equipment.IsInitial = true;
+                }
+                else
+                {
+                    MESClient.Send_Message(eqpId, "0",
+                        $"Event-report initialization failed after connection: {args.GetResultMsg()}",
+                        LogType.WARNING);
+                }
+            }
+            finally
+            {
+                initializationLock.Release();
             }
         }
 

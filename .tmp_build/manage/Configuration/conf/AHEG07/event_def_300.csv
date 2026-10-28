@@ -1,0 +1,627 @@
+evid, ev_name,						enabled, 	desc
+# predefined events
+# NOTICE: user can change event ID, but DON NOT change predefined event name.
+8, EV_CTRL_TO_OFFLINE,			1,			Equipment switch to OFFLINE state
+9, EV_CTRL_TO_LOCAL,				1,			Equipment switch to ONLINE-LOCAL state
+10, EV_CTRL_TO_REMOTE,			1,			Equipment switch to ONLINE-REMOTE state
+1005, EV_ALARM_SET,					1,			Alarm cleared
+1006, EV_ALARM_CLEAR,				1,			Alarm set
+1010, EV_PP_CHANGED,				1,			Process program has been changed
+
+# for SEMI E40
+105, E40_01_NostateToQueued,				1,			PJ STATE: no-state ==> QUEUED/POOLED
+106, E40_02_QueuedToSettingUP,				1,			PJ STATE: QUEUED/POOLED ==> SETTINGUP
+107, E40_03_SettingUPToWaittingForStart,	1,			PJ STATE: SETTINGUP ==> WaittingForStart
+108, E40_04_SettingUPToProcessing,			1,			PJ STATE: SETTINGUP ==> Processing
+109, E40_05_WaittingForStartToProcessing,	1,			PJ STATE: WaittingForStart ==> Processing
+110, E40_06_ProcessingToProcessComplete,	1,			PJ STATE: Processing ==> ProcessComplete
+111, E40_07_ProcessCompleteToNostate,		1,			PJ STATE: Post Active ==> no-state
+112, E40_08_ExcutingToPausing,				1,			PJ STATE: Executing ==> Pausing
+113, E40_09_PausingToPaused,				1,			PJ STATE: Pausing ==> Paused
+114, E40_10_PauseToExecuting,				1,			PJ STATE: Pause ==> Executing
+115, E40_11_ExecutingToStopping,			1,			PJ STATE: Executing ==> Stopping
+116, E40_12_PauseToStoping,					1,			PJ STATE: Pause ==> Stopping
+117, E40_13_ExecutingToAborting,			1,			PJ STATE: Executing ==> Aborting
+118, E40_14_StopingToAborting,				1,			PJ STATE: Stopping ==> Aborting
+119, E40_15_PauseToAborting,				1,			PJ STATE: Pause ==> Aborting
+120, E40_16_AbortingToAborted,				1,			PJ STATE: Aborting ==> Aborted
+121, E40_17_StoppingToStopped,				1,			PJ STATE: Stopping ==> Stopped
+122, E40_18_QueuedToNostate,				1,			PJ STATE: Queued ==> No State
+138, PRJobSetup, 					1,	
+139, PRJobProcessing,				1,
+140, PRJobProcessingComplete,		1,
+141, PRJobComplete,					1,
+142, PRJobWaitingForStart,			1,
+143, PRJobWaitingForMaterial,		1,
+144, PRJobStateChange,			 	1,
+
+# for SEMI E94
+123, E94_CJ_01_NoStateToQueued,				1,		CJ STATE: No State ==> Queued
+124, E94_CJ_02_QueuedToNoState,				1,		CJ STATE: Queued ==> No State
+125, E94_CJ_03_QueuedToSelected,			1,		CJ STATE: Queued ==> Selected
+126, E94_CJ_04_SelectedToQueued,			1,		CJ STATE: Selected ==> Queued
+127, E94_CJ_05_SelectedToExecuting,			1,		CJ STATE: Selected ==> Executing
+128, E94_CJ_06_SelectedToWaitingforstart,	1,		CJ STATE: Selected ==> Waiting For Start
+129, E94_CJ_07_WaitingforstartToExecuting,	1,		CJ STATE: Waiting For Start ==> Executing
+130, E94_CJ_08_ExecutingToPaused,			1,		CJ STATE: Executing ==> Paused
+131, E94_CJ_09_PausedToExecuting,			1,		CJ STATE: Paused ==> Executing
+132, E94_CJ_10_ExecutingToCompleted,		1,		CJ STATE: Executing ==> Completed
+133, E94_CJ_11_ActiveToCompletedStop,		1,		CJ STATE: Active ==> Completed
+134, E94_CJ_12_ActiveToCompletedAbort,		1,		CJ STATE: Active ==> Completed
+135, E94_CJ_13_CompletedToNoState,			1,		CJ STATE: Completed ==> No State
+136, SelectedCjSetEmptied,					1,
+
+# for SEMI E87
+14, MaterialReceivedEvent, 				1,
+15, MaterialRemovedEvent, 				1,
+25, EV_CARRIER_DOOR_CLOSED, 		1,
+26, EV_CARRIER_ID_READ_FAILED, 	1,
+27, EV_CARRIER_LOCATION_CHANGED, 	1,
+31, EV_CARRIER_CLAMPED, 			1,
+32, EV_CARRIER_UNCLAMPED,			1,
+33, EV_CARRIER_TAG_RELEASED,		1,
+34, EV_CARRIER_DOOR_OPENED, 		1,
+35, E87NoStateTrans01Carrier,		1,
+37, EV_CARRIER_ID_WAIT_FOR_HOST, 				1, 	
+42, EV_CARRIER_ID_VERIFY_OK, 					1, 	
+43, EV_CARRIER_ID_VERIFY_FAILED, 				1, 	
+46, NoStateTransSotMapNotRead, 				1, 
+48, EV_CARRIER_SLOTMAP_WAIT_FOR_HOST, 		1,
+49, EV_CARRIER_SLOTMAP_VERIFY_OK, 			1,
+50, EV_CARRIER_SLOTMAP_VERIFY_FAILED, 		1,
+51,E87NoStateTrans17NotAccessed, 		1,
+52, EV_CARRIER_IN_ACCESS, 		1, 	#18 NOT_ACCESS ==> IN_ACCESS
+53, EV_CARRIER_COMPLETE,	 		1, 	#19 IN_ACCESS ==> CARRIER_COMPLETE
+54, EV_CARRIER_STOPPED,	 		1, 	#19 IN_ACCESS ==> CARRIER_STOPPED
+59, AssocSMGoAssoc, 				1, 	
+61, AssocToNotAssoc,	1,	
+65, E87NoStateTrans01Service,	1,	
+67, E87InServiceTrans03OutService,	1,	
+69, E87TransferReadyTrans05ReadyTOLoadOrUnLoad,	1,	
+70, EV_LOADPORT_TRANSFER_BLOCKED, 		1,
+71, E87ReadyToUnLoadTrans07TransferBlocked, 		1, 	
+72, EV_LOADPORT_TRANSFER_READY_TO_LOAD, 	1,
+73, EV_LOADPORT_TRANSFER_READY_TO_UNLOAD,	1,
+74, E87TransferBlockedTrans10TransferReady,	1, 	
+75, EV_CARRIER_APPROACH_COMPLETE, 1,	
+
+# for SEMI E84
+23,EV_LOADPORT_ACCESS_MODE_CHANGED_AUTO,1,
+24,EV_LOADPORT_ACCESS_MODE_CHANGED_Manual,1,
+
+# for SEMI E90   
+81, SubstSMTrans01_InitToSource,			1,SUBST STATE: No State ==> AT SOURCE
+82, SubstSMTrans02_SourceToWork,			1,SUBST STATE: AT SOURCE ==> AT WORK
+83, SubstSMTrans03_WorkToSource,			1,SUBST STATE: AT WORK ==> AT SOURCE
+84, SubstSMTrans04_WorkToWork,				1,SUBST STATE: AT WORK ==> AT WORK
+85, SubstSMTrans05_WorkToDestination,		1,SUBST STATE: AT WORK ==> AT Destination
+86, SubstSMTrans06_DestinationToWork,		1,SUBST STATE: AT Destination ==> AT WORK
+87, SubstSMTrans07_DestinationToExtinction,	1,SUBST STATE: AT Destination ==> Extinction
+88, SubstSMTrans08_DestinationToSource,		1,SUBST STATE: AT Destination ==> AT SOURCE
+89, SubstSMTrans09_ProcessToEnd,			1,SUBST STATE: Process ==> End
+90, SubstSMTrans10_InitToNeedProcess,		1,SUBST STATE: NoState ==> Need Process
+91, SubstSMTrans11_NeedProcessToInProcess,	1,SUBST STATE: Need Process ==> IN Process
+92, SubstSMTrans12_InProcessToComplete,		1,SUBST STATE: IN Process ==>Process Complete
+93, SubstSMTrans13_InProcessToNeedProcess,	1,SUBST STATE: IN Process ==>Need Process 
+94, SubstSMTrans14_NeedProcessToComplete,	1,SUBST STATE: Need Process ==>Complete 
+95, SubstSMTrans16_InitToNotConfirmed,		1,SUBST STATE: NoState ==>NOT CONFIRMED
+96, SubstSMTrans17_NotConfirmedToConfirmed,	1,SUBST STATE: NOT CONFIRMED ==>CONFIRMED
+97, SubstSMTrans18_IDReadFailNotConfirmedToWaitingForHost,	1,SUBST STATE: NOT CONFIRMED ==>WAITING FOR HOST
+98, SubstSMTrans19_IDMismatchNotConfirmedToWaitingForHost,	1,SUBST STATE: NOT CONFIRMED ==>WAITING FOR HOST
+99, SubstSMTrans20_WaitingForHostToConfirmed,				1,SUBST STATE: WAITING FOR HOST ==>CONFIRMED
+100, SubstSMTrans21_WaitingForHostToConfirmationFailed,		1,SUBST STATE: WAITING FOR HOST ==>CONFIRMED Failed
+101, UnOccupiedTrans01Occupied,		1,
+102, OccupiedTrans02UnOccupied,		1,
+
+# user defined events
+10009,DockComplete,		1,
+10005,UnDockComplete,		1,
+10010,ECChange,		1,
+10011,ExchangeStart,		1,
+10012,ExchangeEnd,		1,
+11117,EquipStateChange,		1,
+#Chamber Event ProcessStart/End
+20100,PM1ProcessStart,1,
+20101,PM1ProcessEnd,1,
+20200,PM2ProcessStart,1,
+20201,PM2ProcessEnd,1,
+20300,PM3ProcessStart,1,
+20301,PM3ProcessEnd,1,
+20400,PM4ProcessStart,1,
+20401,PM4ProcessEnd,1,
+20500,PM5ProcessStart,1,
+20501,PM5ProcessEnd,1,
+20600,PM6ProcessStart,1,
+20601,PM6ProcessEnd,1,
+20700,PM7ProcessStart,1,
+20701,PM7ProcessEnd,1,
+20800,PM8ProcessStart,1,
+20801,PM8ProcessEnd,1,
+20900,PM9ProcessStart,1,
+20901,PM9ProcessEnd,1,
+21000,PM10ProcessStart,1,
+21001,PM10ProcessEnd,1,
+21100,PM11ProcessStart,1,
+21101,PM11ProcessEnd,1,
+21200,PM12ProcessStart,1,
+21201,PM12ProcessEnd,1,
+21300,PM13ProcessStart,1,
+21301,PM13ProcessEnd,1,
+21400,PM14ProcessStart,1,
+21401,PM14ProcessEnd,1,
+21500,PM15ProcessStart,1,
+21501,PM15ProcessEnd,1,
+21600,PM16ProcessStart,1,
+21601,PM16ProcessEnd,1,
+21700,PM17ProcessStart,1,
+21701,PM17ProcessEnd,1,
+21800,PM18ProcessStart,1,
+21801,PM18ProcessEnd,1,
+21900,PM19ProcessStart,1,
+21901,PM19ProcessEnd,1,
+22000,PM20ProcessStart,1,
+22001,PM20ProcessEnd,1,
+22100,PM21ProcessStart,1,
+22101,PM21ProcessEnd,1,
+22200,PM22ProcessStart,1,
+22201,PM22ProcessEnd,1,
+22300,PM23ProcessStart,1,
+22301,PM23ProcessEnd,1,
+22400,PM24ProcessStart,1,
+22401,PM24ProcessEnd,1,
+22500,PM25ProcessStart,1,
+22501,PM25ProcessEnd,1,
+22600,PM26ProcessStart,1,
+22601,PM26ProcessEnd,1,
+22700,PM27ProcessStart,1,
+22701,PM27ProcessEnd,1,
+22800,PM28ProcessStart,1,
+22801,PM28ProcessEnd,1,
+22900,PM29ProcessStart,1,
+22901,PM29ProcessEnd,1,
+23000,PM30ProcessStart,1,
+23001,PM30ProcessEnd,1,
+23100,PM31ProcessStart,1,
+23101,PM31ProcessEnd,1,
+23200,PM32ProcessStart,1,
+23201,PM32ProcessEnd,1,
+23300,PM33ProcessStart,1,
+23301,PM33ProcessEnd,1,
+23400,PM34ProcessStart,1,
+23401,PM34ProcessEnd,1,
+23500,PM35ProcessStart,1,
+23501,PM35ProcessEnd,1,
+23600,PM36ProcessStart,1,
+23601,PM36ProcessEnd,1,
+23700,PM37ProcessStart,1,
+23701,PM37ProcessEnd,1,
+23800,PM38ProcessStart,1,
+23801,PM38ProcessEnd,1,
+23900,PM39ProcessStart,1,
+23901,PM39ProcessEnd,1,
+24000,PM40ProcessStart,1,
+24001,PM40ProcessEnd,1,
+24100,PM41ProcessStart,1,
+24101,PM41ProcessEnd,1,
+24200,PM42ProcessStart,1,
+24201,PM42ProcessEnd,1,
+24300,PM43ProcessStart,1,
+24301,PM43ProcessEnd,1,
+24400,PM44ProcessStart,1,
+24401,PM44ProcessEnd,1,
+24500,PM45ProcessStart,1,
+24501,PM45ProcessEnd,1,
+24600,PM46ProcessStart,1,
+24601,PM46ProcessEnd,1,
+24700,PM47ProcessStart,1,
+24701,PM47ProcessEnd,1,
+24800,PM48ProcessStart,1,
+24801,PM48ProcessEnd,1,
+24900,PM49ProcessStart,1,
+24901,PM49ProcessEnd,1,
+25000,PM50ProcessStart,1,
+25001,PM50ProcessEnd,1,
+25100,PM51ProcessStart,1,
+25101,PM51ProcessEnd,1,
+25200,PM52ProcessStart,1,
+25201,PM52ProcessEnd,1,
+25300,PM53ProcessStart,1,
+25301,PM53ProcessEnd,1,
+25400,PM54ProcessStart,1,
+25401,PM54ProcessEnd,1,
+25500,PM55ProcessStart,1,
+25501,PM55ProcessEnd,1,
+25600,PM56ProcessStart,1,
+25601,PM56ProcessEnd,1,
+25700,PM57ProcessStart,1,
+25701,PM57ProcessEnd,1,
+25800,PM58ProcessStart,1,
+25801,PM58ProcessEnd,1,
+25900,PM59ProcessStart,1,
+25901,PM59ProcessEnd,1,
+26000,PM60ProcessStart,1,
+26001,PM60ProcessEnd,1,
+
+#Chamber Event PM Step Start/End
+20110,PM1StepStart,1,
+20111,PM1StepEnd,1,
+20210,PM2StepStart,1,
+20211,PM2StepEnd,1,
+20310,PM3StepStart,1,
+20311,PM3StepEnd,1,
+20410,PM4StepStart,1,
+20411,PM4StepEnd,1,
+20510,PM5StepStart,1,
+20511,PM5StepEnd,1,
+20610,PM6StepStart,1,
+20611,PM6StepEnd,1,
+20710,PM7StepStart,1,
+20711,PM7StepEnd,1,
+20810,PM8StepStart,1,
+20811,PM8StepEnd,1,
+20910,PM9StepStart,1,
+20911,PM9StepEnd,1,
+21010,PM10StepStart,1,
+21011,PM10StepEnd,1,
+21110,PM11StepStart,1,
+21111,PM11StepEnd,1,
+21210,PM12StepStart,1,
+21211,PM12StepEnd,1,
+21310,PM13StepStart,1,
+21311,PM13StepEnd,1,
+21410,PM14StepStart,1,
+21411,PM14StepEnd,1,
+21510,PM15StepStart,1,
+21511,PM15StepEnd,1,
+21610,PM16StepStart,1,
+21611,PM16StepEnd,1,
+21710,PM17StepStart,1,
+21711,PM17StepEnd,1,
+21810,PM18StepStart,1,
+21811,PM18StepEnd,1,
+21910,PM19StepStart,1,
+21911,PM19StepEnd,1,
+22010,PM20StepStart,1,
+22011,PM20StepEnd,1,
+22110,PM21StepStart,1,
+22111,PM21StepEnd,1,
+22210,PM22StepStart,1,
+22211,PM22StepEnd,1,
+22310,PM23StepStart,1,
+22311,PM23StepEnd,1,
+22410,PM24StepStart,1,
+22411,PM24StepEnd,1,
+22510,PM25StepStart,1,
+22511,PM25StepEnd,1,
+22610,PM26StepStart,1,
+22611,PM26StepEnd,1,
+22710,PM27StepStart,1,
+22711,PM27StepEnd,1,
+22810,PM28StepStart,1,
+22811,PM28StepEnd,1,
+22910,PM29StepStart,1,
+22911,PM29StepEnd,1,
+23010,PM30StepStart,1,
+23011,PM30StepEnd,1,
+23110,PM31StepStart,1,
+23111,PM31StepEnd,1,
+23210,PM32StepStart,1,
+23211,PM32StepEnd,1,
+23310,PM33StepStart,1,
+23311,PM33StepEnd,1,
+23410,PM34StepStart,1,
+23411,PM34StepEnd,1,
+23510,PM35StepStart,1,
+23511,PM35StepEnd,1,
+23610,PM36StepStart,1,
+23611,PM36StepEnd,1,
+23710,PM37StepStart,1,
+23711,PM37StepEnd,1,
+23810,PM38StepStart,1,
+23811,PM38StepEnd,1,
+23910,PM39StepStart,1,
+23911,PM39StepEnd,1,
+24010,PM40StepStart,1,
+24011,PM40StepEnd,1,
+24110,PM41StepStart,1,
+24111,PM41StepEnd,1,
+24210,PM42StepStart,1,
+24211,PM42StepEnd,1,
+24310,PM43StepStart,1,
+24311,PM43StepEnd,1,
+24410,PM44StepStart,1,
+24411,PM44StepEnd,1,
+24510,PM45StepStart,1,
+24511,PM45StepEnd,1,
+24610,PM46StepStart,1,
+24611,PM46StepEnd,1,
+24710,PM47StepStart,1,
+24711,PM47StepEnd,1,
+24810,PM48StepStart,1,
+24811,PM48StepEnd,1,
+24910,PM49StepStart,1,
+24911,PM49StepEnd,1,
+25010,PM50StepStart,1,
+25011,PM50StepEnd,1,
+25110,PM51StepStart,1,
+25111,PM51StepEnd,1,
+25210,PM52StepStart,1,
+25211,PM52StepEnd,1,
+25310,PM53StepStart,1,
+25311,PM53StepEnd,1,
+25410,PM54StepStart,1,
+25411,PM54StepEnd,1,
+25510,PM55StepStart,1,
+25511,PM55StepEnd,1,
+25610,PM56StepStart,1,
+25611,PM56StepEnd,1,
+25710,PM57StepStart,1,
+25711,PM57StepEnd,1,
+25810,PM58StepStart,1,
+25811,PM58StepEnd,1,
+25910,PM59StepStart,1,
+25911,PM59StepEnd,1,
+26010,PM60StepStart,1,
+26011,PM60StepEnd,1,
+
+#Chamber Event ACC Start/End
+30100,PM1ACCStart,,1
+30101,PM1ACCEnd,,1
+30200,PM2ACCStart,,1
+30201,PM2ACCEnd,,1
+30300,PM3ACCStart,,1
+30301,PM3ACCEnd,,1
+30400,PM4ACCStart,,1
+30401,PM4ACCEnd,,1
+30500,PM5ACCStart,,1
+30501,PM5ACCEnd,,1
+30600,PM6ACCStart,,1
+30601,PM6ACCEnd,,1
+30700,PM7ACCStart,,1
+30701,PM7ACCEnd,,1
+30800,PM8ACCStart,,1
+30801,PM8ACCEnd,,1
+30900,PM9ACCStart,,1
+30901,PM9ACCEnd,,1
+31000,PM10ACCStart,,1
+31001,PM10ACCEnd,,1
+31100,PM11ACCStart,,1
+31101,PM11ACCEnd,,1
+31200,PM12ACCStart,,1
+31201,PM12ACCEnd,,1
+31300,PM13ACCStart,,1
+31301,PM13ACCEnd,,1
+31400,PM14ACCStart,,1
+31401,PM14ACCEnd,,1
+31500,PM15ACCStart,,1
+31501,PM15ACCEnd,,1
+31600,PM16ACCStart,,1
+31601,PM16ACCEnd,,1
+31700,PM17ACCStart,,1
+31701,PM17ACCEnd,,1
+31800,PM18ACCStart,,1
+31801,PM18ACCEnd,,1
+31900,PM19ACCStart,,1
+31901,PM19ACCEnd,,1
+32000,PM20ACCStart,,1
+32001,PM20ACCEnd,,1
+32100,PM21ACCStart,,1
+32101,PM21ACCEnd,,1
+32200,PM22ACCStart,,1
+32201,PM22ACCEnd,,1
+32300,PM23ACCStart,,1
+32301,PM23ACCEnd,,1
+32400,PM24ACCStart,,1
+32401,PM24ACCEnd,,1
+32500,PM25ACCStart,,1
+32501,PM25ACCEnd,,1
+32600,PM26ACCStart,,1
+32601,PM26ACCEnd,,1
+32700,PM27ACCStart,,1
+32701,PM27ACCEnd,,1
+32800,PM28ACCStart,,1
+32801,PM28ACCEnd,,1
+32900,PM29ACCStart,,1
+32901,PM29ACCEnd,,1
+33000,PM30ACCStart,,1
+33001,PM30ACCEnd,,1
+33100,PM31ACCStart,,1
+33101,PM31ACCEnd,,1
+33200,PM32ACCStart,,1
+33201,PM32ACCEnd,,1
+33300,PM33ACCStart,,1
+33301,PM33ACCEnd,,1
+33400,PM34ACCStart,,1
+33401,PM34ACCEnd,,1
+33500,PM35ACCStart,,1
+33501,PM35ACCEnd,,1
+33600,PM36ACCStart,,1
+33601,PM36ACCEnd,,1
+33700,PM37ACCStart,,1
+33701,PM37ACCEnd,,1
+33800,PM38ACCStart,,1
+33801,PM38ACCEnd,,1
+33900,PM39ACCStart,,1
+33901,PM39ACCEnd,,1
+34000,PM40ACCStart,,1
+34001,PM40ACCEnd,,1
+34100,PM41ACCStart,,1
+34101,PM41ACCEnd,,1
+34200,PM42ACCStart,,1
+34201,PM42ACCEnd,,1
+34300,PM43ACCStart,,1
+34301,PM43ACCEnd,,1
+34400,PM44ACCStart,,1
+34401,PM44ACCEnd,,1
+34500,PM45ACCStart,,1
+34501,PM45ACCEnd,,1
+34600,PM46ACCStart,,1
+34601,PM46ACCEnd,,1
+34700,PM47ACCStart,,1
+34701,PM47ACCEnd,,1
+34800,PM48ACCStart,,1
+34801,PM48ACCEnd,,1
+34900,PM49ACCStart,,1
+34901,PM49ACCEnd,,1
+35000,PM50ACCStart,,1
+35001,PM50ACCEnd,,1
+35100,PM51ACCStart,,1
+35101,PM51ACCEnd,,1
+35200,PM52ACCStart,,1
+35201,PM52ACCEnd,,1
+35300,PM53ACCStart,,1
+35301,PM53ACCEnd,,1
+35400,PM54ACCStart,,1
+35401,PM54ACCEnd,,1
+35500,PM55ACCStart,,1
+35501,PM55ACCEnd,,1
+35600,PM56ACCStart,,1
+35601,PM56ACCEnd,,1
+35700,PM57ACCStart,,1
+35701,PM57ACCEnd,,1
+35800,PM58ACCStart,,1
+35801,PM58ACCEnd,,1
+35900,PM59ACCStart,,1
+35901,PM59ACCEnd,,1
+36000,PM60ACCStart,,1
+36001,PM60ACCEnd,,1
+
+#Chamber Event LOT_PRE Start/End
+30102,PM1LOT_PREStart,,1
+30103,PM1LOT_PREEnd,,1
+30202,PM2LOT_PREStart,,1
+30203,PM2LOT_PREEnd,,1
+30302,PM3LOT_PREStart,,1
+30303,PM3LOT_PREEnd,,1
+30402,PM4LOT_PREStart,,1
+30403,PM4LOT_PREEnd,,1
+30502,PM5LOT_PREStart,,1
+30503,PM5LOT_PREEnd,,1
+30602,PM6LOT_PREStart,,1
+30603,PM6LOT_PREEnd,,1
+30702,PM7LOT_PREStart,,1
+30703,PM7LOT_PREEnd,,1
+30802,PM8LOT_PREStart,,1
+30803,PM8LOT_PREEnd,,1
+30902,PM9LOT_PREStart,,1
+30903,PM9LOT_PREEnd,,1
+31002,PM10LOT_PREStart,,1
+31003,PM10LOT_PREEnd,,1
+31102,PM11LOT_PREStart,,1
+31103,PM11LOT_PREEnd,,1
+31202,PM12LOT_PREStart,,1
+31203,PM12LOT_PREEnd,,1
+31302,PM13LOT_PREStart,,1
+31303,PM13LOT_PREEnd,,1
+31402,PM14LOT_PREStart,,1
+31403,PM14LOT_PREEnd,,1
+31502,PM15LOT_PREStart,,1
+31503,PM15LOT_PREEnd,,1
+31602,PM16LOT_PREStart,,1
+31603,PM16LOT_PREEnd,,1
+31702,PM17LOT_PREStart,,1
+31703,PM17LOT_PREEnd,,1
+31802,PM18LOT_PREStart,,1
+31803,PM18LOT_PREEnd,,1
+31902,PM19LOT_PREStart,,1
+31903,PM19LOT_PREEnd,,1
+32002,PM20LOT_PREStart,,1
+32003,PM20LOT_PREEnd,,1
+32102,PM21LOT_PREStart,,1
+32103,PM21LOT_PREEnd,,1
+32202,PM22LOT_PREStart,,1
+32203,PM22LOT_PREEnd,,1
+32302,PM23LOT_PREStart,,1
+32303,PM23LOT_PREEnd,,1
+32402,PM24LOT_PREStart,,1
+32403,PM24LOT_PREEnd,,1
+32502,PM25LOT_PREStart,,1
+32503,PM25LOT_PREEnd,,1
+32602,PM26LOT_PREStart,,1
+32603,PM26LOT_PREEnd,,1
+32702,PM27LOT_PREStart,,1
+32703,PM27LOT_PREEnd,,1
+32802,PM28LOT_PREStart,,1
+32803,PM28LOT_PREEnd,,1
+32902,PM29LOT_PREStart,,1
+32903,PM29LOT_PREEnd,,1
+33002,PM30LOT_PREStart,,1
+33003,PM30LOT_PREEnd,,1
+33102,PM31LOT_PREStart,,1
+33103,PM31LOT_PREEnd,,1
+33202,PM32LOT_PREStart,,1
+33203,PM32LOT_PREEnd,,1
+33302,PM33LOT_PREStart,,1
+33303,PM33LOT_PREEnd,,1
+33402,PM34LOT_PREStart,,1
+33403,PM34LOT_PREEnd,,1
+33502,PM35LOT_PREStart,,1
+33503,PM35LOT_PREEnd,,1
+33602,PM36LOT_PREStart,,1
+33603,PM36LOT_PREEnd,,1
+33702,PM37LOT_PREStart,,1
+33703,PM37LOT_PREEnd,,1
+33802,PM38LOT_PREStart,,1
+33803,PM38LOT_PREEnd,,1
+33902,PM39LOT_PREStart,,1
+33903,PM39LOT_PREEnd,,1
+34002,PM40LOT_PREStart,,1
+34003,PM40LOT_PREEnd,,1
+34102,PM41LOT_PREStart,,1
+34103,PM41LOT_PREEnd,,1
+34202,PM42LOT_PREStart,,1
+34203,PM42LOT_PREEnd,,1
+34302,PM43LOT_PREStart,,1
+34303,PM43LOT_PREEnd,,1
+34402,PM44LOT_PREStart,,1
+34403,PM44LOT_PREEnd,,1
+34502,PM45LOT_PREStart,,1
+34503,PM45LOT_PREEnd,,1
+34602,PM46LOT_PREStart,,1
+34603,PM46LOT_PREEnd,,1
+34702,PM47LOT_PREStart,,1
+34703,PM47LOT_PREEnd,,1
+34802,PM48LOT_PREStart,,1
+34803,PM48LOT_PREEnd,,1
+34902,PM49LOT_PREStart,,1
+34903,PM49LOT_PREEnd,,1
+35002,PM50LOT_PREStart,,1
+35003,PM50LOT_PREEnd,,1
+35102,PM51LOT_PREStart,,1
+35103,PM51LOT_PREEnd,,1
+35202,PM52LOT_PREStart,,1
+35203,PM52LOT_PREEnd,,1
+35302,PM53LOT_PREStart,,1
+35303,PM53LOT_PREEnd,,1
+35402,PM54LOT_PREStart,,1
+35403,PM54LOT_PREEnd,,1
+35502,PM55LOT_PREStart,,1
+35503,PM55LOT_PREEnd,,1
+35602,PM56LOT_PREStart,,1
+35603,PM56LOT_PREEnd,,1
+35702,PM57LOT_PREStart,,1
+35703,PM57LOT_PREEnd,,1
+35802,PM58LOT_PREStart,,1
+35803,PM58LOT_PREEnd,,1
+35902,PM59LOT_PREStart,,1
+35903,PM59LOT_PREEnd,,1
+36002,PM60LOT_PREStart,,1
+36003,PM60LOT_PREEnd,,1
+
+#Chamber Event Mode Change
+30910,PM09_Mode_Change,,1
+31010,PM10_Mode_Change,,1
+31110,PM11_Mode_Change,,1
+31210,PM12_Mode_Change,,1
+31310,PM13_Mode_Change,,1
+31410,PM14_Mode_Change,,1
+31510,PM15_Mode_Change,,1
+31610,PM16_Mode_Change,,1
+31710,PM17_Mode_Change,,1
+31810,PM18_Mode_Change,,1
+31910,PM19_Mode_Change,,1
+32010,PM20_Mode_Change,,1
+32110,PM21_Mode_Change,,1
+32210,PM22_Mode_Change,,1
+32310,PM23_Mode_Change,,1
+32410,PM24_Mode_Change,,1

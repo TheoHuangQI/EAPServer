@@ -22,8 +22,8 @@
 
               <!-- 载具选择 -->
               <el-form-item label="载具选择" class="form-item--required">
-                <el-select v-model="formData.carrierId" placeholder="请选择载具" :disabled="!formData.eqpId" clearable
-                  class="full-width">
+                <el-select v-model="formData.carrierId" placeholder="请选择载具" no-data-text="暂无空闲载具，请先新增或释放载具"
+                  :disabled="!formData.eqpId" clearable class="full-width">
                   <el-option v-for="carrier in carriers" :key="carrier" :label="carrier" :value="carrier" />
                 </el-select>
               </el-form-item>
@@ -60,6 +60,7 @@
                 <!-- Lot 列表 -->
                 <div class="lot-list">
                   <el-scrollbar class="list-scrollbar">
+                    <el-empty v-if="filteredLots.length === 0" description="暂无空闲 Lot，请先新增或释放 Lot" :image-size="70" />
                     <div v-for="lot in filteredLots" :key="lot" class="list-item" @click="selectLot(lot)">
                       <el-checkbox :label="lot" :checked="formData.lots.includes(lot)" class="full-width" />
                     </div>
@@ -123,19 +124,18 @@ const filteredLots = computed(() => {
 })
 
 const getLotList = () => {
-  GetLotListIdle('').then(res => {
-    lots.value = res.data.list
+  GetLotListIdle(formData.value.eqpId).then(res => {
+    lots.value = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
   })
 }
-
-const isConnected = (status) => Number(status) === 1
 
 const getDeviceList = () => {
   deviceLoading.value = true
   GetEquipmentList({}).then(res => {
-    const list = res.data.list || []
+    const list = res && res.data && Array.isArray(res.data.list) ? res.data.list : []
     devices.value = list
-      .filter(device => isConnected(device.eqpStatus) && isConnected(device.eapStatus))
+      // 批次可以在设备尚未上线时预先配置；只过滤停用设备，避免设备状态未同步时下拉框显示“无数据”。
+      .filter(device => Number(device.enable) !== 0)
       .map(device => device.eqpId)
       .filter(Boolean)
   }).finally(() => {
@@ -212,7 +212,10 @@ watch(() => formData.value.eqpId, (newEqpId, oldEqpId) => {
   // 当设备改变时，清空已选择的载具并重新加载列表
   if (newEqpId !== oldEqpId) {
     formData.value.carrierId = ''
+    formData.value.lots = []
     getCarrierList(newEqpId)
+      lots.value = []
+      if (newEqpId) getLotList()
   }
 })
 

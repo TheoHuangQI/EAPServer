@@ -91,3 +91,35 @@ export function SetAllLoopProcessState(state) {
     data: { state }
   })
 }
+
+export function GetTransferJobConfig (eqpId) {
+  return request({
+    url: '/Equipment/GetTransferJobConfig',
+    method: 'get',
+    params: eqpId ? { eqpId } : {}
+  })
+}
+
+export function SetTransferJobConfig (eqpId, ports) {
+  return request({
+    url: '/Equipment/SetTransferJobConfig',
+    method: 'post',
+    data: { eqpId, ports }
+  })
+}
+
+export function GetConnectionConfig(eqpId) {
+  return request({
+    url: '/Equipment/GetConnectionConfig',
+    method: 'get',
+    params: { eqpId }
+  })
+}
+
+export function SetConnectionConfig(eqpId, config) {
+  return request({
+    url: '/Equipment/SetConnectionConfig',
+    method: 'put',
+    data: { eqpId, config }
+  })
+}

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using EAPManage.Utils;
 
 namespace EAP.HC.Core
 {
@@ -15,57 +16,51 @@ namespace EAP.HC.Core
 
         public static void ReciveSecsMessage(ContextObject context,Arguments args ,string messageName)
         {
-            if (context == null) 
-                return;
-
-            // 动态加载 DLL：ReciveSecsMessage 方法会根据设备的类型（context.EqpType，例如 KS_CM300）动态加载对应的设备通信实现 DLL，例如 EAP.EC.KS_CM300.dll。
-            Assembly assembly = Assembly.LoadFrom($"{EAPContext.RootPath}\\EAP.EC.{context.EqpType}.dll");
-
-            // 获取类型
-            Type type = assembly.GetType($"EAP.EC.{context.EqpType}.{context.EqpType}");
-            string instanceKey = $"{context.EqpType}:{context.EquipmentID}";
-            object instance;
-            lock (instanceDic)
-            {
-                if (!instanceDic.ContainsKey(instanceKey))
-                {
-                    instance = Activator.CreateInstance(type);
-                    instanceDic.Add(instanceKey, instance);
-                }
-            }
-            // 创建实例
-            instance = instanceDic[instanceKey];
-
-             // 反射调用方法：它会在加载的 DLL 中寻找一个与设备类型同名的类（例如 KS_CM300），然后通过反射调用与 messageName 参数同名的方法（例如 ConnectionChange）。
-             MethodInfo method = type.GetMethod(messageName);
-
-            if (method != null)
-            {
-                try
-                {
-                    if (messageName == "ConnectionChange")
-                    {
-                        method.Invoke(instance, new object[] { args });
-                        return;
-                    }
-
-                    ThreadPool.QueueUserWorkItem(_ =>
-                    {
-                        method.Invoke(instance, new object[] { args });   // 调用无参数的方法
-                    });
-
-                  
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Method not found.");
-                }
-
-            }
+            // Keep the receive loop concurrent. Each detached task has its own exception observer.
+            // Connection changes start inline so the version snapshot is updated before returning.
+            if (messageName == "ConnectionChange")
+                _ = ObserveMessageAsync(context, args, messageName);
             else
+                _ = Task.Run(() => ObserveMessageAsync(context, args, messageName));
+        }
+
+        private static async Task ObserveMessageAsync(ContextObject context, Arguments args, string messageName)
+        {
+            try
             {
-                Console.WriteLine("Method not found.");
+                await ReciveSecsMessageAsync(context, args, messageName).ConfigureAwait(false);
             }
+            catch (Exception ex)
+            {
+                args?.SetResultNG(ex.Message);
+                Logger.Inst().Error($"SECS dispatch failed TraceId={args?.TraceId} EqpId={context?.EquipmentID} "
+                    + $"Method={messageName} Exception={ex}");
+            }
+        }
+
+        public static Task ReciveSecsMessageAsync(ContextObject context, Arguments args, string messageName)
+        {
+            ArgumentNullException.ThrowIfNull(args);
+            return SecsExecution.RunAsync(args, messageName, async () =>
+            {
+                if (context == null)
+                    throw new InvalidOperationException("SECS dispatch context is unavailable.");
+                var assembly = Assembly.LoadFrom(Path.Combine(EAPContext.RootPath, $"EAP.EC.{context.EqpType}.dll"));
+                var type = assembly.GetType($"EAP.EC.{context.EqpType}.{context.EqpType}", throwOnError: true);
+                var instanceKey = $"{context.EqpType}:{context.EquipmentID}";
+                object instance;
+                lock (instanceDic)
+                {
+                    if (!instanceDic.TryGetValue(instanceKey, out instance))
+                    {
+                        instance = Activator.CreateInstance(type);
+                        instanceDic.Add(instanceKey, instance);
+                    }
+                }
+                await MessageInvocation.InvokeAsync(instance, messageName, args).ConfigureAwait(false);
+                if (string.IsNullOrEmpty(args.GetResultCode()))
+                    args.SetResultOK();
+            });
         }
         public static T ReciveSecsMessage<T>(ContextObject context, Arguments args, string messageName)
         {

@@ -13,6 +13,7 @@ module.exports = defineConfig({
     devtool: 'source-map'
   },
   devServer: {
+    host: '0.0.0.0',
     client: {
     overlay: false
     }

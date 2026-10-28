@@ -12,6 +12,9 @@ namespace EAP.HC.Core.Entities.MES
     public class MESLotTrackIn : MQBody
     {
         public string CARRIERID { get; set; }
+
+        public string PORTID { get; set; }
+
         [XmlArray("LOTLIST")]
         [XmlArrayItem("LOT")]
         public List<string> LOTLIST { get; set; }

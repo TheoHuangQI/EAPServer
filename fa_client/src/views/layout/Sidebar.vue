@@ -53,7 +53,8 @@ const ROUTE_MENU_MAP = {
     '/RunHistory': { menuIndex: 3, childIndex: 2 },
     '/Exception': { menuIndex: 3, childIndex: 3 },
     '/DataRule': { menuIndex: 4, childIndex: 0 },
-    '/DataHistory': { menuIndex: 4, childIndex: 1 },
+    '/DataHistory': { menuIndex: 4, childIndex: 0 },
+    '/FdcConsole': { menuIndex: 4, childIndex: 0 },
     '/TestItem': { menuIndex: 5, childIndex: 0 },
     '/TestItemBatch': { menuIndex: 5, childIndex: 1 },
     '/TestTemplate': { menuIndex: 5, childIndex: 2 },
@@ -116,7 +117,7 @@ export default {
                     title: "数据采集",
                     icon: "fas fa-database",
                     isOpen: false,
-                    children: ["采集规则","采集历史"],
+                    children: ["FDC 数据采集"],
                 },
                 {
                     title: "测试管理",
@@ -240,11 +241,8 @@ export default {
                         this.
 $router.push('/RunHistory');
                         break;
-                    case '采集规则':
-                        this.$router.push('/DataRule');
-                        break;
-                    case '采集历史':
-                        this.$router.push('/DataHistory');
+                    case 'FDC 数据采集':
+                        this.$router.push('/FdcConsole');
                         break;
                     case '单测试项':
                         this.$router.push('/TestItem');

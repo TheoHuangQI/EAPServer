@@ -81,6 +81,9 @@
             <span class="status-badge" :class="'status-badge--' + getEapStatusMeta(selectedItem.eapStatus).tone">
               EAP {{ getEapStatusMeta(selectedItem.eapStatus).text }}
             </span>
+            <el-button size="small" type="primary" :loading="transferConfigSaving" @click="saveTransferJobConfig">
+              Save LP Job Config
+            </el-button>
           </div>
         </div>
 
@@ -106,8 +109,8 @@
                   v-for="slot in lp.slots"
                   :key="slot.number"
                   class="slot-cell"
-                  :class="'slot-cell--' + getSlotMeta(slot.filled).tone"
-                  :title="'Slot ' + formatSlotNumber(slot.number) + ': ' + getSlotMeta(slot.filled).text"
+                  :class="'slot-cell--' + getSlotMeta(slot).tone"
+                  :title="'Slot ' + formatSlotNumber(slot.number) + ': ' + getSlotMeta(slot).text"
                 >
                   <span>{{ formatSlotNumber(slot.number) }}</span>
                 </div>
@@ -143,6 +146,29 @@
                   </dd>
                 </div>
               </dl>
+
+              <div class="lp-job-config">
+                <span class="field-label">Job Mode</span>
+                <el-select v-model="lp.jobModeDraft" size="small" @change="handleJobModeChange(lp)">
+                  <el-option :value="0" label="Original In/Out" />
+                  <el-option :value="1" label="Transfer" />
+                </el-select>
+                <template v-if="Number(lp.jobModeDraft) === 1">
+                  <el-select v-model="lp.transferRoleDraft" size="small" placeholder="Role">
+                    <el-option :value="1" label="Source LP" />
+                    <el-option :value="2" label="Destination LP" />
+                  </el-select>
+                  <el-select v-model="lp.transferPartnerPortDraft" size="small" placeholder="Partner LP">
+                    <el-option
+                      v-for="candidate in selectedLpList"
+                      :key="candidate.portId"
+                      :value="Number(candidate.portId)"
+                      :label="candidate.portName || ('LP' + candidate.portId)"
+                      :disabled="Number(candidate.portId) === Number(lp.portId)"
+                    />
+                  </el-select>
+                </template>
+              </div>
             </div>
 
             <footer class="lp-card__actions">
@@ -288,7 +314,7 @@ import {
 } from '@element-plus/icons-vue'
 import * as signalR from '@microsoft/signalr'
 import request from '@/utils/request'
-import { GetDashboardSnapshot, GetEqpInfo, GetLoopProcessState, SetLoopProcessState } from '@/api/equipment'
+import { GetDashboardSnapshot, GetEqpInfo, GetLoopProcessState, SetLoopProcessState, SetTransferJobConfig } from '@/api/equipment'
 import { GetList as GetExceptionList } from '@/api/Exception'
 
 const router = useRouter()
@@ -313,6 +339,7 @@ const isLogPinnedToBottom = ref(true)
 const connectionState = ref('connecting')
 const lastUpdateAt = ref(null)
 const currentTime = ref(Date.now())
+const transferConfigSaving = ref(false)
 
 let connection = null
 let clockTimer = null
@@ -328,7 +355,7 @@ const loopStateMap = {
 
 const transferStateMap = {
   0: { text: 'Out Of Service', tone: 'neutral', online: false },
-  1: { text: 'Blocked', tone: 'warning', online: false },
+  1: { text: 'Blocked', tone: 'warning', online: true },
   2: { text: 'Ready To Load', tone: 'info', online: true },
   3: { text: 'Ready To Unload', tone: 'info', online: true },
   4: { text: 'In Service', tone: 'success', online: true },
@@ -348,7 +375,7 @@ const eapStateMap = {
 const controlStateMap = {
   0: { text: 'Unknown', tone: 'neutral' },
   1: { text: 'EQP Offline', tone: 'danger' },
-  2: { text: 'Connecting', tone: 'info' },
+  2: { text: 'Attempting Online', tone: 'info' },
   3: { text: 'Host Offline', tone: 'danger' },
   4: { text: 'Local', tone: 'warning' },
   5: { text: 'Remote', tone: 'success' }
@@ -366,12 +393,16 @@ const namedControlStateMap = {
 }
 
 const slotStateMap = {
-  0: { text: 'Empty', tone: 'empty', occupied: false },
+  0: { text: 'Undefined', tone: 'unknown', occupied: false },
   1: { text: 'Empty', tone: 'empty', occupied: false },
-  3: { text: 'Loaded', tone: 'loaded', occupied: true },
-  4: { text: 'Mapped', tone: 'mapped', occupied: true },
-  5: { text: 'Processed', tone: 'processed', occupied: true }
+  2: { text: 'Not Empty', tone: 'loaded', occupied: true },
+  3: { text: 'Correctly Occupied', tone: 'mapped', occupied: true },
+  4: { text: 'Double Slotted', tone: 'error', occupied: true },
+  5: { text: 'Cross Slotted', tone: 'error', occupied: true }
 }
+
+const sparseMappedSlotMeta = { text: 'Mapped', tone: 'mapped', occupied: true }
+const processedSlotMeta = { text: 'Processed', tone: 'processed', occupied: true }
 
 const filteredList = computed(() => {
   const query = searchQuery.value.trim().toLowerCase()
@@ -528,10 +559,6 @@ function getControlStateMeta(controlState) {
 }
 
 function getDeviceStatusMeta(device) {
-  const controlMeta = getControlStateMeta(device.controlState)
-  if (controlMeta.text === 'Connecting') {
-    return controlMeta
-  }
   if (Number(device.eqpStatus) === 1) {
     return { text: 'Connected', tone: 'success' }
   }
@@ -549,15 +576,20 @@ function getLoadPortPrimaryState(lp) {
   return getLoopStateMeta(lp.loopState)
 }
 
-function getSlotMeta(filled) {
-  return slotStateMap[Number(filled)] || { text: 'Unknown', tone: 'unknown', occupied: false }
+function getSlotMeta(slot) {
+  const state = Number(slot && slot.state)
+  // Keep carrier mapping errors visible even if stale process data lists the slot.
+  if (state === 4 || state === 5) return slotStateMap[state]
+  if (slot && slot.processed) return processedSlotMeta
+  if (slot && slot.mapped) return sparseMappedSlotMeta
+  return slotStateMap[state] || { text: 'Unknown', tone: 'unknown', occupied: false }
 }
 
 function getSlotUsage(lp) {
   const slots = Array.isArray(lp.slots) ? lp.slots : []
   return {
     total: slots.length,
-    occupied: slots.filter(slot => getSlotMeta(slot.filled).occupied).length
+    occupied: slots.filter(slot => getSlotMeta(slot).occupied).length
   }
 }
 
@@ -584,7 +616,9 @@ function normalizeLogLevel(level) {
 
 function generateSlots(slotMap, completedSlotMap) {
   const slots = Array.from({ length: 25 }, (_, i) => ({
-    filled: 0,
+    state: 1,
+    mapped: false,
+    processed: false,
     number: i + 1
   }))
   applySlotMap(slots, slotMap)
@@ -594,26 +628,32 @@ function generateSlots(slotMap, completedSlotMap) {
 
 function applySlotMap(slots, slotMap) {
   const values = String(slotMap || '').split(';').filter(Boolean)
-  if (values.length === slots.length) {
+  const states = values.map(value => Number(value))
+  const isStateMap = values.length === slots.length &&
+    states.every(value => Number.isInteger(value) && value >= 0 && value <= 5)
+
+  if (isStateMap) {
     slots.forEach((slot, index) => {
-      slot.filled = Number(values[index])
+      slot.state = states[index]
     })
     return
   }
 
-  values.forEach(slotIndex => {
-    const idx = Number(slotIndex) - 1
-    if (idx >= 0 && idx < slots.length) {
-      slots[idx].filled = 4
+  values.forEach(value => {
+    const slotNumber = Number(value)
+    const idx = slotNumber - 1
+    if (Number.isInteger(slotNumber) && idx >= 0 && idx < slots.length) {
+      slots[idx].mapped = true
     }
   })
 }
 
 function applyCompletedSlots(slots, completedSlotMap) {
   String(completedSlotMap || '').split(';').filter(Boolean).forEach(slotIndex => {
-    const idx = Number(slotIndex) - 1
-    if (idx >= 0 && idx < slots.length) {
-      slots[idx].filled = 5
+    const slotNumber = Number(slotIndex)
+    const idx = slotNumber - 1
+    if (Number.isInteger(slotNumber) && idx >= 0 && idx < slots.length) {
+      slots[idx].processed = true
     }
   })
 }
@@ -625,8 +665,17 @@ function selectItem(item) {
 function applyEquipmentList(list) {
   const previousSelectionId = selectedItem.value && selectedItem.value.eqpId
   const previousLogs = {}
+  const previousJobDrafts = {}
   eqpInfos.value.forEach(eqp => {
     previousLogs[eqp.eqpId] = Array.isArray(eqp.logs) ? eqp.logs : []
+    const previousPorts = eqp.lpList || []
+    previousPorts.forEach(port => {
+      previousJobDrafts[eqp.eqpId + '_' + Number(port.portId)] = {
+        jobModeDraft: port.jobModeDraft,
+        transferRoleDraft: port.transferRoleDraft,
+        transferPartnerPortDraft: port.transferPartnerPortDraft
+      }
+    })
   })
 
   eqpInfos.value = list.map(element => {
@@ -634,6 +683,10 @@ function applyEquipmentList(list) {
     portInfos.forEach(port => {
       port.slots = generateSlots(port.slotMap, port.proComSlot)
       port.loopState = port.loopProcessState ?? 0
+      const draft = previousJobDrafts[element.eqpId + '_' + Number(port.portId)]
+      port.jobModeDraft = Number(draft?.jobModeDraft ?? port.jobMode ?? 0)
+      port.transferRoleDraft = Number(draft?.transferRoleDraft ?? port.transferRole ?? 0)
+      port.transferPartnerPortDraft = Number(draft?.transferPartnerPortDraft ?? port.transferPartnerPortId ?? 0)
     })
     return {
       eqpId: element.eqpId,
@@ -647,6 +700,43 @@ function applyEquipmentList(list) {
     }
   })
   selectedItem.value = eqpInfos.value.find(item => item.eqpId === previousSelectionId) || eqpInfos.value[0] || null
+}
+
+function handleJobModeChange (lp) {
+  if (Number(lp.jobModeDraft) === 0) {
+    lp.transferRoleDraft = 0
+    lp.transferPartnerPortDraft = 0
+  }
+}
+
+async function saveTransferJobConfig () {
+  if (!selectedItem.value) return
+  transferConfigSaving.value = true
+  try {
+    const ports = (selectedItem.value.lpList || []).map(lp => ({
+      portId: Number(lp.portId),
+      jobMode: Number(lp.jobModeDraft ?? lp.jobMode ?? 0),
+      role: Number(lp.transferRoleDraft ?? lp.transferRole ?? 0),
+      partnerPortId: Number(lp.transferPartnerPortDraft ?? lp.transferPartnerPortId ?? 0)
+    }))
+    const res = await SetTransferJobConfig(selectedItem.value.eqpId, ports)
+    if (res && (res.Return === 'NG' || res.return === 'NG')) {
+      throw new Error(res.MESSAGE || res.message || 'Save Transfer job configuration failed')
+    }
+    ;(res.data || []).forEach(item => {
+      const lp = selectedItem.value.lpList.find(p => Number(p.portId) === Number(item.portId))
+      if (lp) {
+        lp.jobMode = item.jobMode
+        lp.transferRole = item.transferRole
+        lp.transferPartnerPortId = item.transferPartnerPortId
+      }
+    })
+    ElMessage.success('LP job configuration saved')
+  } catch (error) {
+    ElMessage.error(error && error.message ? error.message : 'Save LP job configuration failed')
+  } finally {
+    transferConfigSaving.value = false
+  }
 }
 
 async function reloadDashboard() {
@@ -792,31 +882,16 @@ function handleReceiveLog(log) {
     updateLoadPort(eqpInfo, log.portId, lpInfo => {
       lpInfo.slotMap = maps.join(';')
       lpInfo.proComSlot = ''
-      if (maps.length === lpInfo.slots.length) {
-        lpInfo.slots.forEach((slot, index) => {
-          slot.filled = Number(maps[index])
-        })
-      } else {
-        lpInfo.slots.forEach(slot => {
-          slot.filled = 0
-        })
-        maps.forEach(slotIndex => {
-          const idx = Number(slotIndex) - 1
-          if (idx >= 0 && idx < lpInfo.slots.length) {
-            lpInfo.slots[idx].filled = 4
-          }
-        })
-      }
+      lpInfo.slots = generateSlots(lpInfo.slotMap, '')
     })
     return
   }
 
   if (log.type === 'SubStrate') {
     updateLoadPort(eqpInfo, log.portId, lpInfo => {
-      const idx = Number(log.message) - 1
-      if (idx >= 0 && idx < lpInfo.slots.length) {
-        lpInfo.slots[idx].filled = 5
-      }
+      const slotNumber = Number(log.message)
+      if (!Number.isInteger(slotNumber) || slotNumber < 1 || slotNumber > lpInfo.slots.length) return
+      applyCompletedSlots(lpInfo.slots, String(slotNumber))
       const completedSlots = String(lpInfo.proComSlot || '').split(';').filter(Boolean)
       if (!completedSlots.includes(String(log.message))) {
         completedSlots.push(String(log.message))
@@ -1456,6 +1531,27 @@ onBeforeUnmount(() => {
   padding: 12px;
 }
 
+.lp-job-config {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr);
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+  padding: 8px;
+  border: 1px solid #e3e9f1;
+  border-radius: 6px;
+  background: #ffffff;
+}
+
+.lp-job-config .el-select {
+  width: 100%;
+}
+
+.lp-job-config .el-select:nth-of-type(2),
+.lp-job-config .el-select:nth-of-type(3) {
+  grid-column: 2;
+}
+
 .lp-carrier-block {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -1520,6 +1616,12 @@ onBeforeUnmount(() => {
   color: #145a40;
   border-color: #65bc91;
   background: #c9f0dc;
+}
+
+.slot-cell--error {
+  color: #a12622;
+  border-color: #ef9a96;
+  background: #ffebe9;
 }
 
 .slot-cell--unknown {
@@ -1653,15 +1755,16 @@ onBeforeUnmount(() => {
 }
 
 .action-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  justify-content: center;
   gap: 8px;
   width: 100%;
 }
 
 .action-buttons :deep(.el-button) {
-  width: 100%;
+  width: 78px;
   min-width: 0;
+  margin-left: 0;
 }
 
 .log-container {
@@ -1792,7 +1895,12 @@ onBeforeUnmount(() => {
   }
 
   .action-buttons {
+    display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .action-buttons :deep(.el-button) {
+    width: 100%;
   }
 }
 </style>

@@ -130,9 +130,8 @@ export default {
       }
       this.isLoading = true;
       try {
-        return login(this.form).then(res => {
-          this.$router.push({path: "/Dashboard"})
-        })
+        await login(this.form)
+        await this.$router.push({ path: "/Dashboard" })
       } catch (error) {
         console.error("Login failed:", error);
       } finally {
@@ -410,4 +409,3 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 </style>
-  

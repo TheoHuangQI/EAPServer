@@ -40,5 +40,16 @@ namespace EAPManage.Models.DB
 
         [SugarColumn(ColumnName = "LOOP_PROCESS_STATE", ColumnDataType = "INTEGER", DefaultValue = "0")]
         public int loopProcessState { get; set; } = 0;
+
+        // 0 = 原进原出，1 = Transfer。Transfer LP 还通过角色和配对 LP 标识出片/进片关系。
+        [SugarColumn(ColumnName = "JOB_MODE", ColumnDataType = "INTEGER", DefaultValue = "0")]
+        public int jobMode { get; set; } = 0;
+
+        // 0 = None，1 = 出片 LP，2 = 进片 LP。
+        [SugarColumn(ColumnName = "TRANSFER_ROLE", ColumnDataType = "INTEGER", DefaultValue = "0")]
+        public int transferRole { get; set; } = 0;
+
+        [SugarColumn(ColumnName = "TRANSFER_PARTNER_PORT_ID", ColumnDataType = "INTEGER", DefaultValue = "0")]
+        public int transferPartnerPortId { get; set; } = 0;
     }
 }

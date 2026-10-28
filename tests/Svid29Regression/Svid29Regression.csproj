@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../EAP.HC/EAP.HC.Core/EAP.HC.Core.csproj" />
+    <ProjectReference Include="../../EAP.EC/EAP.EC.KS_CM300/EAP.EC.KS_CM300.csproj" />
+    <Compile Include="../../EAP.EC/EAP.EC.KS_CM300/ControlStateQuery.cs" Link="ControlStateQuery.cs" />
+    <Compile Include="../../EAP.EC/EAP.EC.KS_CM300/ChannelPollingTask.cs" Link="ChannelPollingTask.cs" />
+    <Compile Include="../../EAP.EC/EAP.EC.KS_CM300/ControlStateQueryCoordinator.cs" Link="ControlStateQueryCoordinator.cs" />
+    <Compile Include="../../EAP.HC/EAP.HC.Core/MessageInvocation.cs" Link="MessageInvocation.cs" />
+    <Compile Include="../../FA/EAPManage/EAPManage/Models/MQ/MESLotInfoDownloadReply.cs" Link="MesServer/MESLotInfoDownloadReply.cs" />
+    <Compile Include="../../FA/EAPManage/EAPManage/Models/MQ/MQBody.cs" Link="MesServer/MQBody.cs" />
+    <Compile Include="../../FA/EAPManage/EAPManage/Models/MQ/LotInfo.cs" Link="MesServer/LotInfo.cs" />
+    <Compile Include="../../FA/EAPManage/EAPManage/Models/MQ/WaferInfo.cs" Link="MesServer/WaferInfo.cs" />
+  </ItemGroup>
+</Project>
