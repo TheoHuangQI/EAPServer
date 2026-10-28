@@ -9,6 +9,7 @@ namespace EAP.HC.Core
 {
     public class Arguments
     {
+        public string TraceId { get; } = Guid.NewGuid().ToString("N");
 
         private Dictionary<string, object> header;
         private string resultCode;

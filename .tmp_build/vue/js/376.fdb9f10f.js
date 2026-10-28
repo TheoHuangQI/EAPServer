@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkfa_client"]=self["webpackChunkfa_client"]||[]).push([[376],{70376:function(n,e,a){a.r(e),a.d(e,{default:function(){return l}});var t=a(56768);const c={class:"app-container"};function r(n,e,a,r,s,u){return(0,t.uX)(),(0,t.CE)("div",c,[...e[0]||(e[0]=[(0,t.Lk)("h1",null,"角色权限",-1)])])}var s={name:"RolePermission"},u=a(71241);const i=(0,u.A)(s,[["render",r],["__scopeId","data-v-03085849"]]);var l=i}}]);
+//# sourceMappingURL=376.fdb9f10f.js.map

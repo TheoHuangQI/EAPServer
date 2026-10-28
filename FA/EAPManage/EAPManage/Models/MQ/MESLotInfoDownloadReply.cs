@@ -14,6 +14,9 @@ namespace EAPManage.Models.MQ
     {
         public string TID { get; set; }
 
+        [XmlElement("PORTID")]
+        public string PORTID { get; set; }
+
         public string CARRIERID { get; set; }
 
         public string OPERATOR { get; set; }

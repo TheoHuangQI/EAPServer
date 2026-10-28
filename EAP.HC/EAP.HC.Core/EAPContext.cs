@@ -29,10 +29,32 @@ namespace EAP.HC.Core
         public static List<ConnectionConfigure> EqpConfigures { get; set; }
 
         public static System.Collections.Concurrent.ConcurrentBag<ContextObject> contexts { get; set; }
+
+        public static Func<EquipmentConnectionControl, Task<EquipmentConnectionControl>> DeviceConnectionControlHandler { get; set; }
+
+        public static ConnectionConfigure LoadConnectionConfigure(string equipmentId)
+        {
+            if (string.IsNullOrWhiteSpace(equipmentId))
+                throw new ArgumentException("Equipment ID is required.", nameof(equipmentId));
+
+            string path = Path.Combine(RootPath, "Configuration", $"{ServerName}.json");
+            if (!File.Exists(path))
+                throw new FileNotFoundException($"Configuration file not found: {path}", path);
+
+            var configs = JsonConvert.DeserializeObject<List<ConnectionConfigure>>(File.ReadAllText(path));
+            var config = configs?.FirstOrDefault(item =>
+                string.Equals(item.Name, equipmentId, StringComparison.OrdinalIgnoreCase));
+            if (config == null)
+                throw new InvalidOperationException($"Configuration for {equipmentId} was not found in {path}.");
+
+            config.Validate();
+            return config;
+        }
+
         public static bool Initialization()
         {
             //LoadLibrary();
-            string path = Path.Combine(EAPContext.RootPath, $"Configuration\\{EAPContext.ServerName}.json");
+            string path = Path.Combine(EAPContext.RootPath, "Configuration", $"{EAPContext.ServerName}.json");
             if (File.Exists(path))
             {
                 string text = File.ReadAllText(path);

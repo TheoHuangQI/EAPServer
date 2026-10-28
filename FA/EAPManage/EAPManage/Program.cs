@@ -95,18 +95,18 @@ await activeMQClient.InitializeAsync();
 #endregion MQ��ʼ��
 
 #region ����Monitor
-//var registry = new Registry();
+var registry = new Registry();
 //var accessModeMonitor = new AccessModeMonitor();
 //var controlStateMonitor = new ControlStateMonitor();
-//var eapMonitor = new EAPMonitor(scopeFactory);
+var eapMonitor = new EAPMonitor(scopeFactory);
 //var eqpMonitor = new EQPMonitor(scopeFactory);
 //var transferStatusMonitor = new TransferStatusMonitor();
 //registry.Schedule(accessModeMonitor).ToRunNow().AndEvery(30).Seconds();
 //registry.Schedule(controlStateMonitor).ToRunNow().AndEvery(30).Seconds();
-//registry.Schedule(eapMonitor).ToRunNow().AndEvery(30).Seconds();
+registry.Schedule(eapMonitor).ToRunNow().AndEvery(10).Seconds();
 //registry.Schedule(eqpMonitor).ToRunNow().AndEvery(30).Seconds();
 //registry.Schedule(transferStatusMonitor).ToRunNow().AndEvery(30).Seconds();
-//JobManager.Initialize(registry);
+JobManager.Initialize(registry);
 #endregion
 app.Run();
 

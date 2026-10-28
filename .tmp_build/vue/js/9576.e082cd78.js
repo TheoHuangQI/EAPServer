@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkfa_client"]=self["webpackChunkfa_client"]||[]).push([[9576],{39576:function(n,c,e){e.r(c),e.d(c,{default:function(){return i}});var t=e(56768);const a={class:"app-container"};function r(n,c,e,r,s,u){return(0,t.uX)(),(0,t.CE)("div",a,[...c[0]||(c[0]=[(0,t.Lk)("h1",null,"用户列表",-1)])])}var s={name:"UserList"},u=e(71241);const f=(0,u.A)(s,[["render",r],["__scopeId","data-v-c9cc3f22"]]);var i=f}}]);
+//# sourceMappingURL=9576.e082cd78.js.map

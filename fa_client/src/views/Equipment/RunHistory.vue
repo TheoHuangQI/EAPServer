@@ -160,11 +160,13 @@
         <div class="detail-section">
           <h3>运行日志</h3>
           <el-timeline>
-            <el-timeline-item :timestamp="currentRow.startTime || ''" type="primary">
-              作业创建并进入队列
-            </el-timeline-item>
-            <el-timeline-item :timestamp="currentRow.endTime || ''" :type="stateMeta(currentRow.state).timelineType">
-              {{ stateMeta(currentRow.state).detailText }}
+            <el-timeline-item
+              v-for="(item, index) in timelineItems(currentRow)"
+              :key="index"
+              :timestamp="item.timestamp || ''"
+              :type="item.type"
+            >
+              {{ item.text }}
             </el-timeline-item>
           </el-timeline>
         </div>
@@ -329,6 +331,34 @@ export default {
         3: { text: '失败', tone: 'danger', detailText: '作业执行失败', timelineType: 'danger' }
       }
       return map[Number(state)] || map[2]
+    },
+    timelineItems(row) {
+      if (!row) return []
+
+      const startTime = row.startTime || ''
+      const endTime = row.endTime || ''
+      const state = Number(row.state)
+      const items = [
+        { text: '作业创建并进入队列', timestamp: startTime, type: 'primary' }
+      ]
+
+      if (state === 0) {
+        items.push({ text: '等待设备执行', timestamp: startTime, type: 'warning' })
+      } else {
+        items.push({ text: '作业开始执行', timestamp: startTime, type: 'primary' })
+        if (state === 1) {
+          items.push({ text: '作业进行中', timestamp: '', type: 'primary' })
+        } else if (state === 2) {
+          items.push({ text: '作业已完成', timestamp: endTime, type: 'success' })
+        } else if (state === 3) {
+          items.push({ text: '作业执行失败', timestamp: endTime, type: 'danger' })
+        } else {
+          const meta = this.stateMeta(state)
+          items.push({ text: meta.detailText, timestamp: endTime, type: meta.timelineType })
+        }
+      }
+
+      return items
     },
     progressValue(row) {
       const map = {

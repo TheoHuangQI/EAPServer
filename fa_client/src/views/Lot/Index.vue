@@ -34,16 +34,17 @@
           <el-table-column type="selection" width="55" align="center" reserve-selection/>
           <el-table-column :index="indexHandler" label="序号" type="index" width="80" align="center" />
           <el-table-column prop="lotId" label="LOT ID" align="center" />
+          <el-table-column prop="eqpId" label="设备" align="center" />
           <el-table-column prop="qty" label="QTY" />
           <el-table-column prop="ppid" label="PPID"/>
           <el-table-column prop="lotState" label="Status">
             <template #default="scope">
               <span v-if="scope.row.lotState === 0">Idle</span>
-            <span v-if="scope.row.lotState === 1">WaitTrackIn</span>
-            <span v-else-if="scope.row.lotState === 2">TrackIn</span>
-            <span v-else-if="scope.row.lotState === 3">LotStart</span>
-            <span v-else-if="scope.row.lotState === 4">LotEnd</span>
-            <span v-else-if="scope.row.lotState === 5">TrackOut</span>
+              <span v-else-if="scope.row.lotState === 1">WaitTrackIn</span>
+              <span v-else-if="scope.row.lotState === 2" title="设备已收到进站/上机事件；是否正在跑片请看 LotStart 状态或作业记录">TrackIn（已上机）</span>
+              <span v-else-if="scope.row.lotState === 3" title="设备已开始执行该 Lot">LotStart（跑片中）</span>
+              <span v-else-if="scope.row.lotState === 4">LotEnd（加工结束）</span>
+              <span v-else-if="scope.row.lotState === 5">TrackOut（已下机）</span>
           </template>
           </el-table-column>
           <el-table-column prop="batchId" label="Batch"/>
@@ -98,6 +99,7 @@
       getDefaultForm() {
         return {
            lotId: '',
+           eqpId: '',
            qty: '',
            ppid: '',
            slots: []

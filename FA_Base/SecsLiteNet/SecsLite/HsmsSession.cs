@@ -396,7 +396,7 @@ namespace SecsLite
 					if (SecsCLibWrapper.IfSecsconnect(m_sessionHandle))
 					{
 						FALoggerClass.Inst().Info($"[{ClassName}] [{MethodBase.GetCurrentMethod().Name}]: Eap连接正常!，send Event");
-						num = SecsCLibWrapper.SecsSendMessageBuffer(m_sessionHandle, stream, func, intPtr, num2, 1u, uint.MaxValue);
+						num = SecsCLibWrapper.SecsSendMessageBuffer(m_sessionHandle, stream, func, intPtr, num2, needReply ? 1u : 2u, uint.MaxValue);
 						FALoggerClass.Inst().Info($"[{ClassName}] [{MethodBase.GetCurrentMethod().Name}]: stream={stream} func={func} messageid={num}");
 						Marshal.FreeHGlobal(intPtr);
 						if (LogEnabled)
@@ -426,7 +426,7 @@ namespace SecsLite
 					if (SecsCLibWrapper.IfSecsconnect(m_sessionHandle))
                     {
 						FALoggerClass.Inst().Info($"[{ClassName}] [{MethodBase.GetCurrentMethod().Name}]: Eap连接正常!，send Event");
-						num = SecsCLibWrapper.SecsSendMessageBuffer(m_sessionHandle, stream, func, intPtr, 0, 1u, uint.MaxValue);
+						num = SecsCLibWrapper.SecsSendMessageBuffer(m_sessionHandle, stream, func, intPtr, 0, needReply ? 1u : 2u, uint.MaxValue);
 						FALoggerClass.Inst().Info($"[{ClassName}] [{MethodBase.GetCurrentMethod().Name}]: stream={stream} func={func} messageid={num}");
 						Marshal.FreeHGlobal(intPtr);
 						if (LogEnabled)

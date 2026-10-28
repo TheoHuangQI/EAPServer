@@ -12,6 +12,9 @@ namespace EAPManage.Models.DB
         [SugarColumn(ColumnName = "LOT_ID", ColumnDataType = "TEXT")]
         public string LotId { get; set; }
 
+        [SugarColumn(ColumnName = "EQP_ID", ColumnDataType = "TEXT")]
+        public string EqpId { get; set; }
+
         [SugarColumn(ColumnName = "QTY", ColumnDataType = "INTEGER")]
         public int QTY { get; set; }
 

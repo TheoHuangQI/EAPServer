@@ -11,6 +11,8 @@ namespace EAPManage.Utils
 {
     public class MessageProcessor
     {
+        private static readonly object EqpStateVersionLock = new();
+        private static readonly Dictionary<string, long> EqpStateVersions = new();
         public readonly LogService _logService;
 
         public MessageProcessor(IServiceScopeFactory scopeFactory)
@@ -222,6 +224,9 @@ namespace EAPManage.Utils
                                 MESLotInfoDownloadReply reply = new MESLotInfoDownloadReply();
                                 reply.EQUIPMENTID = eqpid;
                                 reply.CARRIERID = carrierId;
+                                reply.PORTID = string.IsNullOrWhiteSpace(batch.First().PortId)
+                                    ? portId?.Trim()
+                                    : batch.First().PortId.Trim();
                                 reply.BATCHCHID = batch.First().BatchId;
                                 reply.TID = batch.First().TID;
                                 reply.OPERATOR = batch.First().OPERATOR;
@@ -376,7 +381,9 @@ namespace EAPManage.Utils
                                         eqpId = mESLotTrackIn.EQUIPMENTID,
                                         eqpType = eqpInfo == null ? "" : eqpInfo.EqpType,
                                         lotId = lot,
-                                        state = (int)LotRunState.Start,
+                                        // LOTSTART is the transition from queued to execution;
+                                        // new records must be visible as in progress immediately.
+                                        state = (int)LotRunState.Running,
                                         startTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
                                         carrierId = mESLotTrackIn.CARRIERID,
                                         portId = portInfo.portId,
@@ -432,7 +439,10 @@ namespace EAPManage.Utils
                                         LotState = LotState.TrackOut
                                     });
 
-                                    var resCode = DataFactory.Current.RunHistory.Update(u => u.eqpId == mESLotTrackIn.EQUIPMENTID && u.lotId == lot && u.endTime == null, u => new RunHistory()
+                                    var trackOutPortId = ParsePortId(mESLotTrackIn.PORTID);
+                                    var resCode = DataFactory.Current.RunHistory.Update(u => u.eqpId == mESLotTrackIn.EQUIPMENTID
+                                        && u.lotId == lot && u.endTime == null
+                                        && (trackOutPortId <= 0 || u.portId == trackOutPortId), u => new RunHistory()
                                     {
                                         state = (int)LotRunState.End,
                                         endTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
@@ -452,29 +462,32 @@ namespace EAPManage.Utils
                         }
                     case "SENDMAPRESULT":
                         {
-                            res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
                             MapResult request = XmlSerialization.DeserializeNodeObj<MapResult>(message, "Request", "Body");
-                            var xmlBody = XmlSerialization.SerializeOnlyBody(request);
-                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
-                            mrea.Reply(xmlMessage);
-                            var eqpid = request.EQUIPMENTID;
-                            var portId = request.PORT;
-                            if (request.MapStr.EndsWith(';'))
+                            try
                             {
-                                var slotMap = request.MapStr.Substring(0, request.MapStr.Length - 1);
-                                if (int.TryParse(portId, out var portNo))
+                                if (request == null
+                                    || string.IsNullOrWhiteSpace(request.EQUIPMENTID)
+                                    || !int.TryParse(request.PORT, out var portNo)
+                                    || portNo <= 0
+                                    || string.IsNullOrWhiteSpace(request.MapStr))
                                 {
+                                    throw new InvalidDataException(
+                                        "SENDMAPRESULT requires equipment ID, a positive numeric port, and map data.");
+                                }
+
+                                var eqpid = request.EQUIPMENTID;
+                                var portId = request.PORT;
+                                if (request.MapStr.EndsWith(';'))
+                                {
+                                    var slotMap = request.MapStr.Substring(0, request.MapStr.Length - 1);
                                     DataFactory.Current.PortInfo.Update(
                                         u => u.eqpId == eqpid && u.portId == portNo,
                                         u => new PortInfo { slotMap = slotMap, proComSlot = string.Empty }
                                     );
-                                }
-                                _logService.SendMessage(eqpid, portId, "Map", $"{slotMap}", "info");
+                                    _logService.SendMessage(eqpid, portId, "Map", $"{slotMap}", "info");
 
-                            }
-                            else
-                            {
-                                if (int.TryParse(portId, out var portNo))
+                                }
+                                else
                                 {
                                     var portInfo = DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid && u.portId == portNo).FirstOrDefault();
                                     var completedSlots = (portInfo?.proComSlot ?? string.Empty)
@@ -488,9 +501,20 @@ namespace EAPManage.Utils
                                         u => u.eqpId == eqpid && u.portId == portNo,
                                         u => new PortInfo { proComSlot = string.Join(';', completedSlots) }
                                     );
+                                    _logService.SendMessage(eqpid, portId, "SubStrate", $"{request.MapStr}", "info");
                                 }
-                                _logService.SendMessage(eqpid, portId, "SubStrate", $"{request.MapStr}", "info");
+
+                                res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
                             }
+                            catch (Exception ex)
+                            {
+                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                                Console.WriteLine($"SENDMAPRESULT failed: {ex}");
+                            }
+
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(request ?? new MapResult());
+                            var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
+                            mrea.Reply(xmlMessage);
                             break;
                         }
                     case "EAPSTATE":
@@ -513,6 +537,7 @@ namespace EAPManage.Utils
                                 // 删除前先读取旧的 loopProcessState
                                 var oldPorts = DataFactory.Current.PortInfo.GetAll().Where(u => u.eqpId == eqpid).ToList();
                                 var oldStates = new Dictionary<int, int>();
+                                 var oldPortsById = oldPorts.ToDictionary(p => p.portId);
                                 foreach (var op in oldPorts)
                                 {
                                     oldStates[op.portId] = op.loopProcessState;
@@ -521,6 +546,17 @@ namespace EAPManage.Utils
                                 for (int i = 1; i <= loadPort; i++)
                                 {
                                     var savedState = oldStates.ContainsKey(i) ? oldStates[i] : 0;
+                                     oldPortsById.TryGetValue(i, out var oldPort);
+                                     var partnerIsValid = oldPort != null
+                                         && oldPort.jobMode == 1
+                                         && oldPort.transferRole is 1 or 2
+                                         && oldPort.transferPartnerPortId > 0
+                                         && oldPort.transferPartnerPortId <= loadPort
+                                         && oldPortsById.TryGetValue(oldPort.transferPartnerPortId, out var oldPartner)
+                                         && oldPartner.jobMode == 1
+                                         && oldPartner.transferRole is 1 or 2
+                                         && oldPartner.transferRole != oldPort.transferRole
+                                         && oldPartner.transferPartnerPortId == i;
                                     DataFactory.Current.PortInfo.Insert(new PortInfo()
                                     {
                                         eqpId = eqpid,
@@ -528,26 +564,72 @@ namespace EAPManage.Utils
                                         portName = "LP" + i.ToString(),
                                         accessMode = (int)AccessMode.Manual,
                                         transferState = (int)TransferStatus.OutOfService,
-                                        loopProcessState = savedState
+                                        loopProcessState = savedState,
+                                        jobMode = partnerIsValid ? oldPort.jobMode : 0,
+                                        transferRole = partnerIsValid ? oldPort.transferRole : 0,
+                                        transferPartnerPortId = partnerIsValid ? oldPort.transferPartnerPortId : 0
                                     });
                                 }
                             });
+                            var ports = DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid);
+                            TransferJobConfigPublisher.Publish(eqpid, ports);
+                            foreach (var port in ports)
+                            {
+                                SendLoopProcessStateToEap(eqpid, port.portId, port.loopProcessState);
+                            }
                             break;
                         }
                     case "EQPSTATE":
                         {
-                            res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
                             State request = XmlSerialization.DeserializeNodeObj<State>(message, "Request", "Body");
-                            var xmlBody = XmlSerialization.SerializeOnlyBody(request);
+                            var accepted = false;
+                            string failure = null;
+                            if (request == null || string.IsNullOrWhiteSpace(request.EQUIPMENTID))
+                            {
+                                failure = "EQPSTATE requires an equipment ID.";
+                            }
+                            else
+                            {
+                                lock (EqpStateVersionLock)
+                                {
+                                    if (EqpStateVersions.TryGetValue(request.EQUIPMENTID, out var latestVersion)
+                                        && request.ConnectionVersion < latestVersion)
+                                    {
+                                        failure = $"Ignored stale EQPSTATE. Version={request.ConnectionVersion}, Latest={latestVersion}.";
+                                    }
+                                    else
+                                    {
+                                        var eqpId = request.EQUIPMENTID;
+                                        var updated = DataFactory.Current.Equipment.Update(
+                                            u => u.EqpId == eqpId,
+                                            u => new Equipment { EqpStatus = (int)request.EQPState });
+                                        if (updated > 0)
+                                        {
+                                            EqpStateVersions[eqpId] = request.ConnectionVersion;
+                                            _logService.SendMessage(eqpId, "0", "EqpState", ((int)request.EQPState).ToString(), "info");
+                                            accepted = true;
+                                        }
+                                        else
+                                        {
+                                            failure = $"Equipment {eqpId} was not found while applying EQPSTATE.";
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (accepted)
+                            {
+                                res.mQHeader.RESULT = MQResult.SUCCESS.ToString();
+                            }
+                            else
+                            {
+                                res.mQHeader.RESULT = MQResult.FAILURE.ToString();
+                                Console.WriteLine(failure);
+                            }
+
+                            var xmlBody = XmlSerialization.SerializeOnlyBody(request ?? new State());
                             var xmlMessage = XmlSerialization.XmlSerializeMessage<MQReplyData>(res, xmlBody);
                             mrea.Reply(xmlMessage);
-                            var eqpState = request.EQPState;
-                            var eqpid = request.EQUIPMENTID;
-                            DataFactory.Current.Equipment.Update(u => u.EqpId == eqpid, u => new Equipment
-                            {
-                                EqpStatus = (int)eqpState
-                            });
-                            _logService.SendMessage(eqpid, "0", "EqpState", ((int)eqpState).ToString(), "info");
 
                             ////始终采集的VID
                             //var dataRules1= DataFactory.Current.DataRule.GetList(u => u.eqpId == eqpid && u.triggerType==0);
@@ -610,23 +692,8 @@ namespace EAPManage.Utils
                             var portId = request.PORT;
                             var msg = request.MESSAGE;
                             var msgType = request.TYPE;
-                            var parsedPortId = int.TryParse(portId, out var port) ? port : 0;
-                            var eqpInfo = DataFactory.Current.Equipment.GetList(u => u.EqpId == eqpid).FirstOrDefault();
-                            var portInfo = parsedPortId > 0
-                                ? DataFactory.Current.PortInfo.GetList(u => u.eqpId == eqpid && u.portId == parsedPortId).FirstOrDefault()
-                                : null;
-                            DataFactory.Current.ExceptionRecord.Insert(new ExceptionRecord()
-                            {
-                                eqpId = eqpid,
-                                eqpType = eqpInfo?.EqpType ?? string.Empty,
-                                portId = parsedPortId,
-                                portName = portInfo?.portName ?? string.Empty,
-                                lotId = portInfo?.lotId ?? string.Empty,
-                                content = msg,
-                                errorTime = DateTime.Now.ToString("yyyy-MM-dd  HH:mm:ss:fff"),
-                                state = 0
-                            });
-                            _logService.SendMessage(eqpid, portId, "Exception", msg, string.IsNullOrEmpty(msgType) ? "error" : msgType.ToLower());
+                            _logService.SendMessage(eqpid, portId, "Log", msg,
+                                string.IsNullOrEmpty(msgType) ? "error" : msgType.ToLower());
                             break;
                         }
                     case "ACCESSMODE":
@@ -725,6 +792,26 @@ namespace EAPManage.Utils
                             break;
                         }
                 }
+            }
+        }
+
+        private static void SendLoopProcessStateToEap(string eqpId, int portId, int state)
+        {
+            try
+            {
+                var xmlMessage = $@"<Request>
+                    <Header><MESSAGENAME>LOOPPROCESSSTATE</MESSAGENAME></Header>
+                    <Body>
+                        <EQUIPMENTID>{eqpId}</EQUIPMENTID>
+                        <PORTID>{portId}</PORTID>
+                        <STATE>{state}</STATE>
+                    </Body>
+                </Request>";
+                ActiveMQClient.Current.SendAsync(xmlMessage);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to sync loop process state. EqpId={eqpId}, PortId={portId}, Error={ex.Message}");
             }
         }
     }

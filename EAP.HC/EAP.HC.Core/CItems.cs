@@ -17,6 +17,7 @@ namespace EAP.HC.Core
         public static string Enable = "Enable";
         public static string ConnectionState = "ConnectionState";
         public static string ConnectionVersion = "ConnectionVersion";
+        public static string ConnectionSessionId = "ConnectionSessionId";
         public static string ConnectionRetryCount = "ConnectionRetryCount";
         public static string ConnectionLastError = "ConnectionLastError";
         public static string ConnectionLastErrorCode = "ConnectionLastErrorCode";

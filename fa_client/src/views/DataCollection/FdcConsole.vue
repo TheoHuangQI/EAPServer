@@ -3,14 +3,14 @@
     <section class="page-header">
       <div>
         <h1>FDC 数据采集</h1>
-        <p>Data Collection & Monitoring Console</p>
+        <p>数据采集与监控</p>
       </div>
       <div class="header-actions">
         <span class="status-badge" :class="'status-badge--' + systemStatus.tone">
           <span class="status-dot"></span>
           {{ systemStatus.text }}
         </span>
-        <span class="last-update">Last Update: {{ lastRefreshText }}</span>
+        <span class="last-update">最近更新：{{ lastRefreshText }}</span>
         <el-button type="primary" :loading="loading" @click="reloadAll">
           <el-icon><Refresh /></el-icon>
           刷新
@@ -20,49 +20,49 @@
 
     <section v-if="errorMessage" class="error-panel">
       <div>
-        <strong>Unable to load FDC data.</strong>
+        <strong>无法加载 FDC 数据。</strong>
         <span>{{ errorMessage }}</span>
       </div>
-      <el-button type="primary" plain @click="reloadAll">Retry</el-button>
+      <el-button type="primary" plain @click="reloadAll">重试</el-button>
     </section>
 
     <el-tabs v-model="activeTab" class="fdc-tabs" @tab-change="handleTabChange">
-      <el-tab-pane label="Overview 总览" name="overview" />
-      <el-tab-pane label="Collection 当前采集" name="collection" />
-      <el-tab-pane label="Collection Plans 采集计划" name="plans" />
-      <el-tab-pane label="Data Quality 数据质量" name="quality" />
-      <el-tab-pane label="History 历史记录" name="history" />
+      <el-tab-pane label="总览" name="overview" />
+      <el-tab-pane label="当前采集" name="collection" />
+      <el-tab-pane label="采集规则" name="plans" />
+      <el-tab-pane label="数据质量" name="quality" />
+      <el-tab-pane label="采集历史" name="history" />
     </el-tabs>
 
     <section v-show="activeTab === 'overview'" class="tab-panel">
       <div class="kpi-grid">
         <article class="kpi-card kpi-card--info">
-          <span>Data Sources</span>
+          <span>数据源</span>
           <strong>{{ equipmentList.length }}</strong>
-          <small>{{ connectedEquipmentCount }} Connected</small>
+          <small>{{ connectedEquipmentCount }} 台已连接</small>
         </article>
         <article class="kpi-card kpi-card--success">
-          <span>Active Collections</span>
+          <span>正在采集</span>
           <strong>{{ activeCollectionCount }}</strong>
-          <small>Based on rules + latest samples</small>
+          <small>根据采集规则和最新样本统计</small>
         </article>
         <article class="kpi-card kpi-card--warning">
-          <span>Samples / sec</span>
-          <strong>N/A</strong>
+          <span>每秒样本数</span>
+          <strong>暂无</strong>
           <small>后端未提供实时速率</small>
         </article>
         <article class="kpi-card" :class="'kpi-card--' + qualityOverview.tone">
-          <span>Data Quality</span>
+          <span>数据质量</span>
           <strong>{{ qualityOverview.label }}</strong>
-          <small>{{ qualityOverview.good }} Good / {{ qualityOverview.total }} Samples</small>
+          <small>{{ qualityOverview.good }} 条良好 / {{ qualityOverview.total }} 个样本</small>
         </article>
       </div>
 
       <div class="content-grid content-grid--overview">
         <section class="panel">
           <div class="panel-head">
-            <h2>Collection Status</h2>
-            <span class="panel-meta">{{ collectionRows.length }} Sources</span>
+            <h2>采集状态</h2>
+            <span class="panel-meta">{{ collectionRows.length }} 个数据源</span>
           </div>
           <el-table
             v-loading="loading"
@@ -73,8 +73,8 @@
             row-key="eqpId"
             @row-click="selectEquipmentFromRow"
           >
-            <el-table-column prop="eqpId" label="Equipment" min-width="120" sortable show-overflow-tooltip />
-            <el-table-column label="Status" width="130" sortable>
+            <el-table-column prop="eqpId" label="设备" min-width="120" sortable show-overflow-tooltip />
+            <el-table-column label="状态" width="130" sortable>
               <template #default="scope">
                 <span class="status-badge" :class="'status-badge--' + scope.row.status.tone">
                   <span class="status-dot"></span>
@@ -82,17 +82,17 @@
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="plan" label="Plan" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="job" label="Job / Lot" min-width="130" show-overflow-tooltip />
-            <el-table-column prop="sampling" label="Sampling" width="110" align="right" />
-            <el-table-column prop="samples" label="Samples" width="110" align="right" />
+            <el-table-column prop="plan" label="采集规则" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="job" label="作业 / Lot" min-width="130" show-overflow-tooltip />
+            <el-table-column prop="sampling" label="采样间隔" width="110" align="right" />
+            <el-table-column prop="samples" label="样本数" width="110" align="right" />
           </el-table>
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <h2>Data Pipeline</h2>
-            <span class="panel-meta">Current Capability</span>
+            <h2>数据链路</h2>
+            <span class="panel-meta">当前能力</span>
           </div>
           <div class="pipeline-list">
             <div v-for="item in pipelineRows" :key="item.name" class="pipeline-item">
@@ -103,15 +103,15 @@
               </span>
             </div>
           </div>
-          <el-empty v-if="pipelineRows.length === 0" :image-size="72" description="No pipeline status available" />
+          <el-empty v-if="pipelineRows.length === 0" :image-size="72" description="暂无数据链路状态" />
         </section>
       </div>
 
       <div class="content-grid content-grid--overview">
         <section class="panel">
           <div class="panel-head">
-            <h2>Data Sources</h2>
-            <span class="panel-meta">Equipment Detail</span>
+            <h2>数据源</h2>
+            <span class="panel-meta">设备详情</span>
           </div>
           <div class="source-list">
             <button
@@ -124,7 +124,7 @@
             >
               <span>
                 <b>{{ source.eqpId }}</b>
-                <small>{{ source.eqpType || 'N/A' }}</small>
+                <small>{{ source.eqpType || '暂无' }}</small>
               </span>
               <span class="status-badge" :class="'status-badge--' + source.connection.tone">
                 <span class="status-dot"></span>
@@ -132,31 +132,31 @@
               </span>
               <dl>
                 <div>
-                  <dt>Variables</dt>
+                  <dt>变量数</dt>
                   <dd>{{ source.variableCount }}</dd>
                 </div>
                 <div>
-                  <dt>Sampling</dt>
+                  <dt>采样间隔</dt>
                   <dd>{{ source.samplingRate }}</dd>
                 </div>
                 <div>
-                  <dt>Last Collection</dt>
+                  <dt>最近采集</dt>
                   <dd>{{ source.lastCollection }}</dd>
                 </div>
                 <div>
-                  <dt>Quality</dt>
+                  <dt>数据质量</dt>
                   <dd>{{ source.quality }}</dd>
                 </div>
               </dl>
             </button>
           </div>
-          <el-empty v-if="dataSources.length === 0" :image-size="72" description="No data sources" />
+          <el-empty v-if="dataSources.length === 0" :image-size="72" description="暂无数据源" />
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <h2>Recent Collection Events</h2>
-            <span class="panel-meta">{{ recentEvents.length }} Events</span>
+            <h2>最近采集事件</h2>
+            <span class="panel-meta">{{ recentEvents.length }} 个事件</span>
           </div>
           <el-timeline v-if="recentEvents.length > 0" class="event-timeline">
             <el-timeline-item
@@ -169,7 +169,7 @@
               <span>{{ event.eqpId }} / {{ event.context }}</span>
             </el-timeline-item>
           </el-timeline>
-          <el-empty v-else :image-size="72" description="No recent collection events" />
+          <el-empty v-else :image-size="72" description="暂无采集事件" />
         </section>
       </div>
     </section>
@@ -177,7 +177,7 @@
     <section v-show="activeTab === 'collection'" class="tab-panel">
       <section class="panel">
         <div class="panel-head">
-          <h2>Current Collection Context</h2>
+          <h2>当前采集上下文</h2>
           <el-select v-model="selectedEquipmentId" class="equipment-select" placeholder="选择设备">
             <el-option v-for="eqp in equipmentList" :key="eqp.eqpId" :label="eqp.eqpId" :value="eqp.eqpId" />
           </el-select>
@@ -193,24 +193,24 @@
       <div class="content-grid content-grid--collection">
         <section class="panel">
           <div class="panel-head">
-            <h2>Current Variables</h2>
+            <h2>当前变量</h2>
             <div class="inline-filters">
-              <el-input v-model="variableSearch" placeholder="Search Variable" clearable>
+              <el-input v-model="variableSearch" placeholder="搜索变量名称或 VID" clearable>
                 <template #prefix>
                   <el-icon><Search /></el-icon>
                 </template>
               </el-input>
-              <el-select v-model="qualityFilter" placeholder="Quality">
-                <el-option label="All" value="all" />
-                <el-option label="GOOD" value="GOOD" />
-                <el-option label="STALE" value="STALE" />
-                <el-option label="BAD" value="BAD" />
-                <el-option label="UNCERTAIN" value="UNCERTAIN" />
-                <el-option label="OUT_OF_RANGE" value="OUT_OF_RANGE" />
+              <el-select v-model="qualityFilter" placeholder="质量状态">
+                <el-option label="全部" value="all" />
+                <el-option label="良好（GOOD）" value="GOOD" />
+                <el-option label="过期（STALE）" value="STALE" />
+                <el-option label="异常（BAD）" value="BAD" />
+                <el-option label="不确定（UNCERTAIN）" value="UNCERTAIN" />
+                <el-option label="超出范围（OUT_OF_RANGE）" value="OUT_OF_RANGE" />
               </el-select>
               <el-button type="primary" :loading="collecting" @click="collectCurrentRules">
                 <el-icon><Refresh /></el-icon>
-                S1F3 Collect
+                执行 S1F3 采集
               </el-button>
             </div>
           </div>
@@ -224,28 +224,34 @@
             @row-click="openVariableDetail"
           >
             <el-table-column prop="vid" label="SV ID" width="90" sortable />
-            <el-table-column prop="name" label="Name" min-width="150" sortable show-overflow-tooltip />
-            <el-table-column prop="value" label="Value" width="120" align="right" sortable />
-            <el-table-column prop="unit" label="Unit" width="80" />
-            <el-table-column prop="quality" label="Quality" width="140">
+            <el-table-column prop="name" label="变量名称" min-width="150" sortable show-overflow-tooltip />
+            <el-table-column prop="value" label="当前值" width="120" align="right" sortable />
+            <el-table-column prop="unit" label="单位" width="80" />
+            <el-table-column prop="quality" label="质量状态" width="140">
               <template #default="scope">
                 <span class="status-badge" :class="'status-badge--' + qualityMeta(scope.row.quality).tone">
                   <span class="status-dot"></span>
-                  {{ scope.row.quality }}
+                  {{ qualityText(scope.row.quality) }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="timestamp" label="Timestamp" width="190" />
-            <el-table-column prop="samplingRate" label="Sampling" width="110" align="right" />
-            <el-table-column prop="source" label="Source" width="100" />
+            <el-table-column prop="timestamp" label="时间戳" width="190" />
+            <el-table-column prop="samplingRate" label="采样间隔" width="110" align="right" />
+            <el-table-column prop="source" label="来源" width="100" />
           </el-table>
-          <el-empty v-if="!trendLoading && filteredVariables.length === 0" :image-size="72" description="No active variable data" />
+          <el-empty v-if="!trendLoading && filteredVariables.length === 0" :image-size="72" description="暂无变量数据" />
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <h2>Trend</h2>
-            <el-segmented v-model="trendRangePreset" :options="trendPresets" @change="applyTrendPreset" />
+            <h2>趋势图</h2>
+            <div class="trend-panel-actions">
+              <el-segmented v-model="trendRangePreset" :options="trendPresets" @change="applyTrendPreset" />
+              <el-button type="primary" plain :loading="trendLoading" @click="fetchTrendData()">
+                <el-icon><Refresh /></el-icon>
+                刷新趋势
+              </el-button>
+            </div>
           </div>
           <div class="trend-toolbar">
             <el-select
@@ -254,7 +260,7 @@
               collapse-tags
               collapse-tags-tooltip
               :multiple-limit="6"
-              placeholder="Select variables"
+              placeholder="选择变量"
               @change="drawTrendChart"
             >
               <el-option
@@ -275,7 +281,7 @@
             />
           </div>
           <div ref="trendChart" class="trend-chart"></div>
-          <el-empty v-if="!trendLoading && trendSeries.length === 0" class="trend-empty" :image-size="72" description="No trend data in selected range" />
+          <el-empty v-if="!trendLoading && trendSeries.length === 0" class="trend-empty" :image-size="72" description="所选时间范围内暂无趋势数据" />
         </section>
       </div>
     </section>
@@ -283,9 +289,9 @@
     <section v-show="activeTab === 'plans'" class="tab-panel">
       <section class="panel">
         <div class="panel-head">
-          <h2>Collection Plans</h2>
+          <h2>采集规则</h2>
           <div class="toolbar">
-            <el-input v-model="planSearch" placeholder="Search Plan / VID / Equipment" clearable>
+            <el-input v-model="planSearch" placeholder="搜索规则 / VID / 设备" clearable>
               <template #prefix>
                 <el-icon><Search /></el-icon>
               </template>
@@ -305,14 +311,14 @@
           row-key="key"
           @row-click="openPlanDetail"
         >
-          <el-table-column prop="name" label="Plan Name" min-width="160" sortable show-overflow-tooltip />
-          <el-table-column prop="equipment" label="Equipment" width="130" sortable />
-          <el-table-column prop="trigger" label="Trigger" width="130" sortable />
-          <el-table-column prop="samplingRate" label="Sampling Rate" width="140" align="right" sortable />
-          <el-table-column prop="duration" label="Duration" width="110" align="right" />
-          <el-table-column prop="variableCount" label="Variables" width="110" align="right" sortable />
-          <el-table-column prop="version" label="Version" width="100" />
-          <el-table-column label="Status" width="130">
+          <el-table-column prop="name" label="规则名称" min-width="160" sortable show-overflow-tooltip />
+          <el-table-column prop="equipment" label="设备" width="130" sortable />
+          <el-table-column prop="trigger" label="触发方式" width="130" sortable />
+          <el-table-column prop="samplingRate" label="采样间隔" width="140" align="right" sortable />
+          <el-table-column prop="duration" label="采集时长" width="110" align="right" />
+          <el-table-column prop="variableCount" label="变量数" width="110" align="right" sortable />
+          <el-table-column prop="version" label="版本" width="100" />
+          <el-table-column label="状态" width="130">
             <template #default="scope">
               <span class="status-badge status-badge--info">
                 <span class="status-dot"></span>
@@ -328,7 +334,7 @@
                     <el-icon><Edit /></el-icon>
                   </el-button>
                 </el-tooltip>
-                <el-tooltip content="Validate" placement="top">
+                <el-tooltip content="校验规则" placement="top">
                   <el-button circle size="small" @click.stop="validatePlan(scope.row)">
                     <el-icon><CircleCheck /></el-icon>
                   </el-button>
@@ -342,7 +348,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-empty v-if="!loading && filteredPlans.length === 0" :image-size="72" description="No collection plan" />
+        <el-empty v-if="!loading && filteredPlans.length === 0" :image-size="72" description="暂无采集规则" />
       </section>
     </section>
 
@@ -358,8 +364,8 @@
       <div class="content-grid content-grid--overview">
         <section class="panel">
           <div class="panel-head">
-            <h2>Collection Health</h2>
-            <span class="panel-meta">Derived from current rules and samples</span>
+            <h2>采集健康度</h2>
+            <span class="panel-meta">根据当前规则和样本计算</span>
           </div>
           <div class="health-grid">
             <div v-for="item in collectionHealth" :key="item.label" class="health-item">
@@ -371,25 +377,25 @@
 
         <section class="panel">
           <div class="panel-head">
-            <h2>Data Quality Issues</h2>
-            <span class="panel-meta">{{ qualityIssues.length }} Issues</span>
+            <h2>数据质量问题</h2>
+            <span class="panel-meta">{{ qualityIssues.length }} 个问题</span>
           </div>
           <el-table :data="qualityIssues" height="300" stripe>
-            <el-table-column prop="timestamp" label="Time" width="190" />
-            <el-table-column prop="eqpId" label="Equipment" width="120" />
+            <el-table-column prop="timestamp" label="时间" width="190" />
+            <el-table-column prop="eqpId" label="设备" width="120" />
             <el-table-column prop="vid" label="VID" width="90" />
-            <el-table-column prop="name" label="Variable" min-width="150" show-overflow-tooltip />
-            <el-table-column prop="quality" label="Quality" width="150">
+            <el-table-column prop="name" label="变量名称" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="quality" label="质量状态" width="150">
               <template #default="scope">
                 <span class="status-badge" :class="'status-badge--' + qualityMeta(scope.row.quality).tone">
                   <span class="status-dot"></span>
-                  {{ scope.row.quality }}
+                  {{ qualityText(scope.row.quality) }}
                 </span>
               </template>
             </el-table-column>
-            <el-table-column prop="reason" label="Reason" min-width="150" show-overflow-tooltip />
+            <el-table-column prop="reason" label="原因" min-width="150" show-overflow-tooltip />
           </el-table>
-          <el-empty v-if="qualityIssues.length === 0" :image-size="72" description="No data quality issues" />
+          <el-empty v-if="qualityIssues.length === 0" :image-size="72" description="暂无数据质量问题" />
         </section>
       </div>
     </section>
@@ -397,10 +403,10 @@
     <section v-show="activeTab === 'history'" class="tab-panel">
       <section class="panel">
         <div class="panel-head panel-head--wrap">
-          <h2>Collection History</h2>
+          <h2>采集历史</h2>
           <div class="toolbar history-toolbar">
-            <el-input v-model="historyFilters.keyword" placeholder="Equipment / Job / Carrier" clearable />
-            <el-select v-model="historyFilters.status" placeholder="Status" clearable>
+            <el-input v-model="historyFilters.keyword" placeholder="设备 / 作业 / Carrier" clearable />
+            <el-select v-model="historyFilters.status" placeholder="采集状态" clearable>
               <el-option label="全部" value="" />
               <el-option label="进行中" value="Running" />
               <el-option label="已完成" value="Completed" />
@@ -427,18 +433,18 @@
           row-key="id"
           @row-click="openHistoryDetail"
         >
-          <el-table-column prop="date" label="Date" width="110" fixed sortable />
-          <el-table-column prop="equipment" label="Equipment" width="130" fixed sortable />
-          <el-table-column prop="job" label="Job / Lot" min-width="150" sortable show-overflow-tooltip />
-          <el-table-column prop="recipe" label="Recipe" width="120" />
-          <el-table-column prop="plan" label="Plan" min-width="140" show-overflow-tooltip />
-          <el-table-column prop="trigger" label="Trigger" width="130" />
-          <el-table-column prop="start" label="Start" width="170" />
-          <el-table-column prop="end" label="End" width="170" />
-          <el-table-column prop="duration" label="Duration" width="110" align="right" />
-          <el-table-column prop="samples" label="Samples" width="110" align="right" />
-          <el-table-column prop="quality" label="Data Quality" width="130" align="right" />
-          <el-table-column label="Status" width="130" fixed="right">
+          <el-table-column prop="date" label="日期" width="110" fixed sortable />
+          <el-table-column prop="equipment" label="设备" width="130" fixed sortable />
+          <el-table-column prop="job" label="作业 / Lot" min-width="150" sortable show-overflow-tooltip />
+          <el-table-column prop="recipe" label="配方" width="120" />
+          <el-table-column prop="plan" label="采集规则" min-width="140" show-overflow-tooltip />
+          <el-table-column prop="trigger" label="触发方式" width="130" />
+          <el-table-column prop="start" label="开始时间" width="170" />
+          <el-table-column prop="end" label="结束时间" width="170" />
+          <el-table-column prop="duration" label="时长" width="110" align="right" />
+          <el-table-column prop="samples" label="样本数" width="110" align="right" />
+          <el-table-column prop="quality" label="数据质量" width="130" align="right" />
+          <el-table-column label="状态" width="130" fixed="right">
             <template #default="scope">
               <span class="status-badge" :class="'status-badge--' + collectionStateMeta(scope.row.status).tone">
                 <span class="status-dot"></span>
@@ -447,7 +453,7 @@
             </template>
           </el-table-column>
         </el-table>
-        <el-empty v-if="!loading && filteredHistoryRows.length === 0" :image-size="72" description="No historical records" />
+        <el-empty v-if="!loading && filteredHistoryRows.length === 0" :image-size="72" description="暂无历史记录" />
         <div class="pagination-bar">
           <el-pagination
             v-model:current-page="historyPage.pageNo"
@@ -461,7 +467,7 @@
       </section>
     </section>
 
-    <el-drawer v-model="variableDrawerVisible" title="Variable Detail" size="420px">
+    <el-drawer v-model="variableDrawerVisible" title="变量详情" size="420px">
       <div v-if="selectedVariable" class="detail-stack">
         <h3>{{ selectedVariable.name }}</h3>
         <div class="large-value">{{ selectedVariable.value }} <span>{{ selectedVariable.unit }}</span></div>
@@ -471,65 +477,65 @@
         </span>
         <el-descriptions :column="1" border>
           <el-descriptions-item label="SVID">{{ selectedVariable.vid }}</el-descriptions-item>
-          <el-descriptions-item label="Source">{{ selectedVariable.source }}</el-descriptions-item>
-          <el-descriptions-item label="Sampling">{{ selectedVariable.samplingRate }}</el-descriptions-item>
-          <el-descriptions-item label="Last Update">{{ selectedVariable.timestamp }}</el-descriptions-item>
-          <el-descriptions-item label="Min">{{ selectedVariable.stats.min }}</el-descriptions-item>
-          <el-descriptions-item label="Max">{{ selectedVariable.stats.max }}</el-descriptions-item>
-          <el-descriptions-item label="Average">{{ selectedVariable.stats.average }}</el-descriptions-item>
-          <el-descriptions-item label="Std Dev">{{ selectedVariable.stats.stdDev }}</el-descriptions-item>
+          <el-descriptions-item label="来源">{{ selectedVariable.source }}</el-descriptions-item>
+          <el-descriptions-item label="采样间隔">{{ selectedVariable.samplingRate }}</el-descriptions-item>
+          <el-descriptions-item label="最近更新时间">{{ selectedVariable.timestamp }}</el-descriptions-item>
+          <el-descriptions-item label="最小值">{{ selectedVariable.stats.min }}</el-descriptions-item>
+          <el-descriptions-item label="最大值">{{ selectedVariable.stats.max }}</el-descriptions-item>
+          <el-descriptions-item label="平均值">{{ selectedVariable.stats.average }}</el-descriptions-item>
+          <el-descriptions-item label="标准差">{{ selectedVariable.stats.stdDev }}</el-descriptions-item>
         </el-descriptions>
       </div>
     </el-drawer>
 
-    <el-drawer v-model="planDrawerVisible" title="Collection Plan Detail" size="620px">
+    <el-drawer v-model="planDrawerVisible" title="采集规则详情" size="620px">
       <div v-if="selectedPlan" class="detail-stack">
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="Plan Name">{{ selectedPlan.name }}</el-descriptions-item>
-          <el-descriptions-item label="Description">N/A</el-descriptions-item>
-          <el-descriptions-item label="Equipment">{{ selectedPlan.equipment }}</el-descriptions-item>
-          <el-descriptions-item label="Chamber">N/A</el-descriptions-item>
-          <el-descriptions-item label="Trigger">{{ selectedPlan.trigger }}</el-descriptions-item>
-          <el-descriptions-item label="Sampling">{{ selectedPlan.samplingRate }}</el-descriptions-item>
-          <el-descriptions-item label="Duration">{{ selectedPlan.duration }}</el-descriptions-item>
-          <el-descriptions-item label="Version">N/A</el-descriptions-item>
+          <el-descriptions-item label="规则名称">{{ selectedPlan.name }}</el-descriptions-item>
+          <el-descriptions-item label="描述">暂无</el-descriptions-item>
+          <el-descriptions-item label="设备">{{ selectedPlan.equipment }}</el-descriptions-item>
+          <el-descriptions-item label="腔体">暂无</el-descriptions-item>
+          <el-descriptions-item label="触发方式">{{ selectedPlan.trigger }}</el-descriptions-item>
+          <el-descriptions-item label="采样间隔">{{ selectedPlan.samplingRate }}</el-descriptions-item>
+          <el-descriptions-item label="采集时长">{{ selectedPlan.duration }}</el-descriptions-item>
+          <el-descriptions-item label="版本">暂无</el-descriptions-item>
         </el-descriptions>
         <div class="drawer-actions">
           <el-button type="primary" @click="openPlanEditor(selectedPlan.rules[0])">编辑变量规则</el-button>
-          <el-button @click="validatePlan(selectedPlan)">Validate</el-button>
-          <el-button disabled>Enable / Disable</el-button>
+          <el-button @click="validatePlan(selectedPlan)">校验规则</el-button>
+          <el-button disabled>启用 / 停用</el-button>
         </div>
         <el-table :data="selectedPlan.rules" height="300" stripe>
           <el-table-column prop="vid" label="SV ID" width="90" />
-          <el-table-column label="Source" width="90">
+          <el-table-column label="类型" width="90">
             <template #default="scope">{{ vidTypeText(scope.row.vidType) }}</template>
           </el-table-column>
-          <el-table-column prop="interval" label="Sampling" width="110" align="right">
+          <el-table-column prop="interval" label="采样间隔" width="110" align="right">
             <template #default="scope">{{ formatSampling(scope.row.interval) }}</template>
           </el-table-column>
-          <el-table-column prop="action" label="Action" min-width="150" show-overflow-tooltip />
+          <el-table-column prop="action" label="执行动作" min-width="150" show-overflow-tooltip />
           <el-table-column label="操作" width="110" align="center">
             <template #default="scope">
-              <el-button type="primary" text @click="openPlanEditor(scope.row)">Edit</el-button>
-              <el-button type="danger" text @click="deleteRule(scope.row)">Delete</el-button>
+              <el-button type="primary" text @click="openPlanEditor(scope.row)">编辑</el-button>
+              <el-button type="danger" text @click="deleteRule(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
     </el-drawer>
 
-    <el-drawer v-model="historyDrawerVisible" title="Collection Timeline" size="460px">
+    <el-drawer v-model="historyDrawerVisible" title="采集时间线" size="460px">
       <div v-if="selectedHistory" class="detail-stack">
         <el-descriptions :column="1" border>
-          <el-descriptions-item label="Equipment">{{ selectedHistory.equipment }}</el-descriptions-item>
-          <el-descriptions-item label="Job / Lot">{{ selectedHistory.job }}</el-descriptions-item>
+          <el-descriptions-item label="设备">{{ selectedHistory.equipment }}</el-descriptions-item>
+          <el-descriptions-item label="作业 / Lot">{{ selectedHistory.job }}</el-descriptions-item>
           <el-descriptions-item label="Carrier">{{ selectedHistory.carrier }}</el-descriptions-item>
-          <el-descriptions-item label="Recipe">{{ selectedHistory.recipe }}</el-descriptions-item>
-          <el-descriptions-item label="Plan">{{ selectedHistory.plan }}</el-descriptions-item>
-          <el-descriptions-item label="Quality">{{ selectedHistory.quality }}</el-descriptions-item>
+          <el-descriptions-item label="配方">{{ selectedHistory.recipe }}</el-descriptions-item>
+          <el-descriptions-item label="采集规则">{{ selectedHistory.plan }}</el-descriptions-item>
+          <el-descriptions-item label="数据质量">{{ selectedHistory.quality }}</el-descriptions-item>
         </el-descriptions>
         <el-timeline>
-          <el-timeline-item :timestamp="selectedHistory.start" type="primary">Job Start / Collection Context Created</el-timeline-item>
+          <el-timeline-item :timestamp="selectedHistory.start" type="primary">作业开始 / 已创建采集上下文</el-timeline-item>
           <el-timeline-item
             v-for="event in selectedHistory.events"
             :key="event.id"
@@ -571,15 +577,15 @@
           </el-form-item>
           <el-form-item label="触发方式">
             <el-select v-model="editingRule.triggerType">
-              <el-option label="Continuous / EQP" :value="0" />
-              <el-option label="CEID / EVENT" :value="1" />
+              <el-option label="连续采集（EQP）" :value="0" />
+              <el-option label="事件触发（CEID / EVENT）" :value="1" />
             </el-select>
           </el-form-item>
           <el-form-item label="开始事件">
-            <el-input v-model="editingRule.startEvent" placeholder="N/A" />
+            <el-input v-model="editingRule.startEvent" placeholder="请输入开始事件" />
           </el-form-item>
           <el-form-item label="结束事件">
-            <el-input v-model="editingRule.endEvent" placeholder="N/A" />
+            <el-input v-model="editingRule.endEvent" placeholder="请输入结束事件" />
           </el-form-item>
           <el-form-item label="比对方式">
             <el-select v-model="editingRule.compareType">
@@ -601,16 +607,16 @@
           </el-form-item>
           <el-form-item label="执行动作">
             <el-checkbox-group v-model="editingRule.actions">
-              <el-checkbox :label="0">StopEqp</el-checkbox>
-              <el-checkbox :label="1">HoldLot</el-checkbox>
+              <el-checkbox :label="0">StopEqp（停止设备）</el-checkbox>
+              <el-checkbox :label="1">HoldLot（暂停 Lot）</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
         </div>
       </el-form>
       <template #footer>
         <el-button @click="ruleEditorVisible = false">取消</el-button>
-        <el-button @click="validateRule(editingRule)">Validate</el-button>
-        <el-button type="primary" :loading="savingRule" @click="saveRule">Save</el-button>
+        <el-button @click="validateRule(editingRule)">校验</el-button>
+        <el-button type="primary" :loading="savingRule" @click="saveRule">保存</el-button>
       </template>
     </el-dialog>
   </div>
@@ -711,35 +717,35 @@ export default {
         pageSize: savedState.historyPage?.pageSize || 20
       },
       trendPresets: [
-        { label: '5 min', value: '5m' },
-        { label: '30 min', value: '30m' },
-        { label: '1 hour', value: '1h' },
-        { label: '8 hour', value: '8h' },
-        { label: '24 hour', value: '24h' }
+        { label: '5 分钟', value: '5m' },
+        { label: '30 分钟', value: '30m' },
+        { label: '1 小时', value: '1h' },
+        { label: '8 小时', value: '8h' },
+        { label: '24 小时', value: '24h' }
       ]
     }
   },
   computed: {
     lastRefreshText() {
-      return this.lastRefreshAt ? this.formatDateTime(this.lastRefreshAt) : 'N/A'
+      return this.lastRefreshAt ? this.formatDateTime(this.lastRefreshAt) : '暂无'
     },
     connectedEquipmentCount() {
       return this.equipmentList.filter(item => Number(item.eqpStatus) === 1).length
     },
     activeCollectionCount() {
-      return this.collectionRows.filter(row => row.status.text === 'Running').length
+      return this.collectionRows.filter(row => row.status.code === 'running').length
     },
     systemStatus() {
       if (this.errorMessage) {
-        return { text: 'System Error', tone: 'danger' }
+        return { text: '系统异常', tone: 'danger' }
       }
       if (this.exceptionList.some(item => Number(item.state) === 0)) {
-        return { text: 'Warning', tone: 'warning' }
+        return { text: '存在告警', tone: 'warning' }
       }
       if (this.connectedEquipmentCount > 0 && this.dataRules.length > 0) {
-        return { text: 'System Normal', tone: 'success' }
+        return { text: '系统正常', tone: 'success' }
       }
-      return { text: 'Limited Data', tone: 'neutral' }
+      return { text: '数据有限', tone: 'neutral' }
     },
     selectedEquipment() {
       return this.equipmentList.find(item => item.eqpId === this.selectedEquipmentId) || null
@@ -757,18 +763,18 @@ export default {
       const selectedPlan = this.collectionPlans.find(plan => plan.equipment === this.selectedEquipmentId)
 
       return [
-        { label: 'Equipment', value: this.selectedEquipmentId || 'N/A' },
-        { label: 'Job / Lot', value: job?.lotId || port?.lotId || 'N/A' },
-        { label: 'Carrier', value: job?.carrierId || port?.carrierId || 'N/A' },
-        { label: 'Recipe', value: 'N/A' },
-        { label: 'Chamber', value: 'N/A' },
-        { label: 'Collection Plan', value: selectedPlan?.name || this.derivePlanName(this.selectedEquipmentId) },
-        { label: 'Trigger', value: selectedPlan?.trigger || 'N/A' },
-        { label: 'Start Time', value: this.normalizeTime(job?.startTime) },
-        { label: 'Duration', value: this.getDurationText(job?.startTime, job?.endTime) },
-        { label: 'Sampling Rate', value: this.getEquipmentSampling(this.selectedEquipmentId) },
-        { label: 'Current Data Rate', value: 'N/A' },
-        { label: 'Samples', value: this.getEquipmentSampleCount(this.selectedEquipmentId) }
+        { label: '设备', value: this.selectedEquipmentId || '暂无' },
+        { label: '作业 / Lot', value: job?.lotId || port?.lotId || '暂无' },
+        { label: 'Carrier', value: job?.carrierId || port?.carrierId || '暂无' },
+        { label: '配方', value: '暂无' },
+        { label: '腔体', value: '暂无' },
+        { label: '采集规则', value: selectedPlan?.name || this.derivePlanName(this.selectedEquipmentId) },
+        { label: '触发方式', value: selectedPlan?.trigger || '暂无' },
+        { label: '开始时间', value: this.normalizeTime(job?.startTime) },
+        { label: '持续时长', value: this.getDurationText(job?.startTime, job?.endTime) },
+        { label: '采样间隔', value: this.getEquipmentSampling(this.selectedEquipmentId) },
+        { label: '当前数据速率', value: '暂无' },
+        { label: '样本数', value: this.getEquipmentSampleCount(this.selectedEquipmentId) }
       ]
     },
     dataSources() {
@@ -780,11 +786,11 @@ export default {
           eqpId: eqp.eqpId,
           eqpType: eqp.eqpType,
           connection: Number(eqp.eqpStatus) === 1
-            ? { text: 'Connected', tone: 'success' }
-            : { text: 'Disconnected', tone: 'danger' },
+            ? { text: '已连接', tone: 'success' }
+            : { text: '未连接', tone: 'danger' },
           variableCount: new Set(eqpRules.map(rule => rule.vid)).size,
           samplingRate: this.getEquipmentSampling(eqp.eqpId),
-          lastCollection: latest ? latest.time : 'N/A',
+          lastCollection: latest ? latest.time : '暂无',
           quality
         }
       })
@@ -798,8 +804,8 @@ export default {
           eqpId: eqp.eqpId,
           status: this.getCollectionStatus(eqp, eqpRules, latest),
           plan: this.derivePlanName(eqp.eqpId),
-          job: job?.lotId || 'N/A',
-          recipe: 'N/A',
+          job: job?.lotId || '暂无',
+          recipe: '暂无',
           sampling: this.getEquipmentSampling(eqp.eqpId),
           samples: this.getEquipmentSampleCount(eqp.eqpId)
         }
@@ -808,24 +814,24 @@ export default {
     pipelineRows() {
       return [
         {
-          name: 'Equipment',
-          text: this.connectedEquipmentCount > 0 ? 'Normal' : 'Offline',
+          name: '设备连接',
+          text: this.connectedEquipmentCount > 0 ? '正常' : '离线',
           tone: this.connectedEquipmentCount > 0 ? 'success' : 'danger'
         },
         {
           name: 'SECS/GEM',
-          text: this.equipmentList.some(item => Number(item.eapStatus) === 1) ? 'Normal' : 'Unknown',
+          text: this.equipmentList.some(item => Number(item.eapStatus) === 1) ? '正常' : '未知',
           tone: this.equipmentList.some(item => Number(item.eapStatus) === 1) ? 'success' : 'neutral'
         },
         {
-          name: 'FDC Collector',
-          text: this.dataRules.length > 0 ? 'Configured' : 'No Plan',
+          name: 'FDC 采集器',
+          text: this.dataRules.length > 0 ? '已配置' : '未配置规则',
           tone: this.dataRules.length > 0 ? 'info' : 'neutral'
         },
-        { name: 'Data Buffer', text: 'N/A', tone: 'neutral' },
+        { name: '数据缓冲区', text: '暂无数据', tone: 'neutral' },
         {
-          name: 'Storage',
-          text: this.trendSeries.length > 0 ? 'Readable' : 'Unknown',
+          name: '数据存储',
+          text: this.trendSeries.length > 0 ? '可读取' : '未知',
           tone: this.trendSeries.length > 0 ? 'success' : 'neutral'
         }
       ]
@@ -844,12 +850,12 @@ export default {
           eqpId: series.eqpId || this.selectedEquipmentId,
           vid: series.vid,
           name: series.name || `VID-${series.vid}`,
-          value: latest ? this.formatNumber(latest.value) : 'N/A',
-          unit: 'N/A',
+          value: latest ? this.formatNumber(latest.value) : '暂无',
+          unit: '暂无',
           quality,
-          timestamp: latest ? this.normalizeTime(latest.time) : 'N/A',
-          samplingRate: rule ? this.formatSampling(rule.interval) : 'N/A',
-          source: rule ? this.vidTypeText(rule.vidType) : 'VIDValue',
+          timestamp: latest ? this.normalizeTime(latest.time) : '暂无',
+          samplingRate: rule ? this.formatSampling(rule.interval) : '暂无',
+          source: rule ? this.vidTypeText(rule.vidType) : 'VID 数据',
           stats
         }
       })
@@ -872,7 +878,8 @@ export default {
           rule.triggerType ?? 'N/A',
           rule.startEvent || '',
           rule.endEvent || '',
-          rule.interval || 0
+          rule.interval || 0,
+          rule.count || 0
         ].join('|')
 
         if (!groups.has(key)) {
@@ -885,7 +892,7 @@ export default {
             duration: this.formatDurationFromCount(rule.interval, rule.count),
             variableCount: 0,
             version: 'N/A',
-            status: 'Configured',
+            status: '已配置',
             rules: []
           })
         }
@@ -908,7 +915,7 @@ export default {
     qualityOverview() {
       const total = this.qualityStats.total
       if (total === 0) {
-        return { label: 'N/A', tone: 'neutral', good: 0, total: 0 }
+        return { label: '暂无', tone: 'neutral', good: 0, total: 0 }
       }
       const percent = (this.qualityStats.good / total) * 100
       return {
@@ -944,13 +951,13 @@ export default {
     },
     qualityCards() {
       return [
-        { label: 'Total Samples', value: this.qualityStats.total, tone: 'info', note: '当前趋势时间窗' },
-        { label: 'Good', value: this.qualityStats.good, tone: 'success', note: 'ABNORMAL_FLAG = 0' },
-        { label: 'Missing', value: 'N/A', tone: 'neutral', note: '后端未提供缺失样本计数' },
-        { label: 'Invalid / Bad', value: this.qualityStats.bad, tone: 'danger', note: 'ZeroValue 等异常标识' },
-        { label: 'Stale', value: this.qualityStats.stale, tone: 'warning', note: 'SameAsPrevious 标识' },
-        { label: 'Out Of Range', value: this.qualityStats.outOfRange, tone: 'danger', note: '基于规则阈值推断' },
-        { label: 'Data Quality', value: this.qualityOverview.label, tone: this.qualityOverview.tone, note: 'Good / Total' }
+        { label: '样本总数', value: this.qualityStats.total, tone: 'info', note: '当前趋势时间范围' },
+        { label: '良好（GOOD）', value: this.qualityStats.good, tone: 'success', note: 'ABNORMAL_FLAG = 0' },
+        { label: '缺失', value: '暂无', tone: 'neutral', note: '后端未提供缺失样本计数' },
+        { label: '无效 / 异常', value: this.qualityStats.bad, tone: 'danger', note: 'ZeroValue 等异常标识' },
+        { label: '过期（STALE）', value: this.qualityStats.stale, tone: 'warning', note: 'SameAsPrevious 标识' },
+        { label: '超出范围', value: this.qualityStats.outOfRange, tone: 'danger', note: '根据规则阈值推断' },
+        { label: '数据质量', value: this.qualityOverview.label, tone: this.qualityOverview.tone, note: '良好样本 / 总样本' }
       ]
     },
     qualityIssues() {
@@ -977,13 +984,13 @@ export default {
       const selectedRuleIntervals = this.selectedRules.map(rule => Number(rule.interval)).filter(value => Number.isFinite(value) && value > 0)
       const expected = selectedRuleIntervals.length ? Math.min(...selectedRuleIntervals) : null
       return [
-        { label: 'Expected Sampling', value: expected ? this.formatSampling(expected) : 'N/A' },
-        { label: 'Actual Sampling', value: this.getActualSamplingText() },
-        { label: 'Sampling Drift', value: 'N/A' },
-        { label: 'Data Loss', value: 'N/A' },
-        { label: 'Timestamp Drift', value: 'N/A' },
-        { label: 'Communication Loss', value: 'N/A' },
-        { label: 'Last Successful Sample', value: this.getLatestPointForEquipment(this.selectedEquipmentId)?.time || 'N/A' }
+        { label: '预期采样间隔', value: expected ? this.formatSampling(expected) : '暂无' },
+        { label: '实际采样间隔', value: this.getActualSamplingText() },
+        { label: '采样偏差', value: '暂无' },
+        { label: '数据丢失', value: '暂无' },
+        { label: '时间戳偏差', value: '暂无' },
+        { label: '通信中断', value: '暂无' },
+        { label: '最近成功采样', value: this.getLatestPointForEquipment(this.selectedEquipmentId)?.time || '暂无' }
       ]
     },
     historyRows() {
@@ -993,13 +1000,13 @@ export default {
         return {
           id: row.id,
           raw: row,
-          date: this.normalizeTime(row.startTime).slice(0, 10) || 'N/A',
-          equipment: row.eqpId || 'N/A',
-          job: row.lotId || 'N/A',
-          carrier: row.carrierId || 'N/A',
-          recipe: 'N/A',
+          date: this.normalizeTime(row.startTime).slice(0, 10) || '暂无',
+          equipment: row.eqpId || '暂无',
+          job: row.lotId || '暂无',
+          carrier: row.carrierId || '暂无',
+          recipe: '暂无',
           plan: plan?.name || this.derivePlanName(row.eqpId),
-          trigger: plan?.trigger || 'N/A',
+          trigger: plan?.trigger || '暂无',
           start: this.normalizeTime(row.startTime),
           end: this.normalizeTime(row.endTime),
           duration: this.getDurationText(row.startTime, row.endTime),
@@ -1036,9 +1043,9 @@ export default {
           id: `run-${row.id}-start`,
           time: this.normalizeTime(row.startTime),
           sortTime: Date.parse(this.normalizeTime(row.startTime)) || 0,
-          title: 'Collection Started',
-          eqpId: row.eqpId || 'N/A',
-          context: row.lotId || 'N/A',
+          title: '开始采集',
+          eqpId: row.eqpId || '暂无',
+          context: row.lotId || '暂无',
           timelineType: 'primary'
         })
         if (row.endTime) {
@@ -1046,9 +1053,9 @@ export default {
             id: `run-${row.id}-end`,
             time: this.normalizeTime(row.endTime),
             sortTime: Date.parse(this.normalizeTime(row.endTime)) || 0,
-            title: 'Collection Completed',
-            eqpId: row.eqpId || 'N/A',
-            context: row.lotId || 'N/A',
+            title: '采集完成',
+            eqpId: row.eqpId || '暂无',
+            context: row.lotId || '暂无',
             timelineType: 'success'
           })
         }
@@ -1058,9 +1065,9 @@ export default {
           id: `exception-${row.id}`,
           time: this.normalizeTime(row.errorTime),
           sortTime: Date.parse(this.normalizeTime(row.errorTime)) || 0,
-          title: Number(row.state) === 0 ? 'Warning' : 'Warning Closed',
-          eqpId: row.eqpId || 'N/A',
-          context: row.content || 'N/A',
+          title: Number(row.state) === 0 ? '告警' : '告警已解除',
+          eqpId: row.eqpId || '暂无',
+          context: row.content || '暂无',
           timelineType: Number(row.state) === 0 ? 'warning' : 'success'
         })
       })
@@ -1169,9 +1176,11 @@ export default {
           this.selectedEquipmentId = this.equipmentList[0].eqpId
         }
         this.lastRefreshAt = new Date()
-        await this.fetchTrendData({ silent: true })
+        if (options.refreshTrend !== false) {
+          await this.fetchTrendData({ silent: true })
+        }
       } catch (error) {
-        this.errorMessage = error?.message || 'Unable to load FDC data.'
+        this.errorMessage = error?.message || '加载 FDC 数据失败。'
       } finally {
         this.loading = false
       }
@@ -1207,7 +1216,7 @@ export default {
         this.drawTrendChart()
       } catch (error) {
         this.trendSeries = []
-        this.errorMessage = error?.message || 'Unable to load trend data.'
+        this.errorMessage = error?.message || '加载趋势数据失败。'
       } finally {
         this.trendLoading = false
       }
@@ -1215,7 +1224,7 @@ export default {
     startPolling() {
       if (this.pollTimer) return
       this.pollTimer = setInterval(() => {
-        this.reloadAll({ silent: true })
+        this.reloadAll({ silent: true, refreshTrend: false })
       }, POLL_INTERVAL)
     },
     stopPolling() {
@@ -1274,7 +1283,29 @@ export default {
         this.chart.setOption({
           animation: false,
           backgroundColor: 'transparent',
-          tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+          tooltip: {
+            trigger: 'axis',
+            triggerOn: 'mousemove|click',
+            axisPointer: { type: 'cross', snap: true },
+            formatter: values => {
+              const items = Array.isArray(values) ? values : [values]
+              const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+              })[character])
+              const time = items[0]?.axisValueLabel || items[0]?.axisValue
+              return [
+                time ? escapeHtml(this.normalizeTime(time)) : '',
+                ...items.map(item => {
+                  const value = Array.isArray(item.value) ? item.value[1] : item.value
+                  return `${item.marker || ''}${escapeHtml(item.seriesName)}: <strong>${this.formatNumber(value)}</strong>`
+                })
+              ].filter(Boolean).join('<br/>')
+            }
+          },
           legend: { type: 'scroll', top: 0, icon: 'circle', itemWidth: 10, itemHeight: 10 },
           grid: { left: 50, right: 22, top: 46, bottom: 48, containLabel: true },
           dataZoom: [
@@ -1319,7 +1350,15 @@ export default {
       this.historyDrawerVisible = true
     },
     openPlanEditor(rule) {
-      this.editingRule = rule ? { ...this.getDefaultRule(), ...rule, actions: [...(rule.actions || [])] } : this.getDefaultRule()
+      const defaultRule = this.getDefaultRule()
+      this.editingRule = rule
+        ? {
+            ...defaultRule,
+            ...rule,
+            limitTimes: rule.limitTimes ?? rule.allowNumber ?? defaultRule.limitTimes,
+            actions: [...(rule.actions || [])]
+          }
+        : defaultRule
       this.ruleEditorVisible = true
     },
     validateRule(rule) {
@@ -1376,7 +1415,7 @@ export default {
     },
     async collectCurrentRules() {
       if (!this.selectedEquipmentId) {
-        this.$message.warning('Please select equipment first.')
+        this.$message.warning('请先选择设备。')
         return
       }
 
@@ -1391,10 +1430,10 @@ export default {
         if (this.isOk(res)) {
           const success = res?.data?.success ?? 0
           const failed = res?.data?.failed ?? 0
-          this.$message.success(`S1F3 collected ${success} values, ${failed} failed.`)
+          this.$message.success(`S1F3 采集完成：成功 ${success} 项，失败 ${failed} 项。`)
           await this.reloadAll({ silent: true })
         } else {
-          this.$message.error(res?.MESSAGE || res?.message || 'S1F3 collect failed.')
+          this.$message.error(res?.MESSAGE || res?.message || 'S1F3 采集失败。')
         }
       } finally {
         this.collecting = false
@@ -1433,17 +1472,17 @@ export default {
       }
     },
     getPlanName(rule) {
-      return `${rule.eqpId || 'N/A'}-${this.triggerText(rule)}-${this.formatSampling(rule.interval)}`
+      return `${rule.eqpId || '暂无'}-${this.triggerText(rule)}-${this.formatSampling(rule.interval)}-${this.formatDurationFromCount(rule.interval, rule.count)}`
     },
     derivePlanName(eqpId) {
       const rule = this.dataRules.find(item => item.eqpId === eqpId)
-      return rule ? this.getPlanName(rule) : 'N/A'
+      return rule ? this.getPlanName(rule) : '暂无'
     },
     triggerText(rule) {
       if (Number(rule.triggerType) === 1) {
-        return rule.startEvent ? `CEID ${rule.startEvent}` : 'CEID / EVENT'
+        return rule.startEvent ? `事件触发（CEID ${rule.startEvent}）` : '事件触发（CEID / EVENT）'
       }
-      return 'Continuous / EQP'
+      return '连续采集（EQP）'
     },
     vidTypeText(type) {
       const map = { 0: 'DVID', 1: 'SVID', 2: 'ECID' }
@@ -1451,12 +1490,12 @@ export default {
     },
     formatSampling(value) {
       const num = Number(value)
-      if (!Number.isFinite(num) || num <= 0) return 'N/A'
-      return num >= 1 ? `${num} sec` : `${num * 1000} ms`
+      if (!Number.isFinite(num) || num <= 0) return '暂无'
+      return num >= 1 ? `${num} 秒` : `${num * 1000} 毫秒`
     },
     formatDurationFromCount(interval, count) {
       const seconds = Number(interval) * Number(count)
-      if (!Number.isFinite(seconds) || seconds <= 0) return 'Continuous'
+      if (!Number.isFinite(seconds) || seconds <= 0) return '连续采集'
       return this.formatDurationSeconds(seconds)
     },
     actionText(action) {
@@ -1474,12 +1513,12 @@ export default {
       return ports.find(port => port.carrierId || port.lotId) || null
     },
     getCollectionStatus(eqp, rules, latest) {
-      if (!eqp || Number(eqp.eqpStatus) !== 1) return { text: 'Offline', tone: 'danger' }
-      if (!rules || rules.length === 0) return { text: 'Idle', tone: 'neutral' }
-      if (!latest) return { text: 'Partial', tone: 'warning' }
+      if (!eqp || Number(eqp.eqpStatus) !== 1) return { code: 'offline', text: '未连接', tone: 'danger' }
+      if (!rules || rules.length === 0) return { code: 'idle', text: '暂无采集规则', tone: 'neutral' }
+      if (!latest) return { code: 'waiting', text: '等待采集数据', tone: 'warning' }
       const time = Date.parse(this.normalizeTime(latest.time))
-      if (Number.isFinite(time) && Date.now() - time > STALE_MS) return { text: 'Warning', tone: 'warning' }
-      return { text: 'Running', tone: 'success' }
+      if (Number.isFinite(time) && Date.now() - time > STALE_MS) return { code: 'stale', text: '数据已过期', tone: 'warning' }
+      return { code: 'running', text: '进行中', tone: 'success' }
     },
     collectionStateMeta(status) {
       const map = {
@@ -1487,7 +1526,19 @@ export default {
         Completed: { text: '已完成', tone: 'success', timelineType: 'success' },
         Error: { text: '失败', tone: 'danger', timelineType: 'danger' }
       }
-      return map[status] || { text: 'Unknown', tone: 'neutral', timelineType: 'info' }
+      return map[status] || { text: '未知', tone: 'neutral', timelineType: 'info' }
+    },
+    qualityText(status) {
+      const map = {
+        GOOD: '良好（GOOD）',
+        BAD: '异常（BAD）',
+        UNCERTAIN: '不确定（UNCERTAIN）',
+        STALE: '过期（STALE）',
+        MISSING: '缺失（MISSING）',
+        INVALID: '无效（INVALID）',
+        OUT_OF_RANGE: '超出范围（OUT_OF_RANGE）'
+      }
+      return map[status] || status || '未知'
     },
     qualityMeta(status) {
       const map = {
@@ -1511,11 +1562,11 @@ export default {
       return 'GOOD'
     },
     qualityReason(point, rule, quality) {
-      if (quality === 'OUT_OF_RANGE') return `超过采集规则阈值 ${rule?.compareMin || 'N/A'} ~ ${rule?.compareMax || 'N/A'}`
-      if (quality === 'STALE') return 'ABNORMAL_FLAG: SameAsPrevious'
-      if (quality === 'BAD') return 'ABNORMAL_FLAG: ZeroValue'
-      if (quality === 'UNCERTAIN') return 'ABNORMAL_FLAG: FirstValue'
-      return 'N/A'
+      if (quality === 'OUT_OF_RANGE') return `超出采集规则阈值 ${rule?.compareMin || '暂无'} ~ ${rule?.compareMax || '暂无'}`
+      if (quality === 'STALE') return '异常标识：SameAsPrevious（与上一值相同）'
+      if (quality === 'BAD') return '异常标识：ZeroValue（零值）'
+      if (quality === 'UNCERTAIN') return '异常标识：FirstValue（首个值）'
+      return '暂无'
     },
     isOutOfRange(value, rule) {
       if (!rule || Number(rule.compareType) !== 1) return false
@@ -1570,14 +1621,14 @@ export default {
       const count = this.trendSeries
         .filter(series => !eqpId || series.eqpId === eqpId)
         .reduce((sum, series) => sum + (Array.isArray(series.points) ? series.points.length : 0), 0)
-      return count || 'N/A'
+      return count || '暂无'
     },
     getEquipmentSampling(eqpId) {
       const intervals = this.dataRules
         .filter(rule => rule.eqpId === eqpId)
         .map(rule => Number(rule.interval))
         .filter(value => Number.isFinite(value) && value > 0)
-      return intervals.length ? this.formatSampling(Math.min(...intervals)) : 'N/A'
+      return intervals.length ? this.formatSampling(Math.min(...intervals)) : '暂无'
     },
     getEquipmentQuality(eqpId) {
       const series = this.trendSeries.filter(item => !eqpId || item.eqpId === eqpId)
@@ -1590,15 +1641,15 @@ export default {
           if (this.resolveQuality(point, rule) === 'GOOD') good += 1
         })
       })
-      return total ? ((good / total) * 100).toFixed(1) + '%' : 'N/A'
+      return total ? ((good / total) * 100).toFixed(1) + '%' : '暂无'
     },
     getActualSamplingText() {
       const points = this.trendSeries[0]?.points || []
-      if (points.length < 2) return 'N/A'
+      if (points.length < 2) return '暂无'
       const last = Date.parse(this.normalizeTime(points[points.length - 1].time))
       const prev = Date.parse(this.normalizeTime(points[points.length - 2].time))
-      if (!Number.isFinite(last) || !Number.isFinite(prev)) return 'N/A'
-      return ((last - prev) / 1000).toFixed(2) + ' sec'
+      if (!Number.isFinite(last) || !Number.isFinite(prev)) return '暂无'
+      return ((last - prev) / 1000).toFixed(2) + ' 秒'
     },
     getEventsForHistory(row) {
       return this.exceptionList
@@ -1606,15 +1657,15 @@ export default {
         .map(item => ({
           id: item.id,
           time: this.normalizeTime(item.errorTime),
-          title: Number(item.state) === 0 ? 'Alarm / Exception' : 'Exception Closed',
-          context: item.content || 'N/A',
+          title: Number(item.state) === 0 ? '告警 / 异常' : '异常已解除',
+          context: item.content || '暂无',
           timelineType: Number(item.state) === 0 ? 'warning' : 'success'
         }))
         .slice(0, 8)
     },
     calcStats(values) {
       if (!values.length) {
-        return { min: 'N/A', max: 'N/A', average: 'N/A', stdDev: 'N/A' }
+        return { min: '暂无', max: '暂无', average: '暂无', stdDev: '暂无' }
       }
       const min = Math.min(...values)
       const max = Math.max(...values)
@@ -1633,7 +1684,7 @@ export default {
       return [this.formatDateTime(new Date(now.getTime() - minutes * 60 * 1000)), this.formatDateTime(now)]
     },
     normalizeTime(value) {
-      if (!value) return 'N/A'
+      if (!value) return '暂无'
       return String(value).replace(/\s{2,}/g, ' ').replace(/:(\d{3})$/, '.$1')
     },
     formatDateTime(date) {
@@ -1643,19 +1694,19 @@ export default {
     getDurationText(start, end) {
       const startTime = Date.parse(this.normalizeTime(start))
       const endTime = end ? Date.parse(this.normalizeTime(end)) : Date.now()
-      if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return 'N/A'
+      if (!Number.isFinite(startTime) || !Number.isFinite(endTime)) return '暂无'
       return this.formatDurationSeconds(Math.max(Math.floor((endTime - startTime) / 1000), 0))
     },
     formatDurationSeconds(seconds) {
-      if (seconds < 60) return `${seconds}s`
+      if (seconds < 60) return `${seconds} 秒`
       const minutes = Math.floor(seconds / 60)
-      if (minutes < 60) return `${minutes}m ${seconds % 60}s`
+      if (minutes < 60) return `${minutes} 分 ${seconds % 60} 秒`
       const hours = Math.floor(minutes / 60)
-      return `${hours}h ${minutes % 60}m`
+      return `${hours} 小时 ${minutes % 60} 分`
     },
     formatNumber(value) {
       const num = Number(value)
-      if (!Number.isFinite(num)) return 'N/A'
+      if (!Number.isFinite(num)) return '暂无'
       return Math.abs(num) >= 100 ? num.toFixed(0) : num.toFixed(3).replace(/\.?0+$/, '')
     }
   }
@@ -2016,6 +2067,12 @@ export default {
   margin-bottom: 10px;
 }
 
+.trend-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .trend-chart {
   height: 340px;
 }
@@ -2169,6 +2226,10 @@ export default {
   .panel-head {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .trend-panel-actions {
+    flex-wrap: wrap;
   }
 
   .kpi-grid,

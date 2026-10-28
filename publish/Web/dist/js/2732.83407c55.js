@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkfa_client"]=self["webpackChunkfa_client"]||[]).push([[2732],{2732:function(n,a,e){e.r(a),e.d(a,{default:function(){return f}});var c=e(56768);const r={class:"dashboard-container"};function t(n,a,e,t,s,u){return(0,c.uX)(),(0,c.CE)("div",r)}var s={name:"Dashboard"},u=e(71241);const d=(0,u.A)(s,[["render",t],["__scopeId","data-v-60c8df08"]]);var f=d}}]);
+//# sourceMappingURL=2732.83407c55.js.map

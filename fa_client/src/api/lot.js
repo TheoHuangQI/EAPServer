@@ -7,18 +7,23 @@ export function GetLotList (paramsData) {
       })
   }
 
-export function GetLotListIdle () {
+export function GetLotListIdle (eqpId) {
     return request({
         url: '/LotInfo/Idle',
-        method: 'get'
+        method: 'get',
+        params: eqpId ? { eqpId } : undefined
       })
 }
 
 export function GetPPIDList (paramsData) {
-  const url = paramsData ? `/LotInfo/GetPPIDList/${paramsData}` : '/LotInfo/GetPPIDList';
+  const isObject = paramsData && typeof paramsData === 'object'
+  const lotId = isObject ? paramsData.lotId : paramsData
+  const eqpId = isObject ? paramsData.eqpId : ''
+  const url = lotId ? `/LotInfo/GetPPIDList/${encodeURIComponent(lotId)}` : '/LotInfo/GetPPIDList'
   return request({
-      url: url,
-      method: 'get'
+      url,
+      method: 'get',
+      params: eqpId ? { eqpId } : undefined
     })
 }
 

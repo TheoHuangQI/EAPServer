@@ -77,6 +77,43 @@ namespace EAPManage.DataBase
             {
                 Console.WriteLine(ex.Message);
             }
+
+            AddPortInfoColumn("JOB_MODE", "INTEGER DEFAULT 0");
+            AddPortInfoColumn("TRANSFER_ROLE", "INTEGER DEFAULT 0");
+            AddPortInfoColumn("TRANSFER_PARTNER_PORT_ID", "INTEGER DEFAULT 0");
+            AddLotInfoColumn("EQP_ID", "TEXT");
+        }
+
+        private void AddPortInfoColumn(string columnName, string definition)
+        {
+            try
+            {
+                if (_db.DbMaintenance.IsAnyTable("PORTINFO", false)
+                    && !_db.DbMaintenance.IsAnyColumn("PORTINFO", columnName, false))
+                {
+                    _db.Ado.ExecuteCommand($"ALTER TABLE PORTINFO ADD COLUMN {columnName} {definition}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void AddLotInfoColumn(string columnName, string definition)
+        {
+            try
+            {
+                if (_db.DbMaintenance.IsAnyTable("LOT", false)
+                    && !_db.DbMaintenance.IsAnyColumn("LOT", columnName, false))
+                {
+                    _db.Ado.ExecuteCommand($"ALTER TABLE LOT ADD COLUMN {columnName} {definition}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
 
         public SqliteHelper<User> User;

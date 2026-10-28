@@ -56,6 +56,13 @@ namespace EAPManage.Controllers
                 List<int> slots = new List<int>();
                 foreach (var lot in batch.lots)
                 {
+                    var lotInfo = DataFactory.Current.Lot.GetList(u => u.LotId == lot).FirstOrDefault();
+                    if (lotInfo == null)
+                        return Ok(new { Return = "NG", MESSAGE = $"Lot不存在: {lot}" });
+                    if (!string.IsNullOrWhiteSpace(lotInfo.EqpId)
+                        && !string.Equals(lotInfo.EqpId, batch.EqpId, StringComparison.OrdinalIgnoreCase))
+                        return Ok(new { Return = "NG", MESSAGE = $"Lot {lot} 属于设备 {lotInfo.EqpId}，不能分配给设备 {batch.EqpId}" });
+
                     List<Wafer> wafers = DataFactory.Current.Wafer.GetList(u => u.lotId == lot);
                     foreach (var wafer in wafers)
                     {
@@ -77,6 +84,7 @@ namespace EAPManage.Controllers
                     {
                         DataFactory.Current.Lot.Update(u => u.LotId == lot, u => new LotInfo
                         {
+                            EqpId = batch.EqpId,
                             BatchId = batch.BatchId,
                             LotState = LotState.WaitTrackIn
                         });
@@ -173,6 +181,10 @@ namespace EAPManage.Controllers
                         {
                             var lotInfo = DataFactory.Current.Lot.GetList(u => u.LotId == lot).FirstOrDefault();
                             lotInfo.BatchId = batch.BatchId;
+                            if (!string.IsNullOrWhiteSpace(lotInfo.EqpId)
+                                && !string.Equals(lotInfo.EqpId, batch.EqpId, StringComparison.OrdinalIgnoreCase))
+                                throw new InvalidOperationException($"Lot {lot} belongs to equipment {lotInfo.EqpId}.");
+                            lotInfo.EqpId = batch.EqpId;
                             // 只有原本是 Idle 的才改为 WaitTrackIn，如果是已经在加工的不应该随便改状态
                             if (lotInfo.LotState == LotState.Idle)
                             {
@@ -236,6 +248,7 @@ namespace EAPManage.Controllers
                     foreach (var lot in lots)
                     {
                         lot.BatchId = string.Empty;
+                        lot.EqpId = batch.EqpId;
                         lot.LotState = LotState.Idle;
                         res = DataFactory.Current.Lot.Update(lot);
                     }
@@ -293,6 +306,7 @@ namespace EAPManage.Controllers
                             foreach (var lot in lots)
                             {
                                 lot.BatchId = string.Empty;
+                                lot.EqpId = batch.EqpId;
                                 lot.LotState = LotState.Idle;
                                 res = DataFactory.Current.Lot.Update(lot);
                             }

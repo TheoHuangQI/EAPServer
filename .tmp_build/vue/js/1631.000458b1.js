@@ -1,0 +1,2 @@
+"use strict";(self["webpackChunkfa_client"]=self["webpackChunkfa_client"]||[]).push([[1631,5901],{99151:function(n,e,t){t.r(e),t.d(e,{default:function(){return f}});var a=t(56768);function c(n,e,t,c,o,r){const u=(0,a.g2)("FdcConsole");return(0,a.uX)(),(0,a.Wv)(u,{"default-tab":"history"})}var o=t(43900),r={name:"FdcDataHistoryPage",components:{FdcConsole:o["default"]}},u=t(71241);const s=(0,u.A)(r,[["render",c]]);var f=s}}]);
+//# sourceMappingURL=1631.000458b1.js.map
